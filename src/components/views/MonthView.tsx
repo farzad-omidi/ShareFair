@@ -6,6 +6,7 @@ import { useUI } from "@/lib/ui";
 import { calcMonth, monthName } from "@/lib/domain";
 import { money } from "@/lib/format";
 import { memberVars } from "@/lib/palettes";
+import { MemberAvatar } from "@/components/Avatar";
 import type { EntryRow } from "@/lib/types";
 import { IconSwap, IconUndo, IconReceipt } from "@/components/icons";
 
@@ -122,7 +123,7 @@ function EntryItem({ entry: e, onClick }: { entry: EntryRow; onClick: () => void
         <strong>{cat?.name ?? "Other"}</strong>
         <small>
           <span className="member-name-line" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            <span className="mini-dot" style={memberVars(payer?.palette)}></span>
+            <MemberAvatar member={payer} size={15} maxLetters={1} />
             {payer?.display_name ?? "Someone"}
           </span>{" "}
           · {e.entry_date}

@@ -28,7 +28,7 @@
 
   --shadow: 0 10px 28px rgba(32, 24, 14, 0.08);
   --shadow2: 0 6px 16px rgba(32, 24, 14, 0.06);
-  --r-lg: 22px;
+  --r-lg: 24px;
   --r-md: 16px;
   --r-sm: 12px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -296,11 +296,18 @@ button {
   text-align: center;
   color: var(--accent);
 }
-.dot {
-  width: 11px;
-  height: 11px;
+.initial-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
   background: var(--member-accent, var(--accent));
+  color: #fff8f2;
+  font-weight: 800;
+  line-height: 1;
+  flex: none;
+}
+.member-card > .initial-circle {
   margin-bottom: 12px;
 }
 .member-card strong {
@@ -351,8 +358,9 @@ button {
   white-space: nowrap;
   flex: none;
 }
-.payer-badge .mini-dot {
-  background: #fff8f2;
+.payer-badge .initial-circle {
+  background: rgba(255, 248, 242, 0.22);
+  color: #fff8f2;
 }
 
 .chips {
@@ -390,15 +398,7 @@ button {
   margin-left: 5px;
   opacity: 0.65;
 }
-.mini-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  background: var(--member-accent, var(--accent));
-  flex: none;
-}
-.chip.active .mini-dot {
-  background: var(--member-accent, var(--accent));
+.chip.active .initial-circle {
   box-shadow: 0 0 0 2px var(--on-surface);
 }
 
@@ -462,6 +462,7 @@ button {
   line-height: 1;
   color: var(--on-surface);
   font-family: var(--sans);
+  font-variant-numeric: tabular-nums;
 }
 .amount::placeholder {
   color: rgba(245, 239, 227, 0.24);
@@ -567,6 +568,7 @@ button {
   letter-spacing: -0.03em;
   margin: 8px 0 4px;
   color: var(--member-accent, var(--accent));
+  font-variant-numeric: tabular-nums;
 }
 .big-money.zero {
   color: #9bc27f;
@@ -642,6 +644,7 @@ button {
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--member-accent, var(--on-surface));
+  font-variant-numeric: tabular-nums;
 }
 .metric small {
   display: block;
@@ -698,6 +701,7 @@ button {
 .entry-amount {
   font-weight: 800;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .entry-amount.credit {
   color: #9bc27f;
@@ -757,8 +761,11 @@ button {
   font-size: 17px;
   font-weight: 800;
   color: var(--accent-dark);
+  font-variant-numeric: tabular-nums;
 }
 .debt-row small {
+  display: block;
+  margin-top: 3px;
   color: var(--on-surface-muted);
 }
 .debt-row .ghost {
@@ -788,6 +795,7 @@ button {
   font-size: 13px;
   font-weight: 800;
   color: var(--member-accent, var(--on-surface));
+  font-variant-numeric: tabular-nums;
 }
 
 .chart-bars {
@@ -1091,7 +1099,7 @@ button {
 @media (max-width: 370px) {
   .card {
     padding: 14px;
-    border-radius: 22px;
+    border-radius: 24px;
   }
   .metric-grid,
   .grid2,
