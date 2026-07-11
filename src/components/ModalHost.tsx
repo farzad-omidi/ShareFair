@@ -38,7 +38,7 @@ function MonthModal({ onClose }: { onClose: () => void }) {
   return (
     <ModalSheet onClose={onClose}>
       <h3>Choose month</h3>
-      <p className="sub">Select the month you want to view.</p>
+      <p className="sub">Jump to any month to see its activity.</p>
       <div className="field">
         <label>Month</label>
         <input className="input" type="month" value={val} onChange={(e) => setVal(e.target.value)} />
@@ -121,7 +121,7 @@ function CategoryManagerModal({ onClose }: { onClose: () => void }) {
 }
 
 function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () => void }) {
-  const { members, updateMyMembership, activeSpace, profile } = useSpace();
+  const { members, updateMyMembership, profile } = useSpace();
   const m = members.find((x) => x.id === memberId);
   const canEdit = !!m && !!profile && m.user_id === profile.id;
   const [name, setName] = useState(m?.display_name || "");
@@ -134,8 +134,8 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
       <h3>{canEdit ? "Your profile" : m.display_name}</h3>
       <p className="sub">
         {canEdit
-          ? "Choose a soft identity color so it's clear who's paying before an expense is added."
-          : `Member of ${activeSpace?.name ?? "this space"}. Only they can change their own name and color.`}
+          ? "Pick a color — it helps everyone spot your entries at a glance."
+          : `Only ${m.display_name} can change their own name and color.`}
       </p>
       {canEdit ? (
         <>
@@ -326,7 +326,7 @@ function JoinSpaceModal({ onClose }: { onClose: () => void }) {
             const res = await joinSpaceByCode(code);
             setBusy(false);
             if (res.ok) onClose();
-            else setError(res.error || "Invalid invite code");
+            else setError(res.error || "That invite code doesn't look right");
           }}
         >
           {busy ? "Joining…" : "Join"}

@@ -217,7 +217,7 @@ export function SpaceProvider({
     async (code: string) => {
       const { data, error } = await supabase.rpc("redeem_invite", { p_code: code.trim() });
       if (error || !data) {
-        return { ok: false, error: error?.message || "Invalid invite code" };
+        return { ok: false, error: error?.message || "That invite code doesn't look right" };
       }
       await loadSpaces();
       switchSpace(data);
