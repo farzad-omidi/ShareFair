@@ -341,6 +341,21 @@ button {
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
+.grid2 > * {
+  /* grid items default to min-width: auto, which lets a native form control's
+     intrinsic content width (e.g. a date input's internal segments) push past
+     its track and overlap the next column instead of shrinking to fit. */
+  min-width: 0;
+}
+
+/* section-gap: one consistent top margin for the stacked blocks inside a
+   .card, replacing a handful of near-identical but differing inline values. */
+.section-gap {
+  margin-top: 16px;
+}
+.subhead {
+  margin: 16px 0 10px;
+}
 .grid3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -612,6 +627,29 @@ button {
   border: 1.5px solid var(--line);
   font-weight: 700;
   font-size: 13.5px;
+}
+/* Native <input type="date"> draws its own internal segments/icon in a
+   browser-controlled shadow DOM that ignores things like text-align and can
+   report an intrinsic width wider than its box on some engines, spilling into
+   neighboring grid content. Styling this wrapper instead of the input, and
+   stripping the input down to a transparent, unstyled fill, keeps whatever
+   the browser draws clipped to a box we actually control. */
+.date-field {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.date-field input[type="date"] {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  outline: 0;
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 13.5px;
+  font-family: inherit;
 }
 .danger {
   padding: 10px 14px;
