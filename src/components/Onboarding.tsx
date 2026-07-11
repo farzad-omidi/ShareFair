@@ -29,7 +29,7 @@ export function Onboarding() {
     setError(null);
     const res = await joinSpaceByCode(code);
     setBusy(false);
-    if (!res.ok) setError(res.error || "Invalid invite code");
+    if (!res.ok) setError(res.error || "That invite code doesn't look right");
   }
 
   return (

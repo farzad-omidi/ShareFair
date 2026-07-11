@@ -16,7 +16,7 @@ export function JoinRedeemer({ code }: { code: string }) {
       const { data, error } = await supabase.rpc("redeem_invite", { p_code: code });
       if (cancelled) return;
       if (error || !data) {
-        setError(error?.message || "This invite link is invalid or has expired.");
+        setError(error?.message || "That invite link doesn't work anymore — ask for a new one.");
         return;
       }
       if (typeof window !== "undefined") {

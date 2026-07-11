@@ -57,7 +57,7 @@ export function SettleView() {
         <div className="card-title">
           <div>
             <h2>Settle gently</h2>
-            <p>Open balances include earlier unpaid months until marked as settled.</p>
+            <p>Balances carry over from earlier months until you settle them.</p>
           </div>
         </div>
         {debts.length === 0 ? (
@@ -122,7 +122,7 @@ export function SettleView() {
         <div className="card-title">
           <div>
             <h2>Why this amount?</h2>
-            <p>A transparent running balance for this shared space.</p>
+            <p>See exactly how each person&apos;s balance adds up.</p>
           </div>
         </div>
         <div className="detail-grid">
@@ -142,8 +142,7 @@ export function SettleView() {
           })}
         </div>
         <p className="mini" style={{ lineHeight: 1.5, marginTop: 10 }}>
-          Positive means this person has paid more than their share and should receive. Negative means
-          this person should settle with someone else.
+          Green means they&apos;re owed money. Terracotta means they owe.
         </p>
       </div>
     </>

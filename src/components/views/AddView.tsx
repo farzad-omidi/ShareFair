@@ -148,7 +148,7 @@ export function AddView() {
           <div className="payer-now" style={memberVars(payerPalette)}>
             <div>
               <strong>Paying now as {payer.display_name}</strong>
-              <small>The next entry will be recorded under this person.</small>
+              <small>This expense will be added as {payer.display_name}.</small>
             </div>
             <span className="payer-badge">
               <MemberAvatar member={payer} size={18} maxLetters={1} />
@@ -237,7 +237,7 @@ export function AddView() {
           </div>
           {splitMethod === "equal" ? (
             <p className="mini" style={{ margin: "10px 0 0" }}>
-              Split equally between {participantIds.size} selected people.
+              Split equally between {participantIds.size} people.
             </p>
           ) : (
             <div className="field">
@@ -287,7 +287,7 @@ export function AddView() {
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Now</h2>
+            <h2>Your balance</h2>
             <p>Through {monthName(selectedMonth)}</p>
           </div>
         </div>

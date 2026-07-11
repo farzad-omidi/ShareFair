@@ -83,7 +83,7 @@ function LoginForm() {
               </div>
               {linkError && (
                 <p className="mini" style={{ color: "var(--red)", marginBottom: 8 }}>
-                  That link was invalid or expired. Please request a new one.
+                  That sign-in link doesn&apos;t work anymore — request a new one below.
                 </p>
               )}
               <form onSubmit={handleSubmit}>
