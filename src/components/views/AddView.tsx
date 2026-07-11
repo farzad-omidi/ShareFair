@@ -109,8 +109,10 @@ export function AddView() {
               style={memberVars(m.palette)}
               onClick={() => setPayerIdOverride(m.user_id)}
             >
-              <MemberAvatar member={m} size={32} />
-              <strong>{m.display_name}</strong>
+              <div className="member-card-row">
+                <MemberAvatar member={m} size={26} />
+                <strong>{m.display_name}</strong>
+              </div>
               <small>{payerId === m.user_id ? "Selected payer" : "Tap to pay as"}</small>
             </button>
           ))}

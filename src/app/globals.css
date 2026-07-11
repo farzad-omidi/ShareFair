@@ -322,12 +322,12 @@ button {
 
 /* member-card: unselected = flat outline card, selected = soft neumorphic module
    with a colored ring in the member's accent — selection reads through color and
-   depth, not through a dark fill. */
+   depth, not through a dark fill. Icon + name share a row so the card only needs
+   two lines of height, not three. */
 .member-card {
   position: relative;
   overflow: hidden;
-  min-height: 68px;
-  padding: 11px;
+  padding: 10px 11px;
   border-radius: var(--r-md);
   text-align: left;
   background: var(--paper);
@@ -370,13 +370,18 @@ button {
   line-height: 1;
   flex: none;
 }
-.member-card > .initial-circle {
-  margin-bottom: 12px;
+.member-card-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 .member-card strong {
-  display: block;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 750;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .member-card small {
   display: block;
@@ -1206,27 +1211,33 @@ button {
   margin-top: 2px;
 }
 .color-choice {
-  padding: 10px 8px;
+  padding: 8px 9px;
   border-radius: var(--r-sm);
   border: 1.5px solid var(--line);
   background: var(--paper);
-  display: grid;
-  place-items: center;
-  gap: 5px;
-  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
   font-weight: 700;
   color: var(--muted);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.color-choice:active {
+  transform: scale(0.94);
 }
 .color-choice.active {
   border-color: var(--member-accent, var(--accent));
   color: var(--ink);
   background: var(--solid);
+  transform: scale(1.03);
 }
 .color-choice span {
-  width: 22px;
-  height: 22px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--member-accent, var(--accent));
+  flex: none;
 }
 
 .switch-line {
