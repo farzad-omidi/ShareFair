@@ -14,3 +14,11 @@ export function symbol(currency: string): string {
 export function parseAmount(v: string): number {
   return Number(String(v ?? "").replace(/[€$£₺]/g, "").replace(/\s/g, "").replace(",", "."));
 }
+
+export function initials(name: string, maxLetters = 2): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  return words
+    .slice(0, maxLetters)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("") || "?";
+}

@@ -6,6 +6,7 @@ import { useUI } from "@/lib/ui";
 import { today, calcThrough, simplify, monthName } from "@/lib/domain";
 import { money, symbol, parseAmount } from "@/lib/format";
 import { memberVars, paletteFor } from "@/lib/palettes";
+import { MemberAvatar } from "@/components/Avatar";
 import type { SplitType } from "@/lib/types";
 
 export function AddView() {
@@ -107,7 +108,7 @@ export function AddView() {
               style={memberVars(m.palette)}
               onClick={() => setPayerIdOverride(m.user_id)}
             >
-              <span className="dot"></span>
+              <MemberAvatar member={m} size={32} />
               <strong>{m.display_name}</strong>
               <small>{payerId === m.user_id ? "Selected payer" : "Tap to pay as"}</small>
             </button>
@@ -121,7 +122,7 @@ export function AddView() {
               <small>The next entry will be recorded under this person.</small>
             </div>
             <span className="payer-badge">
-              <span className="mini-dot"></span>
+              <MemberAvatar member={payer} size={18} maxLetters={1} />
               {paletteFor(payerPalette).name}
             </span>
           </div>
@@ -199,7 +200,7 @@ export function AddView() {
                   style={memberVars(m.palette)}
                   onClick={() => toggleParticipant(m.user_id)}
                 >
-                  <span className="mini-dot"></span>
+                  <MemberAvatar member={m} size={16} maxLetters={1} />
                   {m.display_name}
                 </button>
               ))}
@@ -272,8 +273,10 @@ export function AddView() {
           <div className="hero">
             <div className="hero-label">To settle</div>
             <div className="flow">
+              <MemberAvatar member={members.find((m) => m.user_id === debts[0].fromId)} size={22} maxLetters={1} />
               <span>{members.find((m) => m.user_id === debts[0].fromId)?.display_name}</span>
               <span className="arrow">→</span>
+              <MemberAvatar member={members.find((m) => m.user_id === debts[0].toId)} size={22} maxLetters={1} />
               <span>{members.find((m) => m.user_id === debts[0].toId)?.display_name}</span>
             </div>
             <div className="big-money">{money(debts[0].amount, activeSpace?.currency)}</div>

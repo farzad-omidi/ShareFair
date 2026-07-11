@@ -5,6 +5,7 @@ import { useSpace } from "@/lib/store";
 import { calcThrough, simplify, monthName } from "@/lib/domain";
 import { money } from "@/lib/format";
 import { memberVars } from "@/lib/palettes";
+import { MemberAvatar } from "@/components/Avatar";
 
 export function SettleView() {
   const { entries, members, categories, selectedMonth, activeSpace, settle, showToast } = useSpace();
@@ -18,8 +19,11 @@ export function SettleView() {
   );
   const debts = useMemo(() => simplify(balances), [balances]);
 
+  function memberFor(userId: string) {
+    return members.find((m) => m.user_id === userId);
+  }
   function nameFor(userId: string) {
-    return members.find((m) => m.user_id === userId)?.display_name ?? "Someone";
+    return memberFor(userId)?.display_name ?? "Someone";
   }
 
   return (
@@ -38,8 +42,11 @@ export function SettleView() {
             <div className="debt-row" key={`${d.fromId}-${d.toId}`}>
               <div className="top">
                 <div>
-                  <strong>
-                    {nameFor(d.fromId)} → {nameFor(d.toId)}
+                  <strong style={{ display: "inline-flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <MemberAvatar member={memberFor(d.fromId)} size={20} maxLetters={1} />
+                    {nameFor(d.fromId)} →{" "}
+                    <MemberAvatar member={memberFor(d.toId)} size={20} maxLetters={1} />
+                    {nameFor(d.toId)}
                   </strong>
                   <small className="mini">Open through {monthName(selectedMonth)}</small>
                 </div>

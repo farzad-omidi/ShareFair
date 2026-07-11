@@ -2,7 +2,8 @@
 
 import { useSpace } from "@/lib/store";
 import { useUI } from "@/lib/ui";
-import { memberVars, paletteFor } from "@/lib/palettes";
+import { paletteFor } from "@/lib/palettes";
+import { MemberAvatar } from "@/components/Avatar";
 
 export function MoreView() {
   const { spaces, activeSpaceId, switchSpace, members, profile, userEmail, entries, categories, activeSpace, signOut } =
@@ -84,7 +85,7 @@ export function MoreView() {
         {members.map((m) => (
           <div className="row" key={m.id}>
             <div className="member-name-line" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span className="mini-dot" style={memberVars(m.palette)}></span>
+              <MemberAvatar member={m} size={26} />
               <div>
                 <strong>{m.display_name}</strong>
                 <small>
