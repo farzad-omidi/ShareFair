@@ -2,13 +2,15 @@
 
 import { useUI } from "@/lib/ui";
 import type { UiView } from "@/lib/types";
+import { IconPlus, IconGrid, IconSwap, IconPulse, IconDots } from "@/components/icons";
+import type { ComponentType, SVGProps } from "react";
 
-const items: { view: UiView; icon: string; label: string }[] = [
-  { view: "Add", icon: "＋", label: "Add" },
-  { view: "Month", icon: "⌂", label: "Month" },
-  { view: "Settle", icon: "↔", label: "Settle" },
-  { view: "Insights", icon: "∿", label: "Rhythm" },
-  { view: "More", icon: "⋯", label: "More" },
+const items: { view: UiView; Icon: ComponentType<SVGProps<SVGSVGElement>>; label: string }[] = [
+  { view: "Add", Icon: IconPlus, label: "Add" },
+  { view: "Month", Icon: IconGrid, label: "Month" },
+  { view: "Settle", Icon: IconSwap, label: "Settle" },
+  { view: "Insights", Icon: IconPulse, label: "Rhythm" },
+  { view: "More", Icon: IconDots, label: "More" },
 ];
 
 export function BottomNav() {
@@ -21,7 +23,7 @@ export function BottomNav() {
           className={view === item.view ? "active" : ""}
           onClick={() => setView(item.view)}
         >
-          <span>{item.icon}</span>
+          <item.Icon />
           <span>{item.label}</span>
         </button>
       ))}

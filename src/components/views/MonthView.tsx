@@ -7,6 +7,7 @@ import { calcMonth, monthName } from "@/lib/domain";
 import { money } from "@/lib/format";
 import { memberVars } from "@/lib/palettes";
 import type { EntryRow } from "@/lib/types";
+import { IconSwap, IconUndo, IconReceipt } from "@/components/icons";
 
 export function MonthView() {
   const { entries, members, categories, selectedMonth, activeSpace } = useSpace();
@@ -95,7 +96,9 @@ function EntryItem({ entry: e, onClick }: { entry: EntryRow; onClick: () => void
     const to = members.find((m) => m.user_id === e.to_id);
     return (
       <button className="entry" onClick={onClick}>
-        <span className="entry-ico settle">↔</span>
+        <span className="entry-ico settle">
+          <IconSwap width={16} height={16} />
+        </span>
         <span>
           <strong>
             {from?.display_name ?? "Someone"} settled with {to?.display_name ?? "someone"}
@@ -113,7 +116,7 @@ function EntryItem({ entry: e, onClick }: { entry: EntryRow; onClick: () => void
   return (
     <button className="entry" onClick={onClick}>
       <span className="entry-ico member" style={memberVars(payer?.palette)}>
-        {e.kind === "credit" ? "↩" : "•"}
+        {e.kind === "credit" ? <IconUndo width={16} height={16} /> : <IconReceipt width={16} height={16} />}
       </span>
       <span>
         <strong>{cat?.name ?? "Other"}</strong>
