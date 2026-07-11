@@ -294,9 +294,9 @@ export function AddView() {
         {debts.length === 0 ? (
           <div className="hero balanced">
             <div className="hero-label">To settle</div>
-            <div className="flow">You are balanced</div>
+            <div className="flow">You&apos;re all square</div>
             <div className="big-money zero">{money(0, activeSpace?.currency)}</div>
-            <div className="hero-text">No open balance for this space through {monthName(selectedMonth)}.</div>
+            <div className="hero-text">Everyone&apos;s settled through {monthName(selectedMonth)}.</div>
           </div>
         ) : (
           <div className="hero">
@@ -308,7 +308,16 @@ export function AddView() {
               <MemberAvatar member={members.find((m) => m.user_id === debts[0].toId)} size={22} maxLetters={1} />
               <span>{members.find((m) => m.user_id === debts[0].toId)?.display_name}</span>
             </div>
-            <div className="big-money">
+            <div
+              className="big-money"
+              style={
+                profile?.id === debts[0].toId
+                  ? { color: "var(--green)" }
+                  : profile?.id === debts[0].fromId
+                    ? { color: "var(--accent-dark)" }
+                    : undefined
+              }
+            >
               <AnimatedMoney value={debts[0].amount} currency={activeSpace?.currency} />
             </div>
             <div className="hero-text">Includes current month and any earlier open balance not yet settled.</div>
