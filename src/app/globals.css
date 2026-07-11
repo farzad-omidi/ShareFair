@@ -14,6 +14,16 @@
   --surface2: #2b271f;
   --on-surface: #f5efe3;
   --on-surface-muted: #b3a898;
+  --on-accent: #fff8f2;
+
+  /* a warmer, less stark dark tone for selected chip/segment pills — --surface
+     itself stays reserved for the bottom nav and toast (kept as-is per
+     feedback), so a small selection pill doesn't read as jarring near-black
+     against the light page. */
+  --surface-soft: #4f4338;
+
+  /* translucent + blurred bottom nav — same hue as --surface, softened */
+  --nav-bg: rgba(34, 31, 25, 0.82);
 
   /* soft neumorphic "module" surface — the large content cards (entries, hero,
      stats, debts). Distinguished from the page background by shadow, not by
@@ -78,6 +88,10 @@
     --surface2: #1a1611;
     --on-surface: #f1e9db;
     --on-surface-muted: #93887a;
+    /* dark mode already reads dark everywhere, so no need to soften — keep
+       selection pills matching the bottom nav's tone */
+    --surface-soft: #100d0a;
+    --nav-bg: rgba(16, 13, 10, 0.82);
 
     --module: #1c1812;
     --module2: #241f18;
@@ -212,7 +226,9 @@ button {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--muted);
+  /* always sits over the coral header blob, so it needs to stay light for
+     contrast rather than the usual muted brown */
+  color: var(--on-accent);
   margin-bottom: 6px;
   font-weight: 700;
 }
@@ -315,7 +331,7 @@ button {
   transform: scale(0.94);
 }
 .segment button.active {
-  background: var(--surface);
+  background: var(--surface-soft);
   color: var(--on-surface);
   transform: scale(1.03);
 }
@@ -378,7 +394,7 @@ button {
   justify-content: center;
   border-radius: 999px;
   background: radial-gradient(circle at 32% 28%, var(--member-accent, var(--accent)) 0%, var(--member-dark, var(--accent-dark)) 100%);
-  color: #fff8f2;
+  color: var(--on-accent);
   font-weight: 800;
   line-height: 1;
   flex: none;
@@ -433,7 +449,7 @@ button {
   padding: 7px 11px;
   border-radius: 999px;
   background: radial-gradient(circle at 32% 28%, var(--member-accent, var(--accent)) 0%, var(--member-dark, var(--accent-dark)) 100%);
-  color: #fff8f2;
+  color: var(--on-accent);
   font-size: 11px;
   font-weight: 800;
   white-space: nowrap;
@@ -441,13 +457,18 @@ button {
 }
 .payer-badge .initial-circle {
   background: rgba(255, 248, 242, 0.22);
-  color: #fff8f2;
+  color: var(--on-accent);
 }
 
 .chips {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+.space-tabs {
+  position: relative;
+  z-index: 1;
+  margin: 4px 2px 12px;
 }
 .chip {
   padding: 8px 12px;
@@ -470,7 +491,7 @@ button {
   transform: scale(0.94);
 }
 .chip.active {
-  background: var(--surface);
+  background: var(--surface-soft);
   color: var(--on-surface);
   border-color: transparent;
   transform: scale(1.04);
@@ -566,7 +587,7 @@ button {
   padding: 12px 16px;
   border-radius: var(--r-md);
   background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  color: #fff8f2;
+  color: var(--on-accent);
   font-size: 14.5px;
   font-weight: 800;
   transition: 0.15s;
@@ -953,7 +974,9 @@ button {
   gap: 4px;
   padding: 7px;
   border-radius: 999px;
-  background: var(--surface);
+  background: var(--nav-bg);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
   z-index: 20;
   box-shadow: var(--shadow);
 }
@@ -980,7 +1003,7 @@ button {
 }
 .bottom-nav button.active {
   background: var(--accent);
-  color: #fff8f2;
+  color: var(--on-accent);
   transform: scale(1.06);
 }
 

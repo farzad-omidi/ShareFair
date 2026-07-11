@@ -52,7 +52,7 @@ type SpaceContextValue = {
   addEntry: (input: NewEntryInput) => Promise<void>;
   updateEntry: (
     id: string,
-    patch: { amount?: number; note?: string; splitValues?: Record<string, number> }
+    patch: { amount?: number; note?: string; date?: string; splitValues?: Record<string, number> }
   ) => Promise<void>;
   deleteEntry: (id: string) => Promise<void>;
   settle: (fromId: string, toId: string, amount: number) => Promise<void>;
@@ -267,10 +267,17 @@ export function SpaceProvider({
   );
 
   const updateEntry = useCallback(
-    async (id: string, patch: { amount?: number; note?: string; splitValues?: Record<string, number> }) => {
-      const { splitValues, ...rest } = patch;
+    async (
+      id: string,
+      patch: { amount?: number; note?: string; date?: string; splitValues?: Record<string, number> }
+    ) => {
+      const { splitValues, date, ...rest } = patch;
       const dbPatch: TablesUpdate<"entries"> = { ...rest };
       if (splitValues) dbPatch.split_values = splitValues;
+      if (date) {
+        dbPatch.entry_date = date;
+        dbPatch.month = monthKey(date);
+      }
       const { error } = await supabase.from("entries").update(dbPatch).eq("id", id);
       if (error) {
         showToast("Could not save changes");

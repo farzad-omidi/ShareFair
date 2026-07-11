@@ -341,6 +341,7 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
   const e = entries.find((x) => x.id === entryId);
   const [amount, setAmount] = useState(e ? String(e.amount) : "");
   const [note, setNote] = useState(e?.note || "");
+  const [date, setDate] = useState(e?.entry_date || "");
 
   if (!e) return null;
 
@@ -383,6 +384,10 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
         <label>Note</label>
         <input className="input" value={note} onChange={(ev) => setNote(ev.target.value)} />
       </div>
+      <div className="field">
+        <label>Date</label>
+        <input className="input" type="date" value={date} onChange={(ev) => setDate(ev.target.value)} />
+      </div>
       <div className="modal-actions">
         <button
           className="danger"
@@ -398,10 +403,12 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
           onClick={async () => {
             const a = Number(String(amount).replace(",", "."));
             if (!a || a <= 0) return;
+            if (!date) return;
             const rounded = Math.round(a * 100) / 100;
-            const patch: { amount: number; note: string; splitValues?: Record<string, number> } = {
+            const patch: { amount: number; note: string; date: string; splitValues?: Record<string, number> } = {
               amount: rounded,
               note: note.trim(),
+              date,
             };
             // "amounts" splits are absolute values pinned to the old total; rescale them
             // proportionally so they still add up to the new amount.
