@@ -11,7 +11,19 @@ import { AnimatedMoney } from "@/components/AnimatedMoney";
 import type { SplitType } from "@/lib/types";
 
 export function AddView() {
-  const { members, categories, profile, activeSpace, addEntry, selectedMonth, entries, showToast } = useSpace();
+  const {
+    members,
+    categories,
+    profile,
+    activeSpace,
+    activeSpaceId,
+    spaces,
+    switchSpace,
+    addEntry,
+    selectedMonth,
+    entries,
+    showToast,
+  } = useSpace();
   const { openModal } = useUI();
 
   const myMember = members.find((m) => m.user_id === profile?.id) ?? members[0];
@@ -90,6 +102,20 @@ export function AddView() {
 
   return (
     <>
+      {spaces.length > 1 && (
+        <div className="chips space-tabs">
+          {spaces.map((s) => (
+            <button
+              key={s.id}
+              className={`chip${s.id === activeSpaceId ? " active" : ""}`}
+              onClick={() => s.id !== activeSpaceId && switchSpace(s.id)}
+            >
+              {s.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="card">
         <div className="card-title">
           <div>
