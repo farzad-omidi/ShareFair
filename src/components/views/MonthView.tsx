@@ -7,6 +7,7 @@ import { calcMonth, monthName } from "@/lib/domain";
 import { money } from "@/lib/format";
 import { memberVars } from "@/lib/palettes";
 import { MemberAvatar } from "@/components/Avatar";
+import { AnimatedMoney } from "@/components/AnimatedMoney";
 import type { EntryRow } from "@/lib/types";
 import { IconSwap, IconUndo, IconReceipt } from "@/components/icons";
 
@@ -51,13 +52,17 @@ export function MonthView() {
         <div className="metric-grid">
           <div className="metric wide">
             <span>Total shared</span>
-            <strong>{money(summary.total, activeSpace?.currency)}</strong>
+            <strong>
+              <AnimatedMoney value={summary.total} currency={activeSpace?.currency} />
+            </strong>
             <small>{filterHousing ? "Housing categories hidden" : "All categories included"}</small>
           </div>
           {members.map((m) => (
             <div className="metric member-metric" style={memberVars(m.palette)} key={m.id}>
               <span>Paid by {m.display_name}</span>
-              <strong>{money(summary.paid[m.user_id] || 0, activeSpace?.currency)}</strong>
+              <strong>
+                <AnimatedMoney value={summary.paid[m.user_id] || 0} currency={activeSpace?.currency} />
+              </strong>
               <small>Fair share: {money(fair, activeSpace?.currency)}</small>
             </div>
           ))}
