@@ -6,7 +6,10 @@
 -- `supabase db push` / the `apply_migration` MCP tool) to stand the app back up.
 
 -- ============ profiles ============
-create extension if not exists pgcrypto;
+-- Supabase provisions an "extensions" schema in every project; pin pgcrypto there
+-- explicitly so create_invite's fully-qualified extensions.gen_random_bytes() call
+-- resolves the same way regardless of where this file is applied.
+create extension if not exists pgcrypto with schema extensions;
 
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
@@ -206,7 +209,9 @@ begin
 
   loop
     v_attempt := v_attempt + 1;
-    v_code := substr(lower(regexp_replace(encode(gen_random_bytes(8), 'base64'), '[^a-zA-Z0-9]', '', 'g')), 1, 8);
+    -- pgcrypto lives in the "extensions" schema on Supabase projects, not "public" --
+    -- fully qualify so it resolves regardless of search_path.
+    v_code := substr(lower(regexp_replace(encode(extensions.gen_random_bytes(8), 'base64'), '[^a-zA-Z0-9]', '', 'g')), 1, 8);
     begin
       insert into public.space_invites (space_id, code, created_by, max_uses, expires_at)
       values (
