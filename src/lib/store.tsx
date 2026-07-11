@@ -203,7 +203,7 @@ export function SpaceProvider({
     async (name: string, currency: string) => {
       const { data, error } = await supabase.rpc("create_space", { p_name: name, p_currency: currency });
       if (error || !data) {
-        showToast("Could not create space");
+        showToast("Couldn't create the space — nothing was saved, try again");
         return;
       }
       await loadSpaces();
@@ -231,7 +231,7 @@ export function SpaceProvider({
     if (!activeSpaceId) return null;
     const { data, error } = await supabase.rpc("create_invite", { p_space_id: activeSpaceId });
     if (error || !data) {
-      showToast("Could not create invite");
+      showToast("Couldn't create an invite link — try again in a moment");
       return null;
     }
     return data;
@@ -256,7 +256,7 @@ export function SpaceProvider({
         created_by: userId,
       });
       if (error) {
-        showToast("Could not add entry");
+        showToast("Couldn't add that — nothing was saved, try again");
         return;
       }
       setSelectedMonth(monthKey(input.date));
@@ -280,7 +280,7 @@ export function SpaceProvider({
       }
       const { error } = await supabase.from("entries").update(dbPatch).eq("id", id);
       if (error) {
-        showToast("Could not save changes");
+        showToast("Couldn't save those changes — the entry is unchanged, try again");
         return;
       }
       if (activeSpaceId) loadSpaceData(activeSpaceId);
@@ -292,7 +292,7 @@ export function SpaceProvider({
     async (id: string) => {
       const { error } = await supabase.from("entries").delete().eq("id", id);
       if (error) {
-        showToast("Could not delete entry");
+        showToast("Couldn't delete that entry — it's still there, try again");
         return;
       }
       if (activeSpaceId) loadSpaceData(activeSpaceId);
@@ -315,10 +315,10 @@ export function SpaceProvider({
         created_by: userId,
       });
       if (error) {
-        showToast("Could not mark settled");
+        showToast("Couldn't mark that settled — nothing changed, try again");
         return;
       }
-      showToast("Marked as settled");
+      showToast("Settled up — all square now");
       loadSpaceData(activeSpaceId);
     },
     [supabase, activeSpaceId, userId, selectedMonth, showToast, loadSpaceData]
@@ -332,7 +332,7 @@ export function SpaceProvider({
         .from("categories")
         .insert({ space_id: activeSpaceId, name, grp, sort_order: sortOrder });
       if (error) {
-        showToast("Could not add category");
+        showToast("Couldn't add that category — try again");
         return;
       }
       loadSpaceData(activeSpaceId);
@@ -360,7 +360,7 @@ export function SpaceProvider({
         .update({ display_name: displayName, palette })
         .eq("id", mine.id);
       if (error) {
-        showToast("Could not save");
+        showToast("Couldn't save your profile — try again");
         return;
       }
       if (activeSpaceId) loadSpaceData(activeSpaceId);

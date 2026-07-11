@@ -80,3 +80,11 @@ export function IconReceipt(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function IconCheck(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M4 12.5l5 5L20 6" />
+    </svg>
+  );
+}

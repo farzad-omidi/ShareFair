@@ -3,14 +3,26 @@
 import { useMemo, useState } from "react";
 import { useSpace } from "@/lib/store";
 import { calcThrough, simplify, monthName } from "@/lib/domain";
-import { memberVars } from "@/lib/palettes";
 import { MemberAvatar } from "@/components/Avatar";
 import { AnimatedMoney } from "@/components/AnimatedMoney";
+import { IconCheck } from "@/components/icons";
 
 const SETTLE_EXIT_MS = 340;
+const EPSILON = 0.005;
+
+// Direction is shown with a consistent green (owed to them) / warm terracotta
+// (they owe) regardless of who's involved — the same convention every
+// payment app already uses, so it reads instantly without having to
+// remember whose identity color means what. Member colors stay reserved
+// for avatars, where "who" — not "which way" — is the question.
+function balanceColor(v: number): string | undefined {
+  if (v > EPSILON) return "var(--green)";
+  if (v < -EPSILON) return "var(--accent-dark)";
+  return undefined;
+}
 
 export function SettleView() {
-  const { entries, members, categories, selectedMonth, activeSpace, settle, showToast } = useSpace();
+  const { entries, members, categories, selectedMonth, activeSpace, profile, settle, showToast } = useSpace();
   const [settlingKey, setSettlingKey] = useState<string | null>(null);
 
   const catsById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
@@ -30,6 +42,9 @@ export function SettleView() {
   }
 
   async function handleSettle(key: string, fromId: string, toId: string, amount: number) {
+    // Show the resolution instantly rather than a vague "in progress" spinner —
+    // the peak-end moment is the confirmation, not the wait — then let the row
+    // animate out before the underlying data actually reloads.
     setSettlingKey(key);
     await new Promise((resolve) => setTimeout(resolve, SETTLE_EXIT_MS));
     await settle(fromId, toId, amount);
@@ -51,6 +66,11 @@ export function SettleView() {
           debts.map((d) => {
             const key = `${d.fromId}-${d.toId}`;
             const settling = settlingKey === key;
+            // Only color the amount for the viewer's own stake in this specific
+            // debt — if it doesn't involve them, it stays neutral rather than
+            // implying a direction that isn't theirs.
+            const amtColor =
+              profile?.id === d.toId ? "var(--green)" : profile?.id === d.fromId ? "var(--accent-dark)" : undefined;
             return (
               <div className={`debt-row${settling ? " settling" : ""}`} key={key}>
                 <div className="top">
@@ -63,7 +83,7 @@ export function SettleView() {
                     </strong>
                     <small className="mini">Open through {monthName(selectedMonth)}</small>
                   </div>
-                  <div className="amt">
+                  <div className="amt" style={amtColor ? { color: amtColor } : undefined}>
                     <AnimatedMoney value={d.amount} currency={activeSpace?.currency} />
                   </div>
                 </div>
@@ -83,7 +103,13 @@ export function SettleView() {
                     disabled={settling}
                     onClick={() => handleSettle(key, d.fromId, d.toId, d.amount)}
                   >
-                    {settling ? "Settling…" : "Mark as settled"}
+                    {settling ? (
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <IconCheck width={16} height={16} /> Settled
+                      </span>
+                    ) : (
+                      "Mark as settled"
+                    )}
                   </button>
                 </div>
               </div>
@@ -100,14 +126,20 @@ export function SettleView() {
           </div>
         </div>
         <div className="detail-grid">
-          {members.map((m) => (
-            <div className="smallbox member-box" style={memberVars(m.palette)} key={m.id}>
-              <span>{m.display_name}</span>
-              <strong>
-                <AnimatedMoney value={balances[m.user_id] || 0} currency={activeSpace?.currency} />
-              </strong>
-            </div>
-          ))}
+          {members.map((m) => {
+            const bal = balances[m.user_id] || 0;
+            return (
+              <div className="smallbox" key={m.id}>
+                <span>
+                  <MemberAvatar member={m} size={14} maxLetters={1} />
+                  <span className="name-text">{m.display_name}</span>
+                </span>
+                <strong style={{ color: balanceColor(bal) }}>
+                  <AnimatedMoney value={bal} currency={activeSpace?.currency} />
+                </strong>
+              </div>
+            );
+          })}
         </div>
         <p className="mini" style={{ lineHeight: 1.5, marginTop: 10 }}>
           Positive means this person has paid more than their share and should receive. Negative means
