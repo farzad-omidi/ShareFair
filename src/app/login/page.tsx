@@ -35,7 +35,12 @@ function LoginForm() {
     });
     if (error) {
       setStatus("error");
-      setError(error.message);
+      const message = error.message?.trim();
+      setError(
+        message && message !== "{}"
+          ? message
+          : "Something went wrong sending that email. Please try again in a moment."
+      );
       return;
     }
     setStatus("sent");
