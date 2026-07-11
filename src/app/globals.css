@@ -33,10 +33,18 @@
   --accent-ring: rgba(222, 83, 48, 0.22);
 
   --green: #6f8f5c;
+  --green-dark: #56704a;
   --green-bg: #e7ecdd;
   --red: #b8402b;
   --red-bg: #f5e4de;
   --amber: #c98a3a;
+
+  /* "wet-on-wet" blends — Vrijschool/Waldorf watercolor painting lays color on
+     wet paper so hues bleed into one another rather than sitting as flat fill.
+     Used only on decorative/identity surfaces (never on money text, which stays
+     flat and legible). */
+  --wet-accent: radial-gradient(circle at 32% 28%, var(--accent) 0%, var(--accent-dark) 72%, var(--amber) 100%);
+  --wet-green: radial-gradient(circle at 32% 28%, var(--green) 0%, var(--green-dark) 100%);
 
   --shadow: 0 10px 28px rgba(32, 24, 14, 0.08);
   --shadow2: 0 6px 16px rgba(32, 24, 14, 0.06);
@@ -147,8 +155,10 @@ button {
   left: -110px;
   width: 320px;
   height: 320px;
-  border-radius: 50%;
-  background: var(--accent);
+  /* an organic, slightly irregular blob rather than a perfect circle —
+     Vrijschool "form drawing" favors flowing, hand-drawn shapes over rulers */
+  border-radius: 58% 42% 63% 37% / 41% 55% 45% 59%;
+  background: var(--wet-accent);
   animation: breathe 9s ease-in-out infinite;
   transform-origin: center;
 }
@@ -239,7 +249,8 @@ button {
 .card {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: var(--r-lg);
+  /* a touch of hand-drawn asymmetry instead of a perfectly ruled rectangle */
+  border-radius: 27px 23px 26px 22px;
   box-shadow: var(--shadow2);
   padding: 15px;
   margin: 11px 0;
@@ -343,7 +354,9 @@ button {
 }
 .member-card.active {
   border-color: var(--member-accent, var(--accent));
-  background: var(--module);
+  /* the member's identity color bleeds in from one corner like watercolor
+     soaking into wet paper, fading into the neutral module surface */
+  background: radial-gradient(ellipse 140% 110% at 10% 0%, var(--member-bg, transparent) 0%, var(--module) 62%);
   color: var(--ink);
   box-shadow: var(--module-shadow);
   transform: scale(1.015);
@@ -364,7 +377,7 @@ button {
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: var(--member-accent, var(--accent));
+  background: radial-gradient(circle at 32% 28%, var(--member-accent, var(--accent)) 0%, var(--member-dark, var(--accent-dark)) 100%);
   color: #fff8f2;
   font-weight: 800;
   line-height: 1;
@@ -419,7 +432,7 @@ button {
   gap: 7px;
   padding: 7px 11px;
   border-radius: 999px;
-  background: var(--member-accent, var(--accent));
+  background: radial-gradient(circle at 32% 28%, var(--member-accent, var(--accent)) 0%, var(--member-dark, var(--accent-dark)) 100%);
   color: #fff8f2;
   font-size: 11px;
   font-weight: 800;
@@ -517,7 +530,7 @@ button {
   gap: 8px;
   align-items: center;
   padding: 14px 16px;
-  border-radius: var(--r-lg);
+  border-radius: 28px 24px 26px 22px;
   background: var(--module2);
   box-shadow: var(--module-shadow-inset);
   border: 0;
@@ -552,7 +565,7 @@ button {
   width: 100%;
   padding: 12px 16px;
   border-radius: var(--r-md);
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
   color: #fff8f2;
   font-size: 14.5px;
   font-weight: 800;
@@ -569,7 +582,7 @@ button {
   transform: scale(0.985);
 }
 .primary.green {
-  background: var(--green);
+  background: linear-gradient(135deg, var(--green), var(--green-dark));
 }
 .ghost {
   padding: 10px 14px;
@@ -599,7 +612,7 @@ button {
 .hero {
   position: relative;
   padding: 17px;
-  border-radius: var(--r-lg);
+  border-radius: 26px 30px 22px 28px;
   background: var(--module);
   color: var(--ink);
   box-shadow: var(--module-shadow);
@@ -612,12 +625,12 @@ button {
   bottom: -90px;
   width: 210px;
   height: 210px;
-  border-radius: 50%;
-  background: var(--accent);
+  border-radius: 63% 37% 41% 59% / 55% 45% 63% 37%;
+  background: var(--wet-accent);
   opacity: 0.22;
 }
 .hero.balanced:after {
-  background: #9bc27f;
+  background: var(--wet-green);
   opacity: 0.2;
 }
 .hero-label {
@@ -761,7 +774,7 @@ button {
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: var(--member-accent, var(--accent));
+  background: radial-gradient(circle at 32% 28%, var(--member-accent, var(--accent)) 0%, var(--member-dark, var(--accent-dark)) 100%);
   color: var(--ink);
   font-size: 13px;
   font-weight: 800;
@@ -985,7 +998,7 @@ button {
   width: min(100%, 500px);
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 24px;
+  border-radius: 28px 24px 24px 24px;
   padding: 16px 16px calc(16px + var(--safe-bottom));
   box-shadow: var(--shadow);
   max-height: 89vh;
@@ -1289,7 +1302,7 @@ button {
 @media (max-width: 370px) {
   .card {
     padding: 14px;
-    border-radius: 24px;
+    border-radius: 25px 21px 24px 20px;
   }
   .metric-grid,
   .grid2,
