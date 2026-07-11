@@ -74,7 +74,17 @@ export function sharesForEntry(e: EntryRow, allMemberIds: string[]): SplitValues
         empty.push(id);
       }
     });
-    const rem = Math.max(0, Math.abs(amount) - used);
+    const target = Math.abs(amount);
+    if (used > target + 0.005 && used > 0) {
+      // Entered amounts over-allocate the total: scale them down so shares still sum
+      // to the entry amount instead of silently breaking the zero-sum balance invariant.
+      const scale = target / used;
+      ids.forEach((id) => {
+        if (out[id]) out[id] = out[id] * scale;
+      });
+      return out;
+    }
+    const rem = Math.max(0, target - used);
     empty.forEach((id) => (out[id] = Math.sign(amount) * (rem / (empty.length || 1))));
     return out;
   }

@@ -398,7 +398,21 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
           onClick={async () => {
             const a = Number(String(amount).replace(",", "."));
             if (!a || a <= 0) return;
-            await updateEntry(entryId, { amount: Math.round(a * 100) / 100, note: note.trim() });
+            const rounded = Math.round(a * 100) / 100;
+            const patch: { amount: number; note: string; splitValues?: Record<string, number> } = {
+              amount: rounded,
+              note: note.trim(),
+            };
+            // "amounts" splits are absolute values pinned to the old total; rescale them
+            // proportionally so they still add up to the new amount.
+            if (e.split_type === "amounts" && e.amount > 0) {
+              const oldValues = (e.split_values as Record<string, number>) || {};
+              const scale = rounded / e.amount;
+              patch.splitValues = Object.fromEntries(
+                Object.entries(oldValues).map(([id, v]) => [id, Math.round(Number(v) * scale * 100) / 100])
+              );
+            }
+            await updateEntry(entryId, patch);
             onClose();
           }}
         >

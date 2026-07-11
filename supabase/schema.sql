@@ -188,7 +188,8 @@ end;
 $$;
 
 -- ============ RPC: create_invite ============
--- Generates a short, unguessable invite code for the given space (caller must be a member).
+-- Generates a short, unguessable invite code for the given space (caller must be a
+-- member), retrying on the (rare) short-code collision.
 create or replace function public.create_invite(p_space_id uuid, p_max_uses int default null, p_expires_in_days int default 14)
 returns text
 language plpgsql
@@ -197,19 +198,28 @@ set search_path = public
 as $$
 declare
   v_code text;
+  v_attempt int := 0;
 begin
   if not public.is_space_member(p_space_id) then
     raise exception 'Not a member of this space';
   end if;
-  v_code := lower(regexp_replace(encode(gen_random_bytes(8), 'base64'), '[^a-zA-Z0-9]', '', 'g'));
-  v_code := substr(v_code, 1, 8);
 
-  insert into public.space_invites (space_id, code, created_by, max_uses, expires_at)
-  values (
-    p_space_id, v_code, auth.uid(), p_max_uses,
-    case when p_expires_in_days is null then null else now() + (p_expires_in_days || ' days')::interval end
-  );
-  return v_code;
+  loop
+    v_attempt := v_attempt + 1;
+    v_code := substr(lower(regexp_replace(encode(gen_random_bytes(8), 'base64'), '[^a-zA-Z0-9]', '', 'g')), 1, 8);
+    begin
+      insert into public.space_invites (space_id, code, created_by, max_uses, expires_at)
+      values (
+        p_space_id, v_code, auth.uid(), p_max_uses,
+        case when p_expires_in_days is null then null else now() + (p_expires_in_days || ' days')::interval end
+      );
+      return v_code;
+    exception when unique_violation then
+      if v_attempt >= 5 then
+        raise exception 'Could not generate a unique invite code, please try again';
+      end if;
+    end;
+  end loop;
 end;
 $$;
 
@@ -313,11 +323,74 @@ create policy entries_select on public.entries for select
 create policy entries_insert on public.entries for insert
   with check (public.is_space_member(space_id) and created_by = auth.uid());
 
+-- Only the entry's author or the space owner may edit/delete it (not any member).
 create policy entries_update on public.entries for update
-  using (public.is_space_member(space_id));
+  using (public.is_space_member(space_id) and (created_by = auth.uid() or public.is_space_owner(space_id)))
+  with check (public.is_space_member(space_id) and (created_by = auth.uid() or public.is_space_owner(space_id)));
 
 create policy entries_delete on public.entries for delete
-  using (public.is_space_member(space_id));
+  using (public.is_space_member(space_id) and (created_by = auth.uid() or public.is_space_owner(space_id)));
+
+-- ============ immutable columns (defense in depth) ============
+-- RLS UPDATE policies without WITH CHECK reuse the USING clause for the new row too,
+-- and even a matching WITH CHECK can't compare old vs new column values on its own --
+-- so column immutability (role/space_id/user_id/created_by) is enforced with BEFORE
+-- UPDATE triggers, closing privilege-escalation and tenant-isolation gaps that RLS
+-- policies alone can't.
+
+create or replace function public.protect_space_membership_columns()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if new.space_id is distinct from old.space_id
+     or new.user_id is distinct from old.user_id
+     or new.role is distinct from old.role then
+    raise exception 'Cannot change space_id, user_id, or role of a membership';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger space_members_protect_columns
+  before update on public.space_members
+  for each row execute function public.protect_space_membership_columns();
+
+create or replace function public.protect_entry_columns()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if new.space_id is distinct from old.space_id
+     or new.created_by is distinct from old.created_by then
+    raise exception 'Cannot move an entry to a different space or change its author';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger entries_protect_columns
+  before update on public.entries
+  for each row execute function public.protect_entry_columns();
+
+create or replace function public.protect_category_columns()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if new.space_id is distinct from old.space_id then
+    raise exception 'Cannot move a category to a different space';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger categories_protect_columns
+  before update on public.categories
+  for each row execute function public.protect_category_columns();
 
 -- ============ realtime ============
 alter publication supabase_realtime add table public.entries;

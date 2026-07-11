@@ -13,6 +13,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { currentMonth, today, monthKey } from "@/lib/domain";
 import type { Category, EntryRow, Profile, Space, SpaceMember, SplitType } from "@/lib/types";
+import type { TablesUpdate } from "@/lib/database.types";
 
 type NewEntryInput = {
   kind: "expense" | "credit";
@@ -49,7 +50,10 @@ type SpaceContextValue = {
   createInvite: () => Promise<string | null>;
 
   addEntry: (input: NewEntryInput) => Promise<void>;
-  updateEntry: (id: string, patch: { amount?: number; note?: string }) => Promise<void>;
+  updateEntry: (
+    id: string,
+    patch: { amount?: number; note?: string; splitValues?: Record<string, number> }
+  ) => Promise<void>;
   deleteEntry: (id: string) => Promise<void>;
   settle: (fromId: string, toId: string, amount: number) => Promise<void>;
 
@@ -263,8 +267,11 @@ export function SpaceProvider({
   );
 
   const updateEntry = useCallback(
-    async (id: string, patch: { amount?: number; note?: string }) => {
-      const { error } = await supabase.from("entries").update(patch).eq("id", id);
+    async (id: string, patch: { amount?: number; note?: string; splitValues?: Record<string, number> }) => {
+      const { splitValues, ...rest } = patch;
+      const dbPatch: TablesUpdate<"entries"> = { ...rest };
+      if (splitValues) dbPatch.split_values = splitValues;
+      const { error } = await supabase.from("entries").update(dbPatch).eq("id", id);
       if (error) {
         showToast("Could not save changes");
         return;

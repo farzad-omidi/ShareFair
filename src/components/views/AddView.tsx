@@ -9,7 +9,7 @@ import { memberVars, paletteFor } from "@/lib/palettes";
 import type { SplitType } from "@/lib/types";
 
 export function AddView() {
-  const { members, categories, profile, activeSpace, addEntry, selectedMonth, entries } = useSpace();
+  const { members, categories, profile, activeSpace, addEntry, selectedMonth, entries, showToast } = useSpace();
   const { openModal } = useUI();
 
   const myMember = members.find((m) => m.user_id === profile?.id) ?? members[0];
@@ -56,6 +56,13 @@ export function AddView() {
       const n = parseAmount(v);
       if (Number.isFinite(n) && n > 0) values[id] = n;
     });
+    if (splitMethod === "amounts") {
+      const sum = Object.values(values).reduce((s, v) => s + v, 0);
+      if (sum > a + 0.005) {
+        showToast("Custom amounts add up to more than the total");
+        return;
+      }
+    }
     await addEntry({
       kind,
       payerId,

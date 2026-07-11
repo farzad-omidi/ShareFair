@@ -28,7 +28,12 @@ export function MoreView() {
         e.note ?? "",
       ]);
     });
-    const csv = rows.map((r) => r.map((v) => `"${v.replace(/"/g, '""')}"`).join(",")).join("\n");
+    // Guard against CSV formula injection: a cell starting with =/+/-/@ can execute as a
+    // formula when the file is opened in Excel/Sheets.
+    const csvSafe = (v: string) => (/^[=+\-@]/.test(v) ? `'${v}` : v);
+    const csv = rows
+      .map((r) => r.map((v) => `"${csvSafe(v).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
