@@ -15,6 +15,18 @@
   --on-surface: #f5efe3;
   --on-surface-muted: #b3a898;
 
+  /* soft neumorphic "module" surface — the large content cards (entries, hero,
+     stats, debts). Distinguished from the page background by shadow, not by
+     switching to a dark fill, so big card-heavy screens don't read as dark. */
+  --module: #eee6d5;
+  --module2: #f6f1e6;
+  --module-shadow: 8px 8px 18px rgba(168, 138, 88, 0.22), -8px -8px 16px rgba(255, 255, 255, 0.75);
+  --module-shadow-inset: inset 5px 5px 12px rgba(168, 138, 88, 0.18),
+    inset -5px -5px 12px rgba(255, 255, 255, 0.7);
+  --placeholder-tint: rgba(32, 28, 23, 0.22);
+  --module-ghost-bg: rgba(32, 28, 23, 0.05);
+  --module-ghost-border: rgba(32, 28, 23, 0.12);
+
   --accent: #de5330;
   --accent-dark: #b8401f;
   --accent-soft: rgba(222, 83, 48, 0.12);
@@ -58,6 +70,15 @@
     --surface2: #1a1611;
     --on-surface: #f1e9db;
     --on-surface-muted: #93887a;
+
+    --module: #1c1812;
+    --module2: #241f18;
+    --module-shadow: 8px 8px 18px rgba(0, 0, 0, 0.45), -6px -6px 14px rgba(255, 255, 255, 0.03);
+    --module-shadow-inset: inset 5px 5px 12px rgba(0, 0, 0, 0.5),
+      inset -5px -5px 10px rgba(255, 255, 255, 0.025);
+    --placeholder-tint: rgba(245, 239, 227, 0.24);
+    --module-ghost-bg: rgba(245, 239, 227, 0.1);
+    --module-ghost-border: rgba(245, 239, 227, 0.16);
 
     --accent: #ec6540;
     --accent-dark: #f3835f;
@@ -267,8 +288,9 @@ button {
   gap: 8px;
 }
 
-/* member-card: unselected = light outline card, selected = dark module (mirrors the
-   reference's "dark card = active content" language used throughout) */
+/* member-card: unselected = flat outline card, selected = soft neumorphic module
+   with a colored ring in the member's accent — selection reads through color and
+   depth, not through a dark fill. */
 .member-card {
   position: relative;
   overflow: hidden;
@@ -281,12 +303,13 @@ button {
   transition: 0.15s;
 }
 .member-card.active {
-  border-color: transparent;
-  background: var(--surface);
-  color: var(--on-surface);
+  border-color: var(--member-accent, var(--accent));
+  background: var(--module);
+  color: var(--ink);
+  box-shadow: var(--module-shadow);
 }
 .member-card.active small {
-  color: var(--on-surface-muted);
+  color: var(--muted);
 }
 .member-card.add-member-card {
   border-style: dashed;
@@ -442,7 +465,8 @@ button {
   align-items: center;
   padding: 14px 16px;
   border-radius: var(--r-lg);
-  background: var(--surface);
+  background: var(--module2);
+  box-shadow: var(--module-shadow-inset);
   border: 0;
   margin-top: 13px;
 }
@@ -460,12 +484,12 @@ button {
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1;
-  color: var(--on-surface);
+  color: var(--ink);
   font-family: var(--sans);
   font-variant-numeric: tabular-nums;
 }
 .amount::placeholder {
-  color: rgba(245, 239, 227, 0.24);
+  color: var(--placeholder-tint);
 }
 .amount.credit {
   color: #9bc27f;
@@ -522,8 +546,9 @@ button {
   position: relative;
   padding: 17px;
   border-radius: var(--r-lg);
-  background: var(--surface);
-  color: var(--on-surface);
+  background: var(--module);
+  color: var(--ink);
+  box-shadow: var(--module-shadow);
   overflow: hidden;
 }
 .hero:after {
@@ -545,7 +570,7 @@ button {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--on-surface-muted);
+  color: var(--muted);
   margin-bottom: 10px;
   font-weight: 700;
 }
@@ -576,7 +601,7 @@ button {
 .hero-text {
   font-size: 13px;
   line-height: 1.5;
-  color: var(--on-surface-muted);
+  color: var(--muted);
   margin-bottom: 14px;
 }
 .actions {
@@ -587,9 +612,9 @@ button {
   z-index: 1;
 }
 .hero .ghost {
-  background: rgba(245, 239, 227, 0.1);
-  border-color: rgba(245, 239, 227, 0.16);
-  color: var(--on-surface);
+  background: var(--module-ghost-bg);
+  border-color: var(--module-ghost-border);
+  color: var(--ink);
 }
 .status {
   display: inline-flex;
@@ -624,8 +649,9 @@ button {
 }
 .metric {
   border-radius: var(--r-md);
-  background: var(--surface);
-  color: var(--on-surface);
+  background: var(--module);
+  color: var(--ink);
+  box-shadow: var(--module-shadow);
   padding: 12px;
   min-height: 80px;
 }
@@ -634,7 +660,7 @@ button {
 }
 .metric span {
   display: block;
-  color: var(--on-surface-muted);
+  color: var(--muted);
   font-size: 12px;
   margin-bottom: 7px;
 }
@@ -643,13 +669,13 @@ button {
   font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--member-accent, var(--on-surface));
+  color: var(--member-accent, var(--ink));
   font-variant-numeric: tabular-nums;
 }
 .metric small {
   display: block;
   margin-top: 5px;
-  color: var(--on-surface-muted);
+  color: var(--muted);
   line-height: 1.35;
 }
 
@@ -664,8 +690,9 @@ button {
   align-items: center;
   padding: 11px 12px;
   border-radius: var(--r-md);
-  background: var(--surface);
-  color: var(--on-surface);
+  background: var(--module);
+  color: var(--ink);
+  box-shadow: var(--module-shadow);
   border: 0;
   width: 100%;
   text-align: left;
@@ -677,14 +704,14 @@ button {
   display: grid;
   place-items: center;
   background: var(--member-accent, var(--accent));
-  color: var(--surface);
+  color: var(--ink);
   font-size: 13px;
   font-weight: 800;
   flex: none;
 }
 .entry-ico.settle {
-  background: rgba(245, 239, 227, 0.14);
-  color: var(--on-surface);
+  background: var(--line);
+  color: var(--ink);
 }
 .entry strong {
   display: block;
@@ -693,7 +720,7 @@ button {
 }
 .entry small {
   display: block;
-  color: var(--on-surface-muted);
+  color: var(--muted);
   font-size: 12px;
   margin-top: 3px;
   line-height: 1.25;
@@ -707,7 +734,7 @@ button {
   color: #9bc27f;
 }
 .entry-amount.settle {
-  color: var(--on-surface-muted);
+  color: var(--muted);
 }
 
 .empty {
@@ -746,8 +773,9 @@ button {
   display: grid;
   gap: 10px;
   padding: 13px;
-  background: var(--surface);
-  color: var(--on-surface);
+  background: var(--module);
+  color: var(--ink);
+  box-shadow: var(--module-shadow);
   border-radius: var(--r-md);
   margin: 8px 0;
 }
@@ -766,12 +794,12 @@ button {
 .debt-row small {
   display: block;
   margin-top: 3px;
-  color: var(--on-surface-muted);
+  color: var(--muted);
 }
 .debt-row .ghost {
-  background: rgba(245, 239, 227, 0.1);
-  border-color: rgba(245, 239, 227, 0.16);
-  color: var(--on-surface);
+  background: var(--module-ghost-bg);
+  border-color: var(--module-ghost-border);
+  color: var(--ink);
 }
 
 .detail-grid {
@@ -782,19 +810,20 @@ button {
 .smallbox {
   padding: 9px;
   border-radius: var(--r-sm);
-  background: var(--surface);
-  color: var(--on-surface);
+  background: var(--module);
+  color: var(--ink);
+  box-shadow: var(--module-shadow);
 }
 .smallbox span {
   display: block;
   font-size: 11px;
-  color: var(--on-surface-muted);
+  color: var(--muted);
   margin-bottom: 4px;
 }
 .smallbox strong {
   font-size: 13px;
   font-weight: 800;
-  color: var(--member-accent, var(--on-surface));
+  color: var(--member-accent, var(--ink));
   font-variant-numeric: tabular-nums;
 }
 
