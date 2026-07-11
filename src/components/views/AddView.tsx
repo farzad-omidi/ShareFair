@@ -157,7 +157,7 @@ export function AddView() {
           </div>
         )}
 
-        <div className="segment" style={{ marginTop: 15 }}>
+        <div className="segment section-gap">
           <button className={kind === "expense" ? "active" : ""} onClick={() => setKind("expense")}>
             Expense
           </button>
@@ -166,7 +166,7 @@ export function AddView() {
           </button>
         </div>
 
-        <div className="card-title" style={{ margin: "18px 0 10px" }}>
+        <div className="card-title subhead">
           <div>
             <h3>Category</h3>
           </div>
@@ -206,7 +206,7 @@ export function AddView() {
           <input className="input" placeholder="Note, optional" value={note} onChange={(e) => setNote(e.target.value)} />
         </div>
 
-        <details style={{ marginTop: 12 }} open={splitOpen} onToggle={(e) => setSplitOpen((e.target as HTMLDetailsElement).open)}>
+        <details className="section-gap" open={splitOpen} onToggle={(e) => setSplitOpen((e.target as HTMLDetailsElement).open)}>
           <summary className="muted" style={{ fontWeight: 850, cursor: "pointer" }}>
             Split options
           </summary>
@@ -267,8 +267,10 @@ export function AddView() {
           )}
         </details>
 
-        <div className="grid2" style={{ marginTop: 14 }}>
-          <input className="ghost input" type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ textAlign: "center" }} />
+        <div className="grid2 section-gap">
+          <label className="ghost date-field">
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </label>
           <button className="ghost" onClick={() => setRepeat((r) => !r)}>
             {repeat ? "Repeat monthly" : "No repeat"}
           </button>
