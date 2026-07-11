@@ -7,6 +7,7 @@ import { today, calcThrough, simplify, monthName } from "@/lib/domain";
 import { money, symbol, parseAmount } from "@/lib/format";
 import { memberVars, paletteFor } from "@/lib/palettes";
 import { MemberAvatar } from "@/components/Avatar";
+import { AnimatedMoney } from "@/components/AnimatedMoney";
 import type { SplitType } from "@/lib/types";
 
 export function AddView() {
@@ -108,8 +109,10 @@ export function AddView() {
               style={memberVars(m.palette)}
               onClick={() => setPayerIdOverride(m.user_id)}
             >
-              <MemberAvatar member={m} size={32} />
-              <strong>{m.display_name}</strong>
+              <div className="member-card-row">
+                <MemberAvatar member={m} size={26} />
+                <strong>{m.display_name}</strong>
+              </div>
               <small>{payerId === m.user_id ? "Selected payer" : "Tap to pay as"}</small>
             </button>
           ))}
@@ -279,7 +282,9 @@ export function AddView() {
               <MemberAvatar member={members.find((m) => m.user_id === debts[0].toId)} size={22} maxLetters={1} />
               <span>{members.find((m) => m.user_id === debts[0].toId)?.display_name}</span>
             </div>
-            <div className="big-money">{money(debts[0].amount, activeSpace?.currency)}</div>
+            <div className="big-money">
+              <AnimatedMoney value={debts[0].amount} currency={activeSpace?.currency} />
+            </div>
             <div className="hero-text">Includes current month and any earlier open balance not yet settled.</div>
           </div>
         )}

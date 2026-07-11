@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useSpace } from "@/lib/store";
 import { calcMonth, isHousing, monthName, round, signed } from "@/lib/domain";
-import { money } from "@/lib/format";
+import { AnimatedMoney } from "@/components/AnimatedMoney";
 
 export function InsightsView() {
   const { entries, members, categories, selectedMonth, activeSpace } = useSpace();
@@ -91,7 +91,9 @@ export function InsightsView() {
         <div className="metric-grid">
           <div className="metric wide">
             <span>Average month</span>
-            <strong>{money(total / count, activeSpace?.currency)}</strong>
+            <strong>
+              <AnimatedMoney value={total / count} currency={activeSpace?.currency} />
+            </strong>
             <small>
               {excludeHousing ? "Housing excluded" : "Housing included"} · based on {count} month
               {count === 1 ? "" : "s"}
@@ -99,12 +101,16 @@ export function InsightsView() {
           </div>
           <div className="metric">
             <span>Average per person</span>
-            <strong>{money(total / count / (members.length || 1), activeSpace?.currency)}</strong>
+            <strong>
+              <AnimatedMoney value={total / count / (members.length || 1)} currency={activeSpace?.currency} />
+            </strong>
           </div>
           {members.slice(0, 3).map((m) => (
             <div className="metric" key={m.id}>
               <span>{m.display_name} paid avg.</span>
-              <strong>{money((paid[m.user_id] || 0) / count, activeSpace?.currency)}</strong>
+              <strong>
+                <AnimatedMoney value={(paid[m.user_id] || 0) / count} currency={activeSpace?.currency} />
+              </strong>
             </div>
           ))}
         </div>
@@ -123,7 +129,9 @@ export function InsightsView() {
                 <strong>{name}</strong>
                 <small>{d.count} entries · average per month</small>
               </div>
-              <strong>{money(d.total / count, activeSpace?.currency)}</strong>
+              <strong>
+                <AnimatedMoney value={d.total / count} currency={activeSpace?.currency} />
+              </strong>
             </div>
           ))
         )}
