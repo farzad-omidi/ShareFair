@@ -42,6 +42,7 @@ export function AddView() {
   const [splitMethod, setSplitMethod] = useState<SplitType>("equal");
   const [participantIdsOverride, setParticipantIdsOverride] = useState<Set<string> | null>(null);
   const [splitValues, setSplitValues] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const activeCategories = categories.filter((c) => c.active);
 
@@ -66,6 +67,7 @@ export function AddView() {
   }
 
   async function handleSubmit() {
+    if (submitting) return;
     const a = parseAmount(amount);
     if (!Number.isFinite(a) || a <= 0) return;
     const values: Record<string, number> = {};
@@ -76,24 +78,34 @@ export function AddView() {
     if (splitMethod === "amounts") {
       const sum = Object.values(values).reduce((s, v) => s + v, 0);
       if (sum > a + 0.005) {
-        showToast("Custom amounts add up to more than the total");
+        showToast(t("add_toast_amounts_over"));
+        return;
+      }
+      const allEntered = [...participantIds].every((id) => Object.prototype.hasOwnProperty.call(values, id));
+      if (allEntered && sum < a - 0.005) {
+        showToast(t("add_toast_amounts_under"));
         return;
       }
     }
-    await addEntry({
-      kind,
-      payerId,
-      categoryId,
-      amount: Math.round(a * 100) / 100,
-      date,
-      note: note.trim(),
-      participantIds: [...participantIds],
-      splitType: splitMethod,
-      splitValues: values,
-      recurring: repeat,
-    });
-    setAmount("");
-    setNote("");
+    setSubmitting(true);
+    try {
+      await addEntry({
+        kind,
+        payerId,
+        categoryId,
+        amount: Math.round(a * 100) / 100,
+        date,
+        note: note.trim(),
+        participantIds: [...participantIds],
+        splitType: splitMethod,
+        splitValues: values,
+        recurring: repeat,
+      });
+      setAmount("");
+      setNote("");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const debts = useMemo(() => {
@@ -101,7 +113,7 @@ export function AddView() {
     return simplify(calcThrough(entries, members.map((m) => m.user_id), catsById, selectedMonth));
   }, [entries, members, categories, selectedMonth]);
 
-  const splitLabel = splitMethod === "percent" ? "%" : splitMethod === "shares" ? "shares" : symbol(activeSpace?.currency || "EUR");
+  const splitLabel = splitMethod === "percent" ? "%" : splitMethod === "shares" ? t("add_split_shares_unit") : symbol(activeSpace?.currency || "EUR");
 
   return (
     <>
@@ -185,7 +197,7 @@ export function AddView() {
               onClick={() => setCategoryIdOverride(c.id)}
             >
               {c.name}
-              {c.grp === "housing" && <span className="tag-housing">housing</span>}
+              {c.grp === "housing" && <span className="tag-housing">{t("add_category_housing_tag")}</span>}
             </button>
           ))}
           <button className="chip add" onClick={() => openModal({ type: "categoryManager" })}>
@@ -292,7 +304,7 @@ export function AddView() {
         <button
           className={`primary${kind === "credit" ? " green" : ""}`}
           style={{ marginTop: 12, background: `linear-gradient(135deg, ${paletteFor(payerPalette).accent}, ${paletteFor(payerPalette).dark})` }}
-          disabled={!payerId || !categoryId || !amount}
+          disabled={!payerId || !categoryId || !amount || submitting}
           onClick={handleSubmit}
         >
           {t(kind === "credit" ? "submit_credit" : "submit_expense", { name: payer?.display_name ?? "" })}
