@@ -1,10 +1,10 @@
 -- ShareFair database schema
 --
 -- Applied to the Supabase project as migrations (sharefair_initial_schema,
--- harden_function_permissions, settlement_confirmation_flow, payment_requests). This
--- file is the reproducible, combined source of truth — apply it to a fresh Supabase
--- project's SQL editor (or via `supabase db push` / the `apply_migration` MCP tool)
--- to stand the app back up.
+-- harden_function_permissions, settlement_confirmation_flow, payment_requests,
+-- payer_can_edit_own_entries). This file is the reproducible, combined source of
+-- truth — apply it to a fresh Supabase project's SQL editor (or via
+-- `supabase db push` / the `apply_migration` MCP tool) to stand the app back up.
 
 -- ============ profiles ============
 -- Supabase provisions an "extensions" schema in every project; pin pgcrypto there
@@ -342,9 +342,11 @@ create policy entries_insert on public.entries for insert
 
 -- Only the entry's author or the space owner may edit/delete it (not any member) --
 -- except that either party to a *pending* settlement may also update it (to
--- confirm/decline) or delete it (to decline, or to cancel their own request).
--- The protect_entry_columns trigger further restricts a non-author/owner update
--- to touching only the status field.
+-- confirm/decline) or delete it (to decline, or to cancel their own request), and
+-- the person an expense/credit is attributed to (payer_id) may fully edit/delete it
+-- too, since someone else may have logged it on their behalf and gotten a detail
+-- wrong. The protect_entry_columns trigger further restricts a non-author/owner,
+-- non-payer update to touching only the status field.
 create policy entries_update on public.entries for update
   using (
     public.is_space_member(space_id)
@@ -352,6 +354,7 @@ create policy entries_update on public.entries for update
       created_by = auth.uid()
       or public.is_space_owner(space_id)
       or (kind = 'settlement' and status = 'pending' and (from_id = auth.uid() or to_id = auth.uid()))
+      or (kind in ('expense', 'credit') and payer_id = auth.uid())
     )
   )
   with check (
@@ -360,6 +363,7 @@ create policy entries_update on public.entries for update
       created_by = auth.uid()
       or public.is_space_owner(space_id)
       or (kind = 'settlement' and (from_id = auth.uid() or to_id = auth.uid()))
+      or (kind in ('expense', 'credit') and payer_id = auth.uid())
     )
   );
 
@@ -371,6 +375,7 @@ create policy entries_delete on public.entries for delete
       or public.is_space_owner(space_id)
       or (kind = 'settlement' and status = 'pending' and (from_id = auth.uid() or to_id = auth.uid()))
       or (kind = 'request' and (from_id = auth.uid() or to_id = auth.uid()))
+      or (kind in ('expense', 'credit') and payer_id = auth.uid())
     )
   );
 
@@ -420,6 +425,11 @@ begin
   -- pending settlement, per the RLS policy below) may only flip that settlement's
   -- status -- never touch what actually moved.
   if auth.uid() <> old.created_by and not public.is_space_owner(old.space_id) then
+    -- The person an expense/credit is attributed to may fully edit it, same as
+    -- whoever originally logged it.
+    if old.kind in ('expense', 'credit') and auth.uid() = old.payer_id then
+      return new;
+    end if;
     if old.kind <> 'settlement' or old.status <> 'pending' then
       raise exception 'Not allowed to edit this entry';
     end if;

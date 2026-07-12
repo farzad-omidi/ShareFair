@@ -533,10 +533,14 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
   if (!e) return null;
 
   const myMember = members.find((m) => m.user_id === profile?.id);
-  // Matches the server-side rule: only the entry's author or the space owner can
-  // delete it — everyone else sees the entry without a delete option at all,
-  // rather than a button that fails with a confusing error.
-  const canDelete = e.created_by === profile?.id || myMember?.role === "owner";
+  // Matches the server-side rule: the entry's author, the space owner, or (for an
+  // expense/credit) whoever it's attributed to as payer can edit/delete it —
+  // everyone else sees the entry without those options at all, rather than a
+  // button that fails with a confusing error.
+  const canDelete =
+    e.created_by === profile?.id ||
+    myMember?.role === "owner" ||
+    ((e.kind === "expense" || e.kind === "credit") && e.payer_id === profile?.id);
 
   function toggleParticipant(id: string) {
     setParticipantIds((prev) => {
