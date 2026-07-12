@@ -267,7 +267,7 @@ export function AddView() {
           )}
         </details>
 
-        <div className="grid2 section-gap">
+        <div className="date-repeat-row section-gap">
           <label className="ghost date-field">
             <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </label>

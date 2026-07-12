@@ -70,6 +70,7 @@ export type Database = {
           space_id: string
           split_type: string
           split_values: Json
+          status: string
           to_id: string | null
           updated_at: string
         }
@@ -90,6 +91,7 @@ export type Database = {
           space_id: string
           split_type?: string
           split_values?: Json
+          status?: string
           to_id?: string | null
           updated_at?: string
         }
@@ -110,6 +112,7 @@ export type Database = {
           space_id?: string
           split_type?: string
           split_values?: Json
+          status?: string
           to_id?: string | null
           updated_at?: string
         }

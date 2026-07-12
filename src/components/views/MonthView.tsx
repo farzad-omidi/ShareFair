@@ -9,7 +9,7 @@ import { memberVars } from "@/lib/palettes";
 import { MemberAvatar } from "@/components/Avatar";
 import { AnimatedMoney } from "@/components/AnimatedMoney";
 import type { EntryRow } from "@/lib/types";
-import { IconSwap, IconUndo, IconReceipt } from "@/components/icons";
+import { IconSwap, IconUndo, IconReceipt, IconClock } from "@/components/icons";
 
 export function MonthView() {
   const { entries, members, categories, selectedMonth, activeSpace } = useSpace();
@@ -100,16 +100,17 @@ function EntryItem({ entry: e, onClick }: { entry: EntryRow; onClick: () => void
   if (e.kind === "settlement") {
     const from = members.find((m) => m.user_id === e.from_id);
     const to = members.find((m) => m.user_id === e.to_id);
+    const pending = e.status === "pending";
     return (
       <button className="entry" onClick={onClick}>
         <span className="entry-ico settle">
-          <IconSwap width={16} height={16} />
+          {pending ? <IconClock width={16} height={16} /> : <IconSwap width={16} height={16} />}
         </span>
         <span>
           <strong>
-            {from?.display_name ?? "Someone"} settled with {to?.display_name ?? "someone"}
+            {from?.display_name ?? "Someone"} {pending ? "settling with" : "settled with"} {to?.display_name ?? "someone"}
           </strong>
-          <small>{e.entry_date} · payment</small>
+          <small>{e.entry_date} · {pending ? "awaiting confirmation" : "payment"}</small>
         </span>
         <span className="entry-amount settle">{money(e.amount, activeSpace?.currency)}</span>
       </button>

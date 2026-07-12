@@ -5,7 +5,7 @@ import { useSpace } from "@/lib/store";
 import { calcThrough, simplify, monthName } from "@/lib/domain";
 import { MemberAvatar } from "@/components/Avatar";
 import { AnimatedMoney } from "@/components/AnimatedMoney";
-import { IconCheck } from "@/components/icons";
+import { IconCheck, IconClock, IconX } from "@/components/icons";
 
 const SETTLE_EXIT_MS = 340;
 const EPSILON = 0.005;
@@ -22,8 +22,20 @@ function balanceColor(v: number): string | undefined {
 }
 
 export function SettleView() {
-  const { entries, members, categories, selectedMonth, activeSpace, profile, settle, showToast } = useSpace();
+  const {
+    entries,
+    members,
+    categories,
+    selectedMonth,
+    activeSpace,
+    profile,
+    settle,
+    confirmSettlement,
+    declineSettlement,
+    showToast,
+  } = useSpace();
   const [settlingKey, setSettlingKey] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   const catsById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
   const memberIds = useMemo(() => members.map((m) => m.user_id), [members]);
@@ -33,6 +45,13 @@ export function SettleView() {
     [entries, memberIds, catsById, selectedMonth]
   );
   const debts = useMemo(() => simplify(balances), [balances]);
+  const pendingByPair = useMemo(() => {
+    const map = new Map<string, (typeof entries)[number]>();
+    entries
+      .filter((e) => e.kind === "settlement" && e.status === "pending")
+      .forEach((e) => map.set(`${e.from_id}-${e.to_id}`, e));
+    return map;
+  }, [entries]);
 
   function memberFor(userId: string) {
     return members.find((m) => m.user_id === userId);
@@ -49,6 +68,18 @@ export function SettleView() {
     await new Promise((resolve) => setTimeout(resolve, SETTLE_EXIT_MS));
     await settle(fromId, toId, amount);
     setSettlingKey(null);
+  }
+
+  async function handleConfirm(id: string) {
+    setBusyId(id);
+    await confirmSettlement(id);
+    setBusyId(null);
+  }
+
+  async function handleDecline(id: string) {
+    setBusyId(id);
+    await declineSettlement(id);
+    setBusyId(null);
   }
 
   return (
@@ -87,31 +118,78 @@ export function SettleView() {
                     <AnimatedMoney value={d.amount} currency={activeSpace?.currency} />
                   </div>
                 </div>
-                <div className="grid2">
-                  <button
-                    className="ghost"
-                    disabled={settling}
-                    onClick={() => {
-                      navigator.clipboard?.writeText(String(d.amount)).catch(() => {});
-                      showToast("Amount copied");
-                    }}
-                  >
-                    Copy amount
-                  </button>
-                  <button
-                    className="primary green"
-                    disabled={settling}
-                    onClick={() => handleSettle(key, d.fromId, d.toId, d.amount)}
-                  >
-                    {settling ? (
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                        <IconCheck width={16} height={16} /> Settled
-                      </span>
-                    ) : (
-                      "Mark as settled"
-                    )}
-                  </button>
-                </div>
+                {(() => {
+                  const pending = pendingByPair.get(key);
+                  if (pending) {
+                    const busy = busyId === pending.id;
+                    const iAmConfirmer =
+                      profile?.id !== pending.created_by && (profile?.id === d.fromId || profile?.id === d.toId);
+                    if (iAmConfirmer) {
+                      return (
+                        <>
+                          <p className="mini pending-note">
+                            <IconClock width={13} height={13} />{" "}
+                            {`${nameFor(pending.created_by)} says this is settled — confirm it's right.`}
+                          </p>
+                          <div className="grid2">
+                            <button className="ghost" disabled={busy} onClick={() => handleDecline(pending.id)}>
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                                <IconX width={15} height={15} /> Decline
+                              </span>
+                            </button>
+                            <button className="primary green" disabled={busy} onClick={() => handleConfirm(pending.id)}>
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                                <IconCheck width={16} height={16} /> Confirm
+                              </span>
+                            </button>
+                          </div>
+                        </>
+                      );
+                    }
+                    const counterparty =
+                      pending.created_by === d.fromId ? d.toId : pending.created_by === d.toId ? d.fromId : null;
+                    return (
+                      <>
+                        <p className="mini pending-note">
+                          <IconClock width={13} height={13} />{" "}
+                          {counterparty ? `Waiting for ${nameFor(counterparty)} to confirm.` : "Waiting for confirmation."}
+                        </p>
+                        {profile?.id === pending.created_by && (
+                          <button className="ghost" disabled={busy} onClick={() => handleDecline(pending.id)}>
+                            Cancel request
+                          </button>
+                        )}
+                      </>
+                    );
+                  }
+                  return (
+                    <div className="grid2">
+                      <button
+                        className="ghost"
+                        disabled={settling}
+                        onClick={() => {
+                          navigator.clipboard?.writeText(String(d.amount)).catch(() => {});
+                          showToast("Amount copied");
+                        }}
+                      >
+                        Copy amount
+                      </button>
+                      <button
+                        className="primary green"
+                        disabled={settling}
+                        onClick={() => handleSettle(key, d.fromId, d.toId, d.amount)}
+                      >
+                        {settling ? (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                            <IconCheck width={16} height={16} /> Sent
+                          </span>
+                        ) : (
+                          "Mark as settled"
+                        )}
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
             );
           })
