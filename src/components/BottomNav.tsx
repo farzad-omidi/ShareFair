@@ -3,23 +3,26 @@
 import { useRef } from "react";
 import { useUI } from "@/lib/ui";
 import { useSpace } from "@/lib/store";
+import { useLanguage } from "@/lib/i18n/context";
+import type { TranslationKey } from "@/lib/i18n/translations";
 import type { UiView } from "@/lib/types";
 import { IconPlus, IconGrid, IconSwap, IconPulse, IconDots } from "@/components/icons";
 import type { ComponentType, SVGProps } from "react";
 
 const DOUBLE_TAP_MS = 350;
 
-const items: { view: UiView; Icon: ComponentType<SVGProps<SVGSVGElement>>; label: string }[] = [
-  { view: "Add", Icon: IconPlus, label: "Add" },
-  { view: "Month", Icon: IconGrid, label: "Month" },
-  { view: "Settle", Icon: IconSwap, label: "Settle" },
-  { view: "Insights", Icon: IconPulse, label: "Rhythm" },
-  { view: "More", Icon: IconDots, label: "More" },
+const items: { view: UiView; Icon: ComponentType<SVGProps<SVGSVGElement>>; labelKey: TranslationKey }[] = [
+  { view: "Add", Icon: IconPlus, labelKey: "nav_add" },
+  { view: "Month", Icon: IconGrid, labelKey: "nav_month" },
+  { view: "Settle", Icon: IconSwap, labelKey: "nav_settle" },
+  { view: "Insights", Icon: IconPulse, labelKey: "nav_insights" },
+  { view: "More", Icon: IconDots, labelKey: "nav_more" },
 ];
 
 export function BottomNav() {
   const { view, setView } = useUI();
   const { entries, profile } = useSpace();
+  const { t } = useLanguage();
   const lastTap = useRef<{ view: UiView; time: number } | null>(null);
 
   const awaitingMe = profile
@@ -54,7 +57,7 @@ export function BottomNav() {
             <item.Icon />
             {item.view === "Settle" && awaitingMe > 0 && <span className="nav-badge" />}
           </span>
-          <span>{item.label}</span>
+          <span>{t(item.labelKey)}</span>
         </button>
       ))}
     </nav>

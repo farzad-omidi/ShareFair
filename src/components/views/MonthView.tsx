@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useSpace } from "@/lib/store";
 import { useUI } from "@/lib/ui";
+import { useLanguage } from "@/lib/i18n/context";
 import { calcMonth, monthName } from "@/lib/domain";
 import { money } from "@/lib/format";
 import { memberVars } from "@/lib/palettes";
@@ -14,6 +15,7 @@ import { IconSwap, IconUndo, IconReceipt, IconClock } from "@/components/icons";
 export function MonthView() {
   const { entries, members, categories, selectedMonth, activeSpace } = useSpace();
   const { openModal } = useUI();
+  const { t } = useLanguage();
   const [filterHousing, setFilterHousing] = useState(false);
 
   const catsById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
@@ -39,31 +41,31 @@ export function MonthView() {
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Month overview</h2>
+            <h2>{t("month_card_title")}</h2>
             <p>
               {monthName(selectedMonth)}
-              {filterHousing ? " · excluding housing" : ""}
+              {filterHousing ? ` · ${t("month_housing_excluded")}` : ""}
             </p>
           </div>
           <button className="link" onClick={() => setFilterHousing((f) => !f)}>
-            {filterHousing ? "No housing" : "All"}
+            {filterHousing ? t("month_filter_no_housing") : t("month_filter_all")}
           </button>
         </div>
         <div className="metric-grid">
           <div className="metric wide">
-            <span>Total shared</span>
+            <span>{t("metric_total_shared")}</span>
             <strong>
               <AnimatedMoney value={summary.total} currency={activeSpace?.currency} />
             </strong>
-            <small>{filterHousing ? "Housing categories hidden" : "All categories included"}</small>
+            <small>{filterHousing ? t("metric_total_note_excl") : t("metric_total_note_all")}</small>
           </div>
           {members.map((m) => (
             <div className="metric member-metric" style={memberVars(m.palette)} key={m.id}>
-              <span>Paid by {m.display_name}</span>
+              <span>{t("metric_paid_by", { name: m.display_name })}</span>
               <strong>
                 <AnimatedMoney value={summary.paid[m.user_id] || 0} currency={activeSpace?.currency} />
               </strong>
-              <small>Fair share: {money(fair, activeSpace?.currency)}</small>
+              <small>{t("metric_fair_share", { amount: money(fair, activeSpace?.currency) })}</small>
             </div>
           ))}
         </div>
@@ -72,13 +74,13 @@ export function MonthView() {
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Entries</h2>
-            <p>Tap an entry to edit it.</p>
+            <h2>{t("entries_card_title")}</h2>
+            <p>{t("entries_card_subtitle")}</p>
           </div>
         </div>
         <div className="entry-list">
           {list.length === 0 ? (
-            <div className="empty">No entries for {monthName(selectedMonth)} yet.</div>
+            <div className="empty">{t("entries_empty", { month: monthName(selectedMonth) })}</div>
           ) : (
             list.map((e) => (
               <EntryItem
@@ -96,6 +98,7 @@ export function MonthView() {
 
 function EntryItem({ entry: e, onClick }: { entry: EntryRow; onClick: () => void }) {
   const { members, categories, activeSpace } = useSpace();
+  const { t } = useLanguage();
 
   if (e.kind === "settlement") {
     const from = members.find((m) => m.user_id === e.from_id);
@@ -108,9 +111,14 @@ function EntryItem({ entry: e, onClick }: { entry: EntryRow; onClick: () => void
         </span>
         <span>
           <strong>
-            {from?.display_name ?? "Someone"} {pending ? "settling with" : "settled with"} {to?.display_name ?? "someone"}
+            {t(pending ? "entry_settling" : "entry_settled", {
+              from: from?.display_name ?? "Someone",
+              to: to?.display_name ?? "someone",
+            })}
           </strong>
-          <small>{e.entry_date} · {pending ? "awaiting confirmation" : "payment"}</small>
+          <small>
+            {e.entry_date} · {t(pending ? "entry_awaiting" : "entry_payment")}
+          </small>
         </span>
         <span className="entry-amount settle">{money(e.amount, activeSpace?.currency)}</span>
       </button>

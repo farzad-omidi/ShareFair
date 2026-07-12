@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { SpaceProvider, useSpace } from "@/lib/store";
 import { UIProvider, useUI } from "@/lib/ui";
+import { useLanguage } from "@/lib/i18n/context";
 import { monthName } from "@/lib/domain";
 import { Onboarding } from "@/components/Onboarding";
 import { BottomNav } from "@/components/BottomNav";
@@ -27,6 +28,7 @@ export function AppShell({ userId, userEmail }: { userId: string; userEmail: str
 function AppShellInner() {
   const { loading, activeSpace, spaces, members, selectedMonth, realtimeStatus, profile } = useSpace();
   const { view, openModal } = useUI();
+  const { t } = useLanguage();
 
   // Ask a brand-new member since when they've actually been involved, once per
   // session -- existing members were backfilled at migration time, so a null
@@ -59,9 +61,7 @@ function AppShellInner() {
       <main className="app-shell">
         <header className="app-header">
           <div>
-            <div className="eyebrow">
-              {members.length} people · {activeSpace.currency}
-            </div>
+            <div className="eyebrow">{t("header_eyebrow", { count: members.length, currency: activeSpace.currency })}</div>
             <h1 className="brand">{activeSpace.name}</h1>
           </div>
           <div style={{ display: "grid", gap: 6, justifyItems: "end" }}>
@@ -71,7 +71,13 @@ function AppShellInner() {
             </button>
             <span className={`status ${realtimeStatus === "live" ? "green" : "neutral"}`}>
               <span className="s-dot"></span>
-              <span>{realtimeStatus === "live" ? "Live" : realtimeStatus === "connecting" ? "Connecting" : "Offline"}</span>
+              <span>
+                {realtimeStatus === "live"
+                  ? t("status_live")
+                  : realtimeStatus === "connecting"
+                    ? t("status_connecting")
+                    : t("status_offline")}
+              </span>
             </span>
           </div>
         </header>

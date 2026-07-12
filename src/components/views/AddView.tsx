@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useSpace } from "@/lib/store";
 import { useUI } from "@/lib/ui";
+import { useLanguage } from "@/lib/i18n/context";
 import { today, calcThrough, simplify, monthName } from "@/lib/domain";
 import { money, symbol, parseAmount } from "@/lib/format";
 import { memberVars, paletteFor } from "@/lib/palettes";
@@ -26,6 +27,7 @@ export function AddView() {
     showToast,
   } = useSpace();
   const { openModal } = useUI();
+  const { t } = useLanguage();
 
   const myMember = members.find((m) => m.user_id === profile?.id) ?? members[0];
 
@@ -120,11 +122,11 @@ export function AddView() {
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Add expense</h2>
-            <p>Fast daily tracking, shared fairly.</p>
+            <h2>{t("add_card_title")}</h2>
+            <p>{t("add_card_subtitle")}</p>
           </div>
           <button className="link" onClick={() => setDate(today())}>
-            Today
+            {t("add_today_btn")}
           </button>
         </div>
 
@@ -140,7 +142,7 @@ export function AddView() {
                 <MemberAvatar member={m} size={26} />
                 <strong>{m.display_name}</strong>
               </div>
-              <small>{payerId === m.user_id ? "Selected payer" : "Tap to pay as"}</small>
+              <small>{payerId === m.user_id ? t("payer_selected_label") : t("payer_tap_label")}</small>
             </button>
           ))}
         </div>
@@ -148,8 +150,8 @@ export function AddView() {
         {payer && (
           <div className="payer-now" style={memberVars(payerPalette)}>
             <div>
-              <strong>Paying now as {payer.display_name}</strong>
-              <small>This expense will be added as {payer.display_name}.</small>
+              <strong>{t("payer_now_heading", { name: payer.display_name })}</strong>
+              <small>{t("payer_now_subtext", { name: payer.display_name })}</small>
             </div>
             <span className="payer-badge">
               <MemberAvatar member={payer} size={18} maxLetters={1} />
@@ -160,19 +162,19 @@ export function AddView() {
 
         <div className="segment section-gap">
           <button className={kind === "expense" ? "active" : ""} onClick={() => setKind("expense")}>
-            Expense
+            {t("segment_expense")}
           </button>
           <button className={kind === "credit" ? "active" : ""} onClick={() => setKind("credit")}>
-            Credit / refund
+            {t("segment_credit")}
           </button>
         </div>
 
         <div className="card-title subhead">
           <div>
-            <h3>Category</h3>
+            <h3>{t("category_heading")}</h3>
           </div>
           <button className="link" onClick={() => openModal({ type: "categoryManager" })}>
-            Manage
+            {t("category_manage_btn")}
           </button>
         </div>
         <div className="chips">
@@ -187,7 +189,7 @@ export function AddView() {
             </button>
           ))}
           <button className="chip add" onClick={() => openModal({ type: "categoryManager" })}>
-            ＋ Add
+            {t("category_add_chip")}
           </button>
         </div>
 
@@ -196,7 +198,7 @@ export function AddView() {
           <input
             className={`amount${kind === "credit" ? " credit" : ""}`}
             inputMode="decimal"
-            placeholder="0"
+            placeholder={t("amount_placeholder")}
             autoComplete="off"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -204,24 +206,29 @@ export function AddView() {
         </div>
 
         <div className="field">
-          <input className="input" placeholder="Note, optional" value={note} onChange={(e) => setNote(e.target.value)} />
+          <input
+            className="input"
+            placeholder={t("note_placeholder")}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
         </div>
 
         <details className="section-gap" open={splitOpen} onToggle={(e) => setSplitOpen((e.target as HTMLDetailsElement).open)}>
           <summary className="muted" style={{ fontWeight: 850, cursor: "pointer" }}>
-            Split options
+            {t("split_options_summary")}
           </summary>
           <div className="field">
-            <label>Split method</label>
+            <label>{t("split_method_label")}</label>
             <select className="select" value={splitMethod} onChange={(e) => setSplitMethod(e.target.value as SplitType)}>
-              <option value="equal">Equal between selected people</option>
-              <option value="percent">Percentage</option>
-              <option value="shares">Shares</option>
-              <option value="amounts">Custom amounts</option>
+              <option value="equal">{t("split_option_equal")}</option>
+              <option value="percent">{t("split_option_percent")}</option>
+              <option value="shares">{t("split_option_shares")}</option>
+              <option value="amounts">{t("split_option_amounts")}</option>
             </select>
           </div>
           <div className="field">
-            <label>Shared by</label>
+            <label>{t("shared_by_label")}</label>
             <div className="chips">
               {members.map((m) => (
                 <button
@@ -238,12 +245,16 @@ export function AddView() {
           </div>
           {splitMethod === "equal" ? (
             <p className="mini" style={{ margin: "10px 0 0" }}>
-              Split equally between {participantIds.size} people.
+              {t("split_equal_note", { count: participantIds.size })}
             </p>
           ) : (
             <div className="field">
               <label>
-                {splitMethod === "percent" ? "Percentages" : splitMethod === "shares" ? "Shares" : "Custom amounts"}
+                {splitMethod === "percent"
+                  ? t("split_percentages_label")
+                  : splitMethod === "shares"
+                    ? t("split_shares_label")
+                    : t("split_custom_amounts_label")}
               </label>
               {[...participantIds].map((id) => {
                 const m = members.find((mm) => mm.user_id === id);
@@ -263,7 +274,7 @@ export function AddView() {
                   </div>
                 );
               })}
-              <p className="mini">Leave empty to distribute the remainder equally.</p>
+              <p className="mini">{t("split_remainder_note")}</p>
             </div>
           )}
         </details>
@@ -274,7 +285,7 @@ export function AddView() {
           </label>
           <button className={`ghost toggle-pill${repeat ? " on" : ""}`} onClick={() => setRepeat((r) => !r)}>
             {repeat && <IconCheck width={14} height={14} />}
-            {repeat ? "Repeat monthly" : "No repeat"}
+            {repeat ? t("repeat_on") : t("repeat_off")}
           </button>
         </div>
 
@@ -284,27 +295,27 @@ export function AddView() {
           disabled={!payerId || !categoryId || !amount}
           onClick={handleSubmit}
         >
-          {kind === "credit" ? `Add credit as ${payer?.display_name ?? ""}` : `Add expense as ${payer?.display_name ?? ""}`}
+          {t(kind === "credit" ? "submit_credit" : "submit_expense", { name: payer?.display_name ?? "" })}
         </button>
       </div>
 
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Your balance</h2>
-            <p>Through {monthName(selectedMonth)}</p>
+            <h2>{t("balance_card_title")}</h2>
+            <p>{t("balance_card_subtitle", { month: monthName(selectedMonth) })}</p>
           </div>
         </div>
         {debts.length === 0 ? (
           <div className="hero balanced">
-            <div className="hero-label">To settle</div>
-            <div className="flow">You&apos;re all square</div>
+            <div className="hero-label">{t("balance_settle_label")}</div>
+            <div className="flow">{t("balance_all_square")}</div>
             <div className="big-money zero">{money(0, activeSpace?.currency)}</div>
-            <div className="hero-text">Everyone&apos;s settled through {monthName(selectedMonth)}.</div>
+            <div className="hero-text">{t("balance_settled_text", { month: monthName(selectedMonth) })}</div>
           </div>
         ) : (
           <div className="hero">
-            <div className="hero-label">To settle</div>
+            <div className="hero-label">{t("balance_settle_label")}</div>
             <div className="flow">
               <MemberAvatar member={members.find((m) => m.user_id === debts[0].fromId)} size={22} maxLetters={1} />
               <span>{members.find((m) => m.user_id === debts[0].fromId)?.display_name}</span>
@@ -324,7 +335,7 @@ export function AddView() {
             >
               <AnimatedMoney value={debts[0].amount} currency={activeSpace?.currency} />
             </div>
-            <div className="hero-text">Includes current month and any earlier open balance not yet settled.</div>
+            <div className="hero-text">{t("balance_open_text")}</div>
           </div>
         )}
       </div>

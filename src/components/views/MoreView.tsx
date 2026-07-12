@@ -3,6 +3,8 @@
 import { useRef } from "react";
 import { useSpace, type ImportRow } from "@/lib/store";
 import { useUI } from "@/lib/ui";
+import { useLanguage } from "@/lib/i18n/context";
+import { LANGUAGES } from "@/lib/i18n/languages";
 import { paletteFor } from "@/lib/palettes";
 import { MemberAvatar } from "@/components/Avatar";
 import { toCsvRow, parseCsv } from "@/lib/csv";
@@ -39,6 +41,7 @@ export function MoreView() {
     signOut,
   } = useSpace();
   const { openModal } = useUI();
+  const { t, language, setLanguage } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const myMember = members.find((m) => m.user_id === profile?.id);
   const isOwner = myMember?.role === "owner";
@@ -143,11 +146,11 @@ export function MoreView() {
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Spaces</h2>
-            <p>Use one app for home, trips, roommates, or family expenses.</p>
+            <h2>{t("spaces_card_title")}</h2>
+            <p>{t("spaces_card_subtitle")}</p>
           </div>
           <button className="link" onClick={() => openModal({ type: "newSpace" })}>
-            New
+            {t("spaces_new_btn")}
           </button>
         </div>
         {spaces.map((sp) => (
@@ -157,23 +160,23 @@ export function MoreView() {
               <small>{sp.currency}</small>
             </div>
             <button className="ghost" onClick={() => switchSpace(sp.id)}>
-              {sp.id === activeSpaceId ? "Active" : "Open"}
+              {sp.id === activeSpaceId ? t("spaces_active_btn") : t("spaces_open_btn")}
             </button>
           </div>
         ))}
         <button className="ghost" style={{ width: "100%", marginTop: 12 }} onClick={() => openModal({ type: "joinSpace" })}>
-          Join with a code
+          {t("spaces_join_code_btn")}
         </button>
       </div>
 
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Members</h2>
-            <p>Invite people to your current space.</p>
+            <h2>{t("members_card_title")}</h2>
+            <p>{t("members_card_subtitle")}</p>
           </div>
           <button className="link" onClick={() => openModal({ type: "invite" })}>
-            Invite
+            {t("members_invite_btn")}
           </button>
         </div>
         {members.map((m) => (
@@ -190,7 +193,7 @@ export function MoreView() {
             </div>
             {m.user_id === profile?.id ? (
               <button className="ghost" onClick={() => openModal({ type: "editMember", memberId: m.id })}>
-                Edit
+                {t("action_edit")}
               </button>
             ) : (
               isOwner && (
@@ -200,7 +203,7 @@ export function MoreView() {
                     if (window.confirm(`Remove ${m.display_name} from this space?`)) removeMember(m.id);
                   }}
                 >
-                  Remove
+                  {t("action_delete")}
                 </button>
               )
             )}
@@ -211,16 +214,36 @@ export function MoreView() {
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Backup</h2>
-            <p>Export a copy of this space&apos;s entries, or bring one back in.</p>
+            <h2>{t("language_card_title")}</h2>
+            <p>{t("language_card_subtitle")}</p>
+          </div>
+        </div>
+        <div className="chips">
+          {LANGUAGES.map((l) => (
+            <button
+              key={l.code}
+              className={`chip${language === l.code ? " active" : ""}`}
+              onClick={() => setLanguage(l.code)}
+            >
+              {l.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">
+          <div>
+            <h2>{t("backup_card_title")}</h2>
+            <p>{t("backup_card_subtitle")}</p>
           </div>
         </div>
         <div className="grid2">
           <button className="ghost" onClick={exportCsv}>
-            Export CSV
+            {t("backup_export_btn")}
           </button>
           <button className="ghost" onClick={() => fileInputRef.current?.click()}>
-            Import CSV
+            {t("backup_import_btn")}
           </button>
         </div>
         <input
@@ -243,7 +266,7 @@ export function MoreView() {
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Unlock</h2>
+            <h2>{t("unlock_card_title")}</h2>
             <p>Preview only — payment isn&apos;t connected yet.</p>
           </div>
         </div>
@@ -255,12 +278,12 @@ export function MoreView() {
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Account</h2>
+            <h2>{t("account_card_title")}</h2>
             <p>{userEmail}</p>
           </div>
         </div>
         <button className="danger" style={{ width: "100%" }} onClick={signOut}>
-          Sign out
+          {t("account_signout_btn")}
         </button>
       </div>
     </>

@@ -3,6 +3,7 @@
 import { Suspense, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/lib/i18n/context";
 
 export default function LoginPage() {
   return (
@@ -13,6 +14,7 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/";
   const linkError = searchParams.get("error");
@@ -51,9 +53,9 @@ function LoginForm() {
       <div className="glow" />
       <div className="app-shell" style={{ paddingBottom: 24 }}>
         <div style={{ textAlign: "center", margin: "20px 0 8px" }}>
-          <div className="eyebrow">Shared expenses, done fairly</div>
+          <div className="eyebrow">{t("login_eyebrow")}</div>
           <h1 className="brand" style={{ fontSize: "clamp(38px,10vw,52px)" }}>
-            ShareFair
+            {t("login_brand")}
           </h1>
         </div>
 
@@ -62,7 +64,7 @@ function LoginForm() {
             <>
               <div className="card-title">
                 <div>
-                  <h2>Check your email</h2>
+                  <h2>{t("checkemail_title")}</h2>
                   <p>
                     We sent a sign-in link to <strong>{email}</strong>. Open it on this
                     device to continue.
@@ -70,15 +72,15 @@ function LoginForm() {
                 </div>
               </div>
               <button className="ghost" style={{ width: "100%" }} onClick={() => setStatus("idle")}>
-                Use a different email
+                {t("checkemail_different_email_btn")}
               </button>
             </>
           ) : (
             <>
               <div className="card-title">
                 <div>
-                  <h2>Sign in</h2>
-                  <p>No password needed — we&apos;ll email you a magic link.</p>
+                  <h2>{t("signin_title")}</h2>
+                  <p>{t("signin_subtitle")}</p>
                 </div>
               </div>
               {linkError && (
@@ -88,7 +90,7 @@ function LoginForm() {
               )}
               <form onSubmit={handleSubmit}>
                 <div className="field">
-                  <label>Email</label>
+                  <label>{t("field_email")}</label>
                   <input
                     className="input"
                     type="email"
@@ -105,7 +107,7 @@ function LoginForm() {
                   </p>
                 )}
                 <button className="primary" type="submit" disabled={status === "sending"} style={{ marginTop: 14 }}>
-                  {status === "sending" ? "Sending…" : "Send magic link"}
+                  {status === "sending" ? t("signin_submit_busy") : t("signin_submit_idle")}
                 </button>
               </form>
             </>
@@ -113,8 +115,7 @@ function LoginForm() {
         </div>
 
         <p className="mini" style={{ textAlign: "center", padding: "0 20px" }}>
-          A fair, transparent way to split expenses with roommates, partners, family, or
-          a trip crew.
+          {t("login_footer_tagline")}
         </p>
       </div>
     </div>

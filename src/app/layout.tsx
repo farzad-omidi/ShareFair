@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { RegisterServiceWorker } from "@/components/RegisterServiceWorker";
+import { LanguageProvider } from "@/lib/i18n/context";
 
 export const metadata: Metadata = {
   title: "ShareFair — Fair shared expenses",
@@ -40,8 +41,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
-        <RegisterServiceWorker />
+        <LanguageProvider>
+          {children}
+          <RegisterServiceWorker />
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useSpace } from "@/lib/store";
 import { useUI } from "@/lib/ui";
+import { useLanguage } from "@/lib/i18n/context";
 import { calcThrough, simplify, monthName } from "@/lib/domain";
 import { MemberAvatar } from "@/components/Avatar";
 import { AnimatedMoney } from "@/components/AnimatedMoney";
@@ -38,6 +39,7 @@ export function SettleView() {
     showToast,
   } = useSpace();
   const { openModal } = useUI();
+  const { t } = useLanguage();
   const [settlingKey, setSettlingKey] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -112,12 +114,12 @@ export function SettleView() {
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Settle gently</h2>
-            <p>Balances carry over from earlier months until you settle them.</p>
+            <h2>{t("settle_card_title")}</h2>
+            <p>{t("settle_card_subtitle")}</p>
           </div>
         </div>
         {debts.length === 0 ? (
-          <div className="empty">Everything is settled through {monthName(selectedMonth)}.</div>
+          <div className="empty">{t("settle_all_settled", { month: monthName(selectedMonth) })}</div>
         ) : (
           debts.map((d) => {
             const key = `${d.fromId}-${d.toId}`;
@@ -137,7 +139,7 @@ export function SettleView() {
                       <MemberAvatar member={memberFor(d.toId)} size={20} maxLetters={1} />
                       {nameFor(d.toId)}
                     </strong>
-                    <small className="mini">Open through {monthName(selectedMonth)}</small>
+                    <small className="mini">{t("settle_open_note", { month: monthName(selectedMonth) })}</small>
                   </div>
                   <div className="amt" style={amtColor ? { color: amtColor } : undefined}>
                     <AnimatedMoney value={d.amount} currency={activeSpace?.currency} />
@@ -154,17 +156,17 @@ export function SettleView() {
                         <>
                           <p className="mini pending-note">
                             <IconClock width={13} height={13} />{" "}
-                            {`${nameFor(pending.created_by)} says this is settled — confirm it's right.`}
+                            {t("settle_confirm_note", { name: nameFor(pending.created_by) })}
                           </p>
                           <div className="grid2">
                             <button className="ghost" disabled={busy} onClick={() => handleDecline(pending.id)}>
                               <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                                <IconX width={15} height={15} /> Decline
+                                <IconX width={15} height={15} /> {t("action_decline")}
                               </span>
                             </button>
                             <button className="primary green" disabled={busy} onClick={() => handleConfirm(pending.id)}>
                               <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                                <IconCheck width={16} height={16} /> Confirm
+                                <IconCheck width={16} height={16} /> {t("action_confirm")}
                               </span>
                             </button>
                           </div>
@@ -177,11 +179,13 @@ export function SettleView() {
                       <>
                         <p className="mini pending-note">
                           <IconClock width={13} height={13} />{" "}
-                          {counterparty ? `Waiting for ${nameFor(counterparty)} to confirm.` : "Waiting for confirmation."}
+                          {counterparty
+                            ? t("settle_waiting_note", { name: nameFor(counterparty) })
+                            : t("settle_waiting_generic")}
                         </p>
                         {profile?.id === pending.created_by && (
                           <button className="ghost" disabled={busy} onClick={() => handleDecline(pending.id)}>
-                            Cancel request
+                            {t("settle_cancel_request_btn")}
                           </button>
                         )}
                       </>
@@ -197,7 +201,7 @@ export function SettleView() {
                           showToast("Amount copied");
                         }}
                       >
-                        Copy amount
+                        {t("settle_copy_amount_btn")}
                       </button>
                       <button
                         className="primary green"
@@ -206,10 +210,10 @@ export function SettleView() {
                       >
                         {settling ? (
                           <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                            <IconCheck width={16} height={16} /> Sent
+                            <IconCheck width={16} height={16} /> {t("settle_sent_btn")}
                           </span>
                         ) : (
-                          "Mark as settled"
+                          t("settle_mark_settled_btn")
                         )}
                       </button>
                     </div>
@@ -223,10 +227,10 @@ export function SettleView() {
                         <>
                           <p className="mini pending-note">
                             <IconBell width={13} height={13} />{" "}
-                            {`Waiting for ${nameFor(d.fromId)} to pay.`}
+                            {t("settle_waiting_to_pay", { name: nameFor(d.fromId) })}
                           </p>
                           <button className="ghost" disabled={busy} onClick={() => handleCancelRequest(request.id)}>
-                            Cancel request
+                            {t("settle_cancel_request_btn")}
                           </button>
                         </>
                       );
@@ -235,7 +239,7 @@ export function SettleView() {
                       <>
                         <p className="mini pending-note">
                           <IconBell width={13} height={13} />{" "}
-                          {`${nameFor(request.to_id ?? "")} requested this payment.`}
+                          {t("settle_requested_note", { name: nameFor(request.to_id ?? "") })}
                         </p>
                         {normalActions}
                       </>
@@ -253,7 +257,7 @@ export function SettleView() {
                           disabled={requesting}
                           onClick={() => handleRequest(key, d.fromId, d.toId, d.amount)}
                         >
-                          {requesting ? "Sending…" : "Or request payment instead"}
+                          {requesting ? t("settle_sending") : t("settle_request_instead_btn")}
                         </button>
                       )}
                     </>
@@ -268,8 +272,8 @@ export function SettleView() {
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Why this amount?</h2>
-            <p>See exactly how each person&apos;s balance adds up.</p>
+            <h2>{t("why_card_title")}</h2>
+            <p>{t("why_card_subtitle")}</p>
           </div>
         </div>
         <div className="detail-grid">
@@ -289,7 +293,7 @@ export function SettleView() {
           })}
         </div>
         <p className="mini" style={{ lineHeight: 1.5, marginTop: 10 }}>
-          Green means they&apos;re owed money. Terracotta means they owe.
+          {t("why_footnote")}
         </p>
       </div>
     </>

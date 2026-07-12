@@ -7,6 +7,7 @@ import { currentMonth, today } from "@/lib/domain";
 import { money } from "@/lib/format";
 import { ModalSheet } from "@/components/ModalSheet";
 import { PALETTES, memberVars } from "@/lib/palettes";
+import { CURRENCIES } from "@/lib/currencies";
 import { MemberAvatar } from "@/components/Avatar";
 import { IconCheck, IconHeart } from "@/components/icons";
 import { Confetti, makeConfettiPieces, type ConfettiPiece } from "@/components/Confetti";
@@ -383,9 +384,9 @@ function NewSpaceModal({ onClose }: { onClose: () => void }) {
       <div className="field">
         <label>Currency</label>
         <select className="select" value={currency} onChange={(e) => setCurrency(e.target.value)}>
-          {["EUR", "USD", "GBP", "CAD", "AUD", "TRY"].map((c) => (
-            <option key={c} value={c}>
-              {c}
+          {CURRENCIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.symbol} {c.label}
             </option>
           ))}
         </select>
