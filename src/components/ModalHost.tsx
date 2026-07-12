@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useUI } from "@/lib/ui";
 import { useSpace } from "@/lib/store";
 import { currentMonth, today } from "@/lib/domain";
-import { money } from "@/lib/format";
+import { money, symbol } from "@/lib/format";
+import { useLanguage } from "@/lib/i18n/context";
 import { ModalSheet } from "@/components/ModalSheet";
 import { PALETTES, memberVars } from "@/lib/palettes";
 import { CURRENCIES } from "@/lib/currencies";
@@ -42,16 +43,24 @@ export function ModalHost() {
 }
 
 const TIP_OPTIONS = [0, 2, 5, 10];
+const UNLOCK_PRICE = 1;
 
 // Preview-only: no payment is actually wired up yet. This exists to see how the
 // unlock moment (and the thank-you that follows it) looks and feels before
 // deciding whether/how to build it for real.
 function UnlockModal({ onClose }: { onClose: () => void }) {
   const { activeSpace } = useSpace();
+  const { t } = useLanguage();
   const [tip, setTip] = useState(0);
   const [stage, setStage] = useState<"offer" | "thanks">("offer");
   const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([]);
-  const total = 1 + tip;
+  const total = UNLOCK_PRICE + tip;
+  const currency = activeSpace?.currency ?? "EUR";
+  // Toman conventionally trails the amount ("2 تومان") while every other
+  // supported currency's symbol leads it ("€2") -- keep the tip chips compact
+  // (no forced decimals) while still respecting that per-currency ordering.
+  const compactAmount = (amt: number) =>
+    currency === "IRT" ? `${amt} ${symbol(currency)}` : `${symbol(currency)}${amt}`;
 
   if (stage === "thanks") {
     return (
@@ -61,15 +70,15 @@ function UnlockModal({ onClose }: { onClose: () => void }) {
           <div className="thanks-icon">
             <IconHeart width={22} height={22} />
           </div>
-          <div className="flow">Thank you</div>
+          <div className="flow">{t("unlock_thanks_heading")}</div>
           <div className="hero-text">
-            We appreciate your support, and we&apos;re genuinely glad ShareFair has felt good to use.
-            {tip > 0 && " Your tip helps support young engineers building things like this."}
+            {t("unlock_thanks_body")}
+            {tip > 0 && " " + t("unlock_thanks_tip_note")}
           </div>
         </div>
         <div className="modal-actions">
           <button className="primary" style={{ gridColumn: "1 / -1" }} onClick={onClose}>
-            Done
+            {t("action_done")}
           </button>
         </div>
       </ModalSheet>
@@ -79,57 +88,58 @@ function UnlockModal({ onClose }: { onClose: () => void }) {
   return (
     <ModalSheet onClose={onClose}>
       <div className="hero balanced">
-        <div className="hero-label">All square</div>
+        <div className="hero-label">{t("unlock_hero_label")}</div>
         <div className="flow">
           <IconCheck width={20} height={20} />
-          {activeSpace?.name ?? "Your space"} is off to a good start
+          {t("unlock_offer_heading", { name: activeSpace?.name ?? t("fallback_your_space") })}
         </div>
-        <div className="hero-text">
-          You&apos;ve kept things fair together. A small one-time unlock keeps ShareFair running for
-          everyone here.
-        </div>
+        <div className="hero-text">{t("unlock_offer_body")}</div>
       </div>
 
-      <h3>Unlock {activeSpace?.name ?? "this space"}</h3>
-      <p className="sub">One person, one time, everyone in this space — no subscription, no ads, ever.</p>
+      <h3>{t("unlock_cta_heading", { name: activeSpace?.name ?? t("fallback_this_space") })}</h3>
+      <p className="sub">{t("unlock_sub")}</p>
 
       <div className="unlock-benefits">
         <div>
           <IconCheck width={15} height={15} />
-          Everyone in {activeSpace?.name ?? "this space"} unlocked at once
+          {t("unlock_benefit_everyone", { name: activeSpace?.name ?? t("fallback_this_space") })}
         </div>
         <div>
           <IconCheck width={15} height={15} />
-          Yours forever — pay once, no renewals
+          {t("unlock_benefit_forever")}
         </div>
         <div>
           <IconCheck width={15} height={15} />
-          Your history stays, whatever you decide
+          {t("unlock_benefit_history")}
         </div>
       </div>
 
       <div className="field">
-        <label>Want to support more?</label>
+        <label>{t("unlock_tip_label")}</label>
         <div className="chips">
           {TIP_OPTIONS.map((amt) => (
             <button key={amt} className={`chip${tip === amt ? " active" : ""}`} onClick={() => setTip(amt)}>
-              {amt === 0 ? "No tip" : `+€${amt}`}
+              {amt === 0 ? t("unlock_tip_none") : t("unlock_tip_chip", { amount: compactAmount(amt) })}
             </button>
           ))}
         </div>
         <p className="mini" style={{ margin: "6px 0 0" }}>
-          Optional — a little extra to support young engineers building things like this.
+          {t("unlock_tip_hint")}
         </p>
       </div>
 
       <div style={{ textAlign: "center", margin: "14px 0 16px" }}>
-        <div className="big-money">€{total}</div>
-        <p className="mini">{tip > 0 ? `€1 unlock + €${tip} tip` : "one time, not a subscription"}</p>
+        <div className="big-money">{money(total, currency)}</div>
+        <p className="mini">
+          {tip > 0
+            ? t("unlock_summary_with_tip", { unlock: money(UNLOCK_PRICE, currency), tip: money(tip, currency) })
+            : t("unlock_summary_once")}
+        </p>
       </div>
 
       <div className="modal-actions">
         <button className="ghost" onClick={onClose}>
-          Maybe later
+          {t("unlock_maybe_later")}
         </button>
         <button
           className="primary green"
@@ -138,7 +148,7 @@ function UnlockModal({ onClose }: { onClose: () => void }) {
             setStage("thanks");
           }}
         >
-          Unlock for €{total}
+          {t("unlock_cta_button", { amount: money(total, currency) })}
         </button>
       </div>
     </ModalSheet>
@@ -147,6 +157,7 @@ function UnlockModal({ onClose }: { onClose: () => void }) {
 
 function ActiveSinceModal({ onClose }: { onClose: () => void }) {
   const { activeSpace, setMyActiveSince } = useSpace();
+  const { t } = useLanguage();
   const [mode, setMode] = useState<"choose" | "date">("choose");
   const [date, setDate] = useState(today());
   const [busy, setBusy] = useState(false);
@@ -160,25 +171,22 @@ function ActiveSinceModal({ onClose }: { onClose: () => void }) {
 
   return (
     <ModalSheet onClose={onClose}>
-      <h3>Welcome to {activeSpace?.name ?? "the space"}</h3>
-      <p className="sub">
-        Since when have you been sharing expenses with this group? This just keeps everyone&apos;s
-        history accurate — it won&apos;t change anything on its own.
-      </p>
+      <h3>{t("active_since_welcome", { name: activeSpace?.name ?? t("fallback_the_space") })}</h3>
+      <p className="sub">{t("active_since_sub")}</p>
 
       {mode === "choose" ? (
         <div className="modal-actions">
           <button className="ghost" disabled={busy} onClick={() => setMode("date")}>
-            Pick a date
+            {t("active_since_pick_date")}
           </button>
           <button className="primary" disabled={busy} onClick={() => confirm(today())}>
-            From now on
+            {t("active_since_from_now")}
           </button>
         </div>
       ) : (
         <>
           <div className="field">
-            <label>Involved since</label>
+            <label>{t("active_since_label")}</label>
             <input
               className="input"
               type="date"
@@ -189,10 +197,10 @@ function ActiveSinceModal({ onClose }: { onClose: () => void }) {
           </div>
           <div className="modal-actions">
             <button className="ghost" disabled={busy} onClick={() => setMode("choose")}>
-              Back
+              {t("action_back")}
             </button>
             <button className="primary" disabled={busy || !date} onClick={() => confirm(date)}>
-              Confirm
+              {t("action_confirm")}
             </button>
           </div>
         </>
@@ -203,18 +211,19 @@ function ActiveSinceModal({ onClose }: { onClose: () => void }) {
 
 function MonthModal({ onClose }: { onClose: () => void }) {
   const { selectedMonth, setSelectedMonth } = useSpace();
+  const { t } = useLanguage();
   const [val, setVal] = useState(selectedMonth);
   return (
     <ModalSheet onClose={onClose}>
-      <h3>Choose month</h3>
-      <p className="sub">Jump to any month to see its activity.</p>
+      <h3>{t("month_modal_title")}</h3>
+      <p className="sub">{t("month_modal_sub")}</p>
       <div className="field">
-        <label>Month</label>
+        <label>{t("month_modal_label")}</label>
         <input className="input" type="month" value={val} onChange={(e) => setVal(e.target.value)} />
       </div>
       <div className="modal-actions">
         <button className="ghost" onClick={onClose}>
-          Cancel
+          {t("action_cancel")}
         </button>
         <button
           className="primary"
@@ -223,7 +232,7 @@ function MonthModal({ onClose }: { onClose: () => void }) {
             onClose();
           }}
         >
-          Use month
+          {t("month_modal_use")}
         </button>
       </div>
     </ModalSheet>
