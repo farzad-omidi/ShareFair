@@ -11,6 +11,7 @@ export type ModalState =
   | { type: "invite" }
   | { type: "joinSpace" }
   | { type: "editEntry"; entryId: string }
+  | { type: "unlock" }
   | null;
 
 type UIContextValue = {

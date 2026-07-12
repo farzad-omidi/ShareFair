@@ -114,3 +114,11 @@ export function IconBell(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function IconHeart(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 20.5s-7.5-4.7-9.7-9.3C.7 7.6 2.5 4 6 4c2 0 3.6 1.1 4.5 2.7C11.4 5.1 13 4 15 4c3.5 0 5.3 3.6 3.7 7.2C16.5 15.8 12 20.5 12 20.5Z" />
+    </svg>
+  );
+}
