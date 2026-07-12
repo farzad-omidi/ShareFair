@@ -12,7 +12,8 @@ import {
 } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { currentMonth, today, monthKey } from "@/lib/domain";
-import type { Category, EntryRow, Profile, Space, SpaceMember, SplitType } from "@/lib/types";
+import { useLanguage } from "@/lib/i18n/context";
+import type { Category, EntryRow, MyInvitation, Profile, Space, SpaceMember, SplitType } from "@/lib/types";
 import type { TablesInsert, TablesUpdate } from "@/lib/database.types";
 
 type NewEntryInput = {
@@ -62,10 +63,15 @@ type SpaceContextValue = {
   realtimeStatus: "connecting" | "live" | "offline";
 
   switchSpace: (id: string) => void;
-  createSpace: (name: string, currency: string) => Promise<void>;
+  createSpace: (name: string, currency: string) => Promise<string | null>;
   joinSpaceByCode: (code: string) => Promise<{ ok: boolean; error?: string }>;
   createInvite: () => Promise<string | null>;
-  getPastCollaborators: () => Promise<{ user_id: string; display_name: string; palette: number }[]>;
+  getPastCollaborators: (
+    forSpaceId?: string
+  ) => Promise<{ user_id: string; display_name: string; palette: number }[]>;
+  sendSpaceInvitation: (spaceId: string, invitedUserId: string) => Promise<void>;
+  myInvitations: MyInvitation[];
+  respondToInvitation: (invitationId: string, accept: boolean) => Promise<void>;
 
   addEntry: (input: NewEntryInput) => Promise<void>;
   updateEntry: (
@@ -118,6 +124,7 @@ export function SpaceProvider({
   children: ReactNode;
 }) {
   const supabase = useMemo(() => createClient(), []);
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [spaces, setSpaces] = useState<Space[]>([]);
@@ -125,6 +132,7 @@ export function SpaceProvider({
   const [members, setMembers] = useState<SpaceMember[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [entries, setEntries] = useState<EntryRow[]>([]);
+  const [myInvitations, setMyInvitations] = useState<MyInvitation[]>([]);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth());
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -168,6 +176,32 @@ export function SpaceProvider({
     [supabase]
   );
 
+  // Pending invitations directed at me, enriched with the target space's name and
+  // the inviter's display name -- both readable even for a space I'm not a member
+  // of yet, thanks to the spaces_select_invited / profiles_select RLS policies.
+  const loadMyInvitations = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("space_invitations")
+      .select("*, space:spaces(name), inviter:profiles!space_invitations_invited_by_fkey(display_name)")
+      .eq("invited_user_id", userId)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+    if (error || !data) {
+      setMyInvitations([]);
+      return;
+    }
+    setMyInvitations(
+      data.map((row) => {
+        const { space, inviter, ...rest } = row;
+        return {
+          ...rest,
+          space_name: space?.name ?? "",
+          invited_by_name: inviter?.display_name ?? "",
+        } as MyInvitation;
+      })
+    );
+  }, [supabase, userId]);
+
   // initial load
   useEffect(() => {
     let cancelled = false;
@@ -180,6 +214,7 @@ export function SpaceProvider({
       const initial = list.find((s) => s.id === stored)?.id ?? list[0]?.id ?? null;
       setActiveSpaceId(initial);
       if (initial) await loadSpaceData(initial);
+      await loadMyInvitations();
       setLoading(false);
     })();
     return () => {
@@ -187,6 +222,25 @@ export function SpaceProvider({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // realtime subscription for invitations directed at me -- separate from the
+  // space-scoped effect below since an invite to a brand-new space by definition
+  // targets someone not yet a member of that space (so it can't be keyed on
+  // activeSpaceId).
+  useEffect(() => {
+    const channel = supabase
+      .channel(`invitations-${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "space_invitations", filter: `invited_user_id=eq.${userId}` },
+        () => loadMyInvitations()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, supabase, loadMyInvitations]);
 
   const switchSpace = useCallback(
     (id: string) => {
@@ -236,11 +290,15 @@ export function SpaceProvider({
       const { data, error } = await supabase.rpc("create_space", { p_name: name, p_currency: currency });
       if (error || !data) {
         showToast("Couldn't create the space — nothing was saved, try again");
-        return;
+        return null;
       }
       await loadSpaces();
       switchSpace(data);
       showToast("Space created");
+      // Returned so callers that need the new space's id right away (e.g. to invite
+      // people to it before the modal closes) don't have to rely on activeSpaceId
+      // having already re-rendered through context by the time this await resolves.
+      return data;
     },
     [supabase, loadSpaces, switchSpace, showToast]
   );
@@ -270,25 +328,81 @@ export function SpaceProvider({
   }, [supabase, activeSpaceId, showToast]);
 
   // People you've shared any other space with, minus whoever's already in the
-  // current one -- a shortcut for who to send this invite to, not a way to add
-  // them directly (joining still always requires them to redeem the invite).
-  const getPastCollaborators = useCallback(async () => {
-    if (spaces.length === 0) return [];
-    const spaceIds = spaces.map((s) => s.id);
-    const { data, error } = await supabase
-      .from("space_members")
-      .select("user_id, display_name, palette")
-      .in("space_id", spaceIds)
-      .neq("user_id", userId);
-    if (error || !data) return [];
-    const currentIds = new Set(members.map((m) => m.user_id));
-    const seen = new Map<string, { user_id: string; display_name: string; palette: number }>();
-    data.forEach((m) => {
-      if (currentIds.has(m.user_id) || seen.has(m.user_id)) return;
-      seen.set(m.user_id, m);
-    });
-    return [...seen.values()];
-  }, [supabase, spaces, members, userId]);
+  // target space -- a shortcut for who to send this invite to, not a way to add
+  // them directly (joining still always requires them to accept/redeem the
+  // invite). Defaults to the active space, but a caller can pass a different
+  // (e.g. just-created) space id -- fetched fresh from the DB rather than the
+  // `members` state, since that state may still reflect whatever space was
+  // active a moment ago (switchSpace kicks off its own reload without
+  // awaiting it) and would otherwise wrongly exclude valid candidates.
+  const getPastCollaborators = useCallback(
+    async (forSpaceId?: string) => {
+      if (spaces.length === 0) return [];
+      const spaceIds = spaces.map((s) => s.id);
+      const targetSpaceId = forSpaceId ?? activeSpaceId;
+      const [allRes, currentRes] = await Promise.all([
+        supabase
+          .from("space_members")
+          .select("user_id, display_name, palette")
+          .in("space_id", spaceIds)
+          .neq("user_id", userId),
+        targetSpaceId
+          ? supabase.from("space_members").select("user_id").eq("space_id", targetSpaceId)
+          : Promise.resolve({ data: [] as { user_id: string }[], error: null }),
+      ]);
+      if (allRes.error || !allRes.data) return [];
+      const currentIds = new Set((currentRes.data ?? []).map((m) => m.user_id));
+      const seen = new Map<string, { user_id: string; display_name: string; palette: number }>();
+      allRes.data.forEach((m) => {
+        if (currentIds.has(m.user_id) || seen.has(m.user_id)) return;
+        seen.set(m.user_id, m);
+      });
+      return [...seen.values()];
+    },
+    [supabase, spaces, activeSpaceId, userId]
+  );
+
+  // Sends a real, in-app, directed invitation -- distinct from createInvite's
+  // anonymous shareable code -- that the named person can accept/decline from
+  // their own "pending invitations" list.
+  const sendSpaceInvitation = useCallback(
+    async (spaceId: string, invitedUserId: string) => {
+      const { error } = await supabase
+        .from("space_invitations")
+        .insert({ space_id: spaceId, invited_user_id: invitedUserId, invited_by: userId });
+      if (error) {
+        // 23505 = unique_violation -- a pending invite to this person for this
+        // space already exists (e.g. a fast double-tap raced two inserts).
+        // That's not really a failure from the user's point of view, so don't
+        // show a misleading "couldn't send" toast for it.
+        if (error.code !== "23505") showToast(t("invite_send_failed_toast"));
+        return;
+      }
+      showToast(t("invite_sent_toast"));
+    },
+    [supabase, userId, showToast, t]
+  );
+
+  const respondToInvitation = useCallback(
+    async (invitationId: string, accept: boolean) => {
+      const { error } = await supabase.rpc("respond_to_space_invitation", {
+        p_invitation_id: invitationId,
+        p_accept: accept,
+      });
+      if (error) {
+        showToast(t("invitation_respond_failed_toast"));
+        return;
+      }
+      await loadMyInvitations();
+      if (accept) {
+        await loadSpaces();
+        showToast(t("invitation_accepted_toast"));
+      } else {
+        showToast(t("invitation_declined_toast"));
+      }
+    },
+    [supabase, showToast, t, loadMyInvitations, loadSpaces]
+  );
 
   const addEntry = useCallback(
     async (input: NewEntryInput) => {
@@ -671,6 +785,9 @@ export function SpaceProvider({
     joinSpaceByCode,
     createInvite,
     getPastCollaborators,
+    sendSpaceInvitation,
+    myInvitations,
+    respondToInvitation,
     addEntry,
     updateEntry,
     deleteEntry,

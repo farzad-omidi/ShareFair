@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useUI } from "@/lib/ui";
 import { useSpace } from "@/lib/store";
+import { useLanguage } from "@/lib/i18n/context";
 import { currentMonth, today } from "@/lib/domain";
 import { money } from "@/lib/format";
 import { ModalSheet } from "@/components/ModalSheet";
@@ -370,19 +371,116 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
 }
 
 function NewSpaceModal({ onClose }: { onClose: () => void }) {
-  const { createSpace } = useSpace();
+  const { createSpace, getPastCollaborators, sendSpaceInvitation } = useSpace();
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("EUR");
+  const [busy, setBusy] = useState(false);
+  const [stage, setStage] = useState<"create" | "invite">("create");
+  const [newSpaceId, setNewSpaceId] = useState<string | null>(null);
+  const [collaborators, setCollaborators] = useState<
+    { user_id: string; display_name: string; palette: number }[]
+  >([]);
+  const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
+  const [sendingIds, setSendingIds] = useState<Set<string>>(new Set());
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    // Explicitly re-arm on setup (not just clear on cleanup) -- React 18 Strict
+    // Mode's dev-only mount/cleanup/remount double-invoke would otherwise leave
+    // this stuck at `false` after the very first render, even though the
+    // component is genuinely still mounted.
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  async function handleCreate() {
+    const trimmed = name.trim();
+    if (!trimmed || busy) return;
+    setBusy(true);
+    const createdId = await createSpace(trimmed, currency);
+    if (!mountedRef.current) return;
+    setBusy(false);
+    if (createdId) {
+      setNewSpaceId(createdId);
+      // Fetch fresh against the new space's own (currently just-me) member
+      // list, not whatever was active a moment ago.
+      const people = await getPastCollaborators(createdId);
+      if (!mountedRef.current) return;
+      setCollaborators(people);
+      setStage("invite");
+    } else {
+      onClose();
+    }
+  }
+
+  async function inviteChip(p: { user_id: string; display_name: string }) {
+    if (!newSpaceId || invitedIds.has(p.user_id) || sendingIds.has(p.user_id)) return;
+    setSendingIds((prev) => new Set(prev).add(p.user_id));
+    await sendSpaceInvitation(newSpaceId, p.user_id);
+    if (!mountedRef.current) return;
+    setSendingIds((prev) => {
+      const next = new Set(prev);
+      next.delete(p.user_id);
+      return next;
+    });
+    setInvitedIds((prev) => new Set(prev).add(p.user_id));
+  }
+
+  if (stage === "invite") {
+    return (
+      <ModalSheet onClose={onClose}>
+        <h3>{t("newspace_invite_heading", { name: name.trim() })}</h3>
+        <p className="sub">{t("newspace_invite_subtitle")}</p>
+        {collaborators.length > 0 ? (
+          <div className="field">
+            <div className="chips">
+              {collaborators.map((p) => {
+                const invited = invitedIds.has(p.user_id);
+                return (
+                  <button
+                    key={p.user_id}
+                    className={`chip person-chip${invited ? " active" : ""}`}
+                    style={memberVars(p.palette)}
+                    disabled={invited || sendingIds.has(p.user_id)}
+                    onClick={() => inviteChip(p)}
+                  >
+                    <MemberAvatar member={p} size={16} maxLetters={1} />
+                    {p.display_name}
+                    {invited ? ` · ${t("newspace_invited_chip_suffix")}` : ""}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="empty">{t("newspace_no_collaborators")}</div>
+        )}
+        <div className="modal-actions">
+          <button className="primary" style={{ gridColumn: "1 / -1" }} onClick={onClose}>
+            {t("newspace_done_btn")}
+          </button>
+        </div>
+      </ModalSheet>
+    );
+  }
+
   return (
     <ModalSheet onClose={onClose}>
-      <h3>New space</h3>
-      <p className="sub">Create a separate shared place for a trip, roommates, or family expenses.</p>
+      <h3>{t("newspace_title")}</h3>
+      <p className="sub">{t("newspace_subtitle")}</p>
       <div className="field">
-        <label>Name</label>
-        <input className="input" placeholder="Paris Trip" value={name} onChange={(e) => setName(e.target.value)} />
+        <label>{t("field_name")}</label>
+        <input
+          className="input"
+          placeholder={t("newspace_name_placeholder")}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
       </div>
       <div className="field">
-        <label>Currency</label>
+        <label>{t("field_currency")}</label>
         <select className="select" value={currency} onChange={(e) => setCurrency(e.target.value)}>
           {CURRENCIES.map((c) => (
             <option key={c.code} value={c.code}>
@@ -392,19 +490,11 @@ function NewSpaceModal({ onClose }: { onClose: () => void }) {
         </select>
       </div>
       <div className="modal-actions">
-        <button className="ghost" onClick={onClose}>
-          Cancel
+        <button className="ghost" disabled={busy} onClick={onClose}>
+          {t("action_cancel")}
         </button>
-        <button
-          className="primary"
-          onClick={async () => {
-            const trimmed = name.trim();
-            if (!trimmed) return;
-            await createSpace(trimmed, currency);
-            onClose();
-          }}
-        >
-          Create
+        <button className="primary" disabled={busy || !name.trim()} onClick={handleCreate}>
+          {busy ? t("newspace_creating_btn") : t("newspace_create_btn")}
         </button>
       </div>
     </ModalSheet>
@@ -412,13 +502,16 @@ function NewSpaceModal({ onClose }: { onClose: () => void }) {
 }
 
 function InviteModal({ onClose }: { onClose: () => void }) {
-  const { createInvite, activeSpace, getPastCollaborators, showToast } = useSpace();
+  const { createInvite, activeSpace, getPastCollaborators, sendSpaceInvitation, showToast } = useSpace();
+  const { t } = useLanguage();
   const [code, setCode] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [collaborators, setCollaborators] = useState<
     { user_id: string; display_name: string; palette: number }[]
   >([]);
+  const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
+  const [sendingIds, setSendingIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -472,64 +565,85 @@ function InviteModal({ onClose }: { onClose: () => void }) {
       }
     }
     navigator.clipboard?.writeText(text).catch(() => {});
-    showToast(name ? `Message copied — paste it to invite ${name}` : "Invite message copied");
+    showToast(name ? t("invite_copied_named_toast", { name }) : t("invite_copied_generic_toast"));
+  }
+
+  // Tapping a past-collaborator chip both shares the link text (in case they
+  // don't have the app open) AND sends a real in-app invitation they can accept
+  // from their own pending-invitations list once they do.
+  async function inviteCollaborator(p: { user_id: string; display_name: string }) {
+    await share(p.display_name);
+    if (!activeSpace || invitedIds.has(p.user_id) || sendingIds.has(p.user_id)) return;
+    setSendingIds((prev) => new Set(prev).add(p.user_id));
+    await sendSpaceInvitation(activeSpace.id, p.user_id);
+    setSendingIds((prev) => {
+      const next = new Set(prev);
+      next.delete(p.user_id);
+      return next;
+    });
+    setInvitedIds((prev) => new Set(prev).add(p.user_id));
   }
 
   return (
     <ModalSheet onClose={onClose}>
-      <h3>Invite to {activeSpace?.name}</h3>
-      <p className="sub">Anyone with this link can join and see shared expenses. It expires in 14 days.</p>
+      <h3>{t("invite_title", { name: activeSpace?.name ?? "" })}</h3>
+      <p className="sub">{t("invite_subtitle")}</p>
       {busy ? (
-        <div className="empty">Creating invite…</div>
+        <div className="empty">{t("invite_creating")}</div>
       ) : link ? (
         <>
           {qrDataUrl && (
             <div className="qr-wrap">
               {/* eslint-disable-next-line @next/next/no-img-element -- a data: URL, not an optimizable remote image */}
-              <img src={qrDataUrl} alt="QR code for the invite link" width={168} height={168} />
+              <img src={qrDataUrl} alt={t("invite_qr_alt")} width={168} height={168} />
             </div>
           )}
           <div className="field">
-            <label>Invite link</label>
+            <label>{t("invite_link_label")}</label>
             <input className="input" readOnly value={link} onFocus={(e) => e.target.select()} />
           </div>
           <div className="field">
-            <label>Or share the code</label>
+            <label>{t("invite_code_label")}</label>
             <div className="pill" style={{ justifyContent: "flex-start", fontSize: 18, letterSpacing: "0.08em" }}>
               {code}
             </div>
           </div>
           {collaborators.length > 0 && (
             <div className="field">
-              <label>People you&apos;ve shared spaces with</label>
+              <label>{t("invite_collaborators_label")}</label>
               <div className="chips">
-                {collaborators.map((p) => (
-                  <button
-                    key={p.user_id}
-                    className="chip person-chip"
-                    style={memberVars(p.palette)}
-                    onClick={() => share(p.display_name)}
-                  >
-                    <MemberAvatar member={p} size={16} maxLetters={1} />
-                    {p.display_name}
-                  </button>
-                ))}
+                {collaborators.map((p) => {
+                  const invited = invitedIds.has(p.user_id);
+                  return (
+                    <button
+                      key={p.user_id}
+                      className={`chip person-chip${invited ? " active" : ""}`}
+                      style={memberVars(p.palette)}
+                      disabled={sendingIds.has(p.user_id)}
+                      onClick={() => inviteCollaborator(p)}
+                    >
+                      <MemberAvatar member={p} size={16} maxLetters={1} />
+                      {p.display_name}
+                      {invited ? ` · ${t("newspace_invited_chip_suffix")}` : ""}
+                    </button>
+                  );
+                })}
               </div>
               <p className="mini" style={{ margin: "6px 0 0" }}>
-                Tap someone to share this invite with them directly — they still need to open it to join.
+                {t("invite_collaborators_mini")}
               </p>
             </div>
           )}
         </>
       ) : (
-        <div className="empty">Could not create an invite link.</div>
+        <div className="empty">{t("invite_create_failed")}</div>
       )}
       <div className="modal-actions">
         <button className="ghost" onClick={onClose}>
-          Close
+          {t("action_close")}
         </button>
         <button className="primary" disabled={!link} onClick={() => share()}>
-          Share
+          {t("invite_share_btn")}
         </button>
       </div>
       {link && (
@@ -538,10 +652,10 @@ function InviteModal({ onClose }: { onClose: () => void }) {
           style={{ width: "100%", marginTop: 10, textAlign: "center" }}
           onClick={() => {
             navigator.clipboard?.writeText(link).catch(() => {});
-            showToast("Link copied");
+            showToast(t("invite_link_copied_toast"));
           }}
         >
-          Copy link instead
+          {t("invite_copy_link_btn")}
         </button>
       )}
     </ModalSheet>

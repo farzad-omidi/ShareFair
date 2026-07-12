@@ -2,9 +2,11 @@
 --
 -- Applied to the Supabase project as migrations (sharefair_initial_schema,
 -- harden_function_permissions, settlement_confirmation_flow, payment_requests,
--- payer_can_edit_own_entries, member_active_since). This file is the reproducible,
--- combined source of truth — apply it to a fresh Supabase project's SQL editor (or
--- via `supabase db push` / the `apply_migration` MCP tool) to stand the app back up.
+-- payer_can_edit_own_entries, member_active_since, space_invitations,
+-- space_invitations_visible_space_name, space_invitations_hardening). This file
+-- is the reproducible, combined source of truth — apply it to a fresh Supabase
+-- project's SQL editor (or via `supabase db push` / the `apply_migration` MCP
+-- tool) to stand the app back up.
 
 -- ============ profiles ============
 -- Supabase provisions an "extensions" schema in every project; pin pgcrypto there
@@ -65,6 +67,28 @@ create table public.space_invites (
 );
 
 alter table public.space_invites enable row level security;
+
+-- ============ space_invitations ============
+-- A directed, in-app invitation to a specific user to join a specific space,
+-- distinct from space_invites (anonymous, code-based, no named target).
+create table public.space_invitations (
+  id uuid primary key default gen_random_uuid(),
+  space_id uuid not null references public.spaces(id) on delete cascade,
+  invited_user_id uuid not null references public.profiles(id) on delete cascade,
+  invited_by uuid not null references public.profiles(id),
+  status text not null default 'pending' check (status in ('pending','accepted','declined')),
+  created_at timestamptz not null default now(),
+  responded_at timestamptz
+);
+
+-- Prevents duplicate pending invites to the same person for the same space,
+-- while still allowing a new invite to be sent after a decline (or after an
+-- earlier invite was accepted and, hypothetically, the member later left).
+create unique index space_invitations_unique_pending
+  on public.space_invitations (space_id, invited_user_id)
+  where status = 'pending';
+
+alter table public.space_invitations enable row level security;
 
 -- ============ categories ============
 create table public.categories (
@@ -283,6 +307,41 @@ begin
 end;
 $$;
 
+-- ============ RPC: respond_to_space_invitation ============
+-- Accepts or declines a pending invitation directed at the caller. On accept,
+-- also adds the caller as a space member (mirroring create_space's own
+-- membership insert), idempotently in case of a race.
+create or replace function public.respond_to_space_invitation(p_invitation_id uuid, p_accept boolean)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_invite record;
+  v_display_name text;
+begin
+  select * into v_invite from public.space_invitations where id = p_invitation_id for update;
+
+  if not found or v_invite.invited_user_id <> auth.uid() or v_invite.status <> 'pending' then
+    raise exception 'Invitation not found or already responded to';
+  end if;
+
+  update public.space_invitations
+  set status = case when p_accept then 'accepted' else 'declined' end,
+      responded_at = now()
+  where id = p_invitation_id;
+
+  if p_accept then
+    select display_name into v_display_name from public.profiles where id = auth.uid();
+
+    insert into public.space_members (space_id, user_id, display_name, palette, role, active_since)
+    values (v_invite.space_id, auth.uid(), coalesce(v_display_name, 'New member'), 0, 'member', now()::date)
+    on conflict (space_id, user_id) do nothing;
+  end if;
+end;
+$$;
+
 -- ============ RLS policies ============
 
 -- profiles: self, or anyone sharing a space with you
@@ -299,9 +358,42 @@ create policy profiles_select on public.profiles for select
 create policy profiles_update_self on public.profiles for update
   using (id = auth.uid());
 
+-- An invitee needs to see the inviter's display name before accepting --
+-- profiles_select only covers people who already share a space, which isn't
+-- yet true for a brand-new-space invite. This is a second, additive SELECT
+-- policy scoped strictly to the two parties of an active pending invitation
+-- between them (works both directions, so the inviter can also see who they
+-- invited).
+create policy profiles_select_invited on public.profiles for select
+  using (
+    exists (
+      select 1 from public.space_invitations
+      where status = 'pending'
+        and (
+          (invited_by = profiles.id and invited_user_id = (select auth.uid()))
+          or (invited_user_id = profiles.id and invited_by = (select auth.uid()))
+        )
+    )
+  );
+
 -- spaces
 create policy spaces_select on public.spaces for select
   using (public.is_space_member(id));
+
+-- An invitee needs to see the name of a space they've been invited to before
+-- they've joined it (e.g. to render "Join Trip" in their pending-invitations
+-- list) -- this is a second, additive SELECT policy (Postgres combines
+-- same-command RLS policies with OR), scoped strictly to spaces with a pending
+-- invitation naming the caller.
+create policy spaces_select_invited on public.spaces for select
+  using (
+    exists (
+      select 1 from public.space_invitations
+      where space_id = spaces.id
+        and invited_user_id = (select auth.uid())
+        and status = 'pending'
+    )
+  );
 
 create policy spaces_update on public.spaces for update
   using (public.is_space_member(id));
@@ -325,6 +417,31 @@ create policy space_invites_select on public.space_invites for select
 
 create policy space_invites_delete on public.space_invites for delete
   using (public.is_space_member(space_id));
+
+-- space_invitations: the invitee can see their own invitations; any member of the
+-- target space can also see invitations issued for it.
+create policy space_invitations_select on public.space_invitations for select
+  using (
+    invited_user_id = (select auth.uid())
+    or public.is_space_member(space_id)
+  );
+
+-- caller must already be a member of the space, must be the one recorded as
+-- inviting, and cannot invite themselves.
+create policy space_invitations_insert on public.space_invitations for insert
+  with check (
+    public.is_space_member(space_id)
+    and invited_by = (select auth.uid())
+    and invited_user_id <> (select auth.uid())
+  );
+
+-- only the invitee may respond, and only while still pending -- this keeps the
+-- inviter (or anyone else) from tampering with the response status.
+create policy space_invitations_update on public.space_invitations for update
+  using (
+    invited_user_id = (select auth.uid())
+    and status = 'pending'
+  );
 
 -- categories
 create policy categories_select on public.categories for select
@@ -479,11 +596,38 @@ create trigger categories_protect_columns
   before update on public.categories
   for each row execute function public.protect_category_columns();
 
+-- The space_invitations_update RLS policy has a USING clause but no WITH
+-- CHECK, so Postgres reuses USING as the check on the new row too -- meaning
+-- it only constrains invited_user_id/status, leaving space_id, invited_by, and
+-- created_at free for the invitee to rewrite on their own row. A WITH CHECK
+-- alone can't compare old vs new column values, so this is closed the same
+-- way as the tables above: a BEFORE UPDATE trigger.
+create or replace function public.protect_space_invitation_columns()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if new.space_id is distinct from old.space_id
+     or new.invited_user_id is distinct from old.invited_user_id
+     or new.invited_by is distinct from old.invited_by
+     or new.created_at is distinct from old.created_at then
+    raise exception 'Cannot change space_id, invited_user_id, invited_by, or created_at of an invitation';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger space_invitations_protect_columns
+  before update on public.space_invitations
+  for each row execute function public.protect_space_invitation_columns();
+
 -- ============ realtime ============
 alter publication supabase_realtime add table public.entries;
 alter publication supabase_realtime add table public.space_members;
 alter publication supabase_realtime add table public.categories;
 alter publication supabase_realtime add table public.spaces;
+alter publication supabase_realtime add table public.space_invitations;
 
 -- ============ hardened function permissions ============
 -- Internal helpers are not meant to be called directly via REST, only used inside RLS
@@ -495,7 +639,9 @@ revoke execute on function public.handle_new_user() from anon, authenticated;
 revoke execute on function public.create_space(text, text) from anon;
 revoke execute on function public.create_invite(uuid, int, int) from anon;
 revoke execute on function public.redeem_invite(text) from anon;
+revoke execute on function public.respond_to_space_invitation(uuid, boolean) from anon;
 
 grant execute on function public.create_space(text, text) to authenticated;
 grant execute on function public.create_invite(uuid, int, int) to authenticated;
 grant execute on function public.redeem_invite(text) to authenticated;
+grant execute on function public.respond_to_space_invitation(uuid, boolean) to authenticated;
