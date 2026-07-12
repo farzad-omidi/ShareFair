@@ -8,7 +8,8 @@ import { money } from "@/lib/format";
 import { ModalSheet } from "@/components/ModalSheet";
 import { PALETTES, memberVars } from "@/lib/palettes";
 import { MemberAvatar } from "@/components/Avatar";
-import { IconCheck } from "@/components/icons";
+import { IconCheck, IconHeart } from "@/components/icons";
+import { Confetti, makeConfettiPieces, type ConfettiPiece } from "@/components/Confetti";
 import QRCode from "qrcode";
 
 export function ModalHost() {
@@ -37,10 +38,40 @@ export function ModalHost() {
   }
 }
 
+const TIP_OPTIONS = [0, 2, 5, 10];
+
 // Preview-only: no payment is actually wired up yet. This exists to see how the
-// unlock moment looks and feels before deciding whether/how to build it for real.
+// unlock moment (and the thank-you that follows it) looks and feels before
+// deciding whether/how to build it for real.
 function UnlockModal({ onClose }: { onClose: () => void }) {
-  const { activeSpace, showToast } = useSpace();
+  const { activeSpace } = useSpace();
+  const [tip, setTip] = useState(0);
+  const [stage, setStage] = useState<"offer" | "thanks">("offer");
+  const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([]);
+  const total = 1 + tip;
+
+  if (stage === "thanks") {
+    return (
+      <ModalSheet onClose={onClose}>
+        <div className="hero balanced thanks-card">
+          <Confetti pieces={confettiPieces} />
+          <div className="thanks-icon">
+            <IconHeart width={22} height={22} />
+          </div>
+          <div className="flow">Thank you</div>
+          <div className="hero-text">
+            We appreciate your support, and we&apos;re genuinely glad ShareFair has felt good to use.
+            {tip > 0 && " Your tip helps support young engineers building things like this."}
+          </div>
+        </div>
+        <div className="modal-actions">
+          <button className="primary" style={{ gridColumn: "1 / -1" }} onClick={onClose}>
+            Done
+          </button>
+        </div>
+      </ModalSheet>
+    );
+  }
 
   return (
     <ModalSheet onClose={onClose}>
@@ -74,9 +105,23 @@ function UnlockModal({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      <div style={{ textAlign: "center", margin: "6px 0 16px" }}>
-        <div className="big-money">€1</div>
-        <p className="mini">one time, not a subscription</p>
+      <div className="field">
+        <label>Want to support more?</label>
+        <div className="chips">
+          {TIP_OPTIONS.map((amt) => (
+            <button key={amt} className={`chip${tip === amt ? " active" : ""}`} onClick={() => setTip(amt)}>
+              {amt === 0 ? "No tip" : `+€${amt}`}
+            </button>
+          ))}
+        </div>
+        <p className="mini" style={{ margin: "6px 0 0" }}>
+          Optional — a little extra to support young engineers building things like this.
+        </p>
+      </div>
+
+      <div style={{ textAlign: "center", margin: "14px 0 16px" }}>
+        <div className="big-money">€{total}</div>
+        <p className="mini">{tip > 0 ? `€1 unlock + €${tip} tip` : "one time, not a subscription"}</p>
       </div>
 
       <div className="modal-actions">
@@ -86,11 +131,11 @@ function UnlockModal({ onClose }: { onClose: () => void }) {
         <button
           className="primary green"
           onClick={() => {
-            showToast("Preview only — payment isn't connected yet");
-            onClose();
+            setConfettiPieces(makeConfettiPieces());
+            setStage("thanks");
           }}
         >
-          Unlock for €1
+          Unlock for €{total}
         </button>
       </div>
     </ModalSheet>
