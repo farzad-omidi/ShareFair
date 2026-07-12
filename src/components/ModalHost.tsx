@@ -7,6 +7,7 @@ import { currentMonth } from "@/lib/domain";
 import { money } from "@/lib/format";
 import { ModalSheet } from "@/components/ModalSheet";
 import { PALETTES, memberVars } from "@/lib/palettes";
+import { MemberAvatar } from "@/components/Avatar";
 
 export function ModalHost() {
   const { modal, closeModal } = useUI();
@@ -337,17 +338,97 @@ function JoinSpaceModal({ onClose }: { onClose: () => void }) {
 }
 
 function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => void }) {
-  const { entries, members, updateEntry, deleteEntry, activeSpace } = useSpace();
+  const { entries, members, profile, updateEntry, deleteEntry, confirmSettlement, declineSettlement, activeSpace } =
+    useSpace();
   const e = entries.find((x) => x.id === entryId);
   const [amount, setAmount] = useState(e ? String(e.amount) : "");
   const [note, setNote] = useState(e?.note || "");
   const [date, setDate] = useState(e?.entry_date || "");
+  const [participantIds, setParticipantIds] = useState<Set<string>>(new Set(e?.participant_ids ?? []));
 
   if (!e) return null;
+
+  const myMember = members.find((m) => m.user_id === profile?.id);
+  // Matches the server-side rule: only the entry's author or the space owner can
+  // delete it — everyone else sees the entry without a delete option at all,
+  // rather than a button that fails with a confusing error.
+  const canDelete = e.created_by === profile?.id || myMember?.role === "owner";
+
+  function toggleParticipant(id: string) {
+    setParticipantIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   if (e.kind === "settlement") {
     const from = members.find((m) => m.user_id === e.from_id);
     const to = members.find((m) => m.user_id === e.to_id);
+
+    if (e.status === "pending") {
+      const iAmConfirmer = profile?.id !== e.created_by && (profile?.id === e.from_id || profile?.id === e.to_id);
+      const iAmInitiator = profile?.id === e.created_by;
+      return (
+        <ModalSheet onClose={onClose}>
+          <h3>Settlement — awaiting confirmation</h3>
+          <p className="sub">
+            {from?.display_name ?? "Someone"} → {to?.display_name ?? "someone"}
+          </p>
+          <div className="big-money">{money(e.amount, activeSpace?.currency)}</div>
+          {iAmConfirmer ? (
+            <>
+              <p className="mini" style={{ margin: "0 0 14px" }}>
+                Confirm this actually happened before it counts toward balances.
+              </p>
+              <div className="modal-actions">
+                <button
+                  className="ghost"
+                  onClick={async () => {
+                    await declineSettlement(entryId);
+                    onClose();
+                  }}
+                >
+                  Decline
+                </button>
+                <button
+                  className="primary green"
+                  onClick={async () => {
+                    await confirmSettlement(entryId);
+                    onClose();
+                  }}
+                >
+                  Confirm
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="modal-actions">
+              <button
+                className="ghost"
+                onClick={onClose}
+                style={iAmInitiator ? undefined : { gridColumn: "1 / -1" }}
+              >
+                Close
+              </button>
+              {iAmInitiator && (
+                <button
+                  className="danger"
+                  onClick={async () => {
+                    await declineSettlement(entryId);
+                    onClose();
+                  }}
+                >
+                  Cancel request
+                </button>
+              )}
+            </div>
+          )}
+        </ModalSheet>
+      );
+    }
+
     return (
       <ModalSheet onClose={onClose}>
         <h3>Settlement</h3>
@@ -356,18 +437,20 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
         </p>
         <div className="big-money">{money(e.amount, activeSpace?.currency)}</div>
         <div className="modal-actions">
-          <button className="ghost" onClick={onClose}>
+          <button className="ghost" onClick={onClose} style={canDelete ? undefined : { gridColumn: "1 / -1" }}>
             Close
           </button>
-          <button
-            className="danger"
-            onClick={async () => {
-              await deleteEntry(entryId);
-              onClose();
-            }}
-          >
-            Delete
-          </button>
+          {canDelete && (
+            <button
+              className="danger"
+              onClick={async () => {
+                await deleteEntry(entryId);
+                onClose();
+              }}
+            >
+              Delete
+            </button>
+          )}
         </div>
       </ModalSheet>
     );
@@ -388,27 +471,57 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
         <label>Date</label>
         <input className="input" type="date" value={date} onChange={(ev) => setDate(ev.target.value)} />
       </div>
+      <div className="field">
+        <label>Shared by</label>
+        <div className="chips">
+          {members.map((m) => (
+            <button
+              key={m.id}
+              className={`chip person-chip${participantIds.has(m.user_id) ? " active" : ""}`}
+              style={memberVars(m.palette)}
+              onClick={() => toggleParticipant(m.user_id)}
+            >
+              <MemberAvatar member={m} size={16} maxLetters={1} />
+              {m.display_name}
+            </button>
+          ))}
+        </div>
+        <p className="mini" style={{ margin: "6px 0 0" }}>
+          Someone who joined later? Add them here to fold this expense into their balance too.
+        </p>
+      </div>
       <div className="modal-actions">
-        <button
-          className="danger"
-          onClick={async () => {
-            await deleteEntry(entryId);
-            onClose();
-          }}
-        >
-          Delete
-        </button>
+        {canDelete && (
+          <button
+            className="danger"
+            onClick={async () => {
+              await deleteEntry(entryId);
+              onClose();
+            }}
+          >
+            Delete
+          </button>
+        )}
         <button
           className="primary"
+          style={canDelete ? undefined : { gridColumn: "1 / -1" }}
           onClick={async () => {
             const a = Number(String(amount).replace(",", "."));
             if (!a || a <= 0) return;
             if (!date) return;
+            if (participantIds.size === 0) return;
             const rounded = Math.round(a * 100) / 100;
-            const patch: { amount: number; note: string; date: string; splitValues?: Record<string, number> } = {
+            const patch: {
+              amount: number;
+              note: string;
+              date: string;
+              splitValues?: Record<string, number>;
+              participantIds: string[];
+            } = {
               amount: rounded,
               note: note.trim(),
               date,
+              participantIds: [...participantIds],
             };
             // "amounts" splits are absolute values pinned to the old total; rescale them
             // proportionally so they still add up to the new amount.

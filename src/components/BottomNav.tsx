@@ -1,6 +1,7 @@
 "use client";
 
 import { useUI } from "@/lib/ui";
+import { useSpace } from "@/lib/store";
 import type { UiView } from "@/lib/types";
 import { IconPlus, IconGrid, IconSwap, IconPulse, IconDots } from "@/components/icons";
 import type { ComponentType, SVGProps } from "react";
@@ -15,6 +16,18 @@ const items: { view: UiView; Icon: ComponentType<SVGProps<SVGSVGElement>>; label
 
 export function BottomNav() {
   const { view, setView } = useUI();
+  const { entries, profile } = useSpace();
+
+  const awaitingMe = profile
+    ? entries.filter(
+        (e) =>
+          e.kind === "settlement" &&
+          e.status === "pending" &&
+          e.created_by !== profile.id &&
+          (e.from_id === profile.id || e.to_id === profile.id)
+      ).length
+    : 0;
+
   return (
     <nav className="bottom-nav">
       {items.map((item) => (
@@ -23,7 +36,10 @@ export function BottomNav() {
           className={view === item.view ? "active" : ""}
           onClick={() => setView(item.view)}
         >
-          <item.Icon />
+          <span className="nav-ico">
+            <item.Icon />
+            {item.view === "Settle" && awaitingMe > 0 && <span className="nav-badge" />}
+          </span>
           <span>{item.label}</span>
         </button>
       ))}

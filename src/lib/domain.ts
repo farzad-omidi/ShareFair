@@ -108,6 +108,9 @@ export function calcThrough(
     .filter((e) => e.month <= month)
     .forEach((e) => {
       if (e.kind === "settlement") {
+        // A settlement only moves balances once the other party has confirmed it --
+        // a pending request shouldn't make a debt disappear before that happens.
+        if (e.status === "pending") return;
         if (e.from_id) bal[e.from_id] = (bal[e.from_id] || 0) + Number(e.amount || 0);
         if (e.to_id) bal[e.to_id] = (bal[e.to_id] || 0) - Number(e.amount || 0);
         return;

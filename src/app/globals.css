@@ -931,6 +931,21 @@ button {
   border-color: var(--module-ghost-border);
   color: var(--ink);
 }
+.pending-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 11px;
+  border-radius: var(--r-sm);
+  background: var(--module-ghost-bg);
+  color: var(--ink);
+  opacity: 0.85;
+}
+.pending-note svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
 
 .detail-grid {
   display: grid;
@@ -1045,14 +1060,49 @@ button {
 .bottom-nav button svg {
   width: 19px;
   height: 19px;
+  transition: transform 0.2s ease;
 }
 .bottom-nav button:active {
   transform: scale(0.9);
+}
+.bottom-nav button:active svg {
+  transform: scale(0.82);
 }
 .bottom-nav button.active {
   background: var(--accent);
   color: var(--on-accent);
   transform: scale(1.06);
+}
+/* A subtle bounce on the icon itself when its tab becomes active, distinct
+   from (and layered on top of) the button's own scale/color transition. */
+.bottom-nav button.active svg {
+  animation: nav-icon-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes nav-icon-pop {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  45% {
+    transform: scale(1.22) translateY(-3px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+.nav-ico {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.nav-badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-dark);
+  border: 1.5px solid var(--nav-bg);
 }
 
 .modal-bg {

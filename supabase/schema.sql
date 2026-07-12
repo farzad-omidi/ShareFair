@@ -1,9 +1,10 @@
 -- ShareFair database schema
 --
--- Applied to the Supabase project as two migrations (sharefair_initial_schema,
--- harden_function_permissions). This file is the reproducible, combined source of
--- truth — apply it to a fresh Supabase project's SQL editor (or via
--- `supabase db push` / the `apply_migration` MCP tool) to stand the app back up.
+-- Applied to the Supabase project as migrations (sharefair_initial_schema,
+-- harden_function_permissions, settlement_confirmation_flow). This file is the
+-- reproducible, combined source of truth — apply it to a fresh Supabase project's
+-- SQL editor (or via `supabase db push` / the `apply_migration` MCP tool) to stand
+-- the app back up.
 
 -- ============ profiles ============
 -- Supabase provisions an "extensions" schema in every project; pin pgcrypto there
@@ -89,6 +90,10 @@ create table public.entries (
   split_type text not null default 'equal' check (split_type in ('equal','percent','shares','amounts')),
   split_values jsonb not null default '{}'::jsonb,
   recurring boolean not null default false,
+  -- Only meaningful for settlements: a settlement starts 'pending' and only counts
+  -- toward balances once the other party confirms it. Expenses/credits and legacy
+  -- settlements are 'confirmed' by default (no approval step applies to them).
+  status text not null default 'confirmed' check (status in ('pending','confirmed')),
   created_by uuid not null references public.profiles(id),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -328,13 +333,38 @@ create policy entries_select on public.entries for select
 create policy entries_insert on public.entries for insert
   with check (public.is_space_member(space_id) and created_by = auth.uid());
 
--- Only the entry's author or the space owner may edit/delete it (not any member).
+-- Only the entry's author or the space owner may edit/delete it (not any member) --
+-- except that either party to a *pending* settlement may also update it (to
+-- confirm/decline) or delete it (to decline, or to cancel their own request).
+-- The protect_entry_columns trigger further restricts a non-author/owner update
+-- to touching only the status field.
 create policy entries_update on public.entries for update
-  using (public.is_space_member(space_id) and (created_by = auth.uid() or public.is_space_owner(space_id)))
-  with check (public.is_space_member(space_id) and (created_by = auth.uid() or public.is_space_owner(space_id)));
+  using (
+    public.is_space_member(space_id)
+    and (
+      created_by = auth.uid()
+      or public.is_space_owner(space_id)
+      or (kind = 'settlement' and status = 'pending' and (from_id = auth.uid() or to_id = auth.uid()))
+    )
+  )
+  with check (
+    public.is_space_member(space_id)
+    and (
+      created_by = auth.uid()
+      or public.is_space_owner(space_id)
+      or (kind = 'settlement' and (from_id = auth.uid() or to_id = auth.uid()))
+    )
+  );
 
 create policy entries_delete on public.entries for delete
-  using (public.is_space_member(space_id) and (created_by = auth.uid() or public.is_space_owner(space_id)));
+  using (
+    public.is_space_member(space_id)
+    and (
+      created_by = auth.uid()
+      or public.is_space_owner(space_id)
+      or (kind = 'settlement' and status = 'pending' and (from_id = auth.uid() or to_id = auth.uid()))
+    )
+  );
 
 -- ============ immutable columns (defense in depth) ============
 -- RLS UPDATE policies without WITH CHECK reuse the USING clause for the new row too,
@@ -372,6 +402,34 @@ begin
      or new.created_by is distinct from old.created_by then
     raise exception 'Cannot move an entry to a different space or change its author';
   end if;
+
+  -- A confirmed settlement is final: it can never be reopened.
+  if old.status = 'confirmed' and new.status is distinct from old.status then
+    raise exception 'A confirmed settlement cannot be reopened';
+  end if;
+
+  -- Anyone other than the entry's author/space owner (i.e. the counterparty to a
+  -- pending settlement, per the RLS policy below) may only flip that settlement's
+  -- status -- never touch what actually moved.
+  if auth.uid() <> old.created_by and not public.is_space_owner(old.space_id) then
+    if old.kind <> 'settlement' or old.status <> 'pending' then
+      raise exception 'Not allowed to edit this entry';
+    end if;
+    if new.amount is distinct from old.amount
+       or new.from_id is distinct from old.from_id
+       or new.to_id is distinct from old.to_id
+       or new.kind is distinct from old.kind
+       or new.entry_date is distinct from old.entry_date
+       or new.participant_ids is distinct from old.participant_ids
+       or new.category_id is distinct from old.category_id
+       or new.note is distinct from old.note
+       or new.split_type is distinct from old.split_type
+       or new.split_values is distinct from old.split_values
+       or new.recurring is distinct from old.recurring then
+      raise exception 'Can only confirm or decline this settlement';
+    end if;
+  end if;
+
   return new;
 end;
 $$;

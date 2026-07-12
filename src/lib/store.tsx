@@ -52,10 +52,18 @@ type SpaceContextValue = {
   addEntry: (input: NewEntryInput) => Promise<void>;
   updateEntry: (
     id: string,
-    patch: { amount?: number; note?: string; date?: string; splitValues?: Record<string, number> }
+    patch: {
+      amount?: number;
+      note?: string;
+      date?: string;
+      splitValues?: Record<string, number>;
+      participantIds?: string[];
+    }
   ) => Promise<void>;
   deleteEntry: (id: string) => Promise<void>;
   settle: (fromId: string, toId: string, amount: number) => Promise<void>;
+  confirmSettlement: (id: string) => Promise<void>;
+  declineSettlement: (id: string) => Promise<void>;
 
   addCategory: (name: string, grp: "daily" | "housing") => Promise<void>;
   toggleCategory: (id: string) => Promise<void>;
@@ -269,11 +277,18 @@ export function SpaceProvider({
   const updateEntry = useCallback(
     async (
       id: string,
-      patch: { amount?: number; note?: string; date?: string; splitValues?: Record<string, number> }
+      patch: {
+        amount?: number;
+        note?: string;
+        date?: string;
+        splitValues?: Record<string, number>;
+        participantIds?: string[];
+      }
     ) => {
-      const { splitValues, date, ...rest } = patch;
+      const { splitValues, date, participantIds, ...rest } = patch;
       const dbPatch: TablesUpdate<"entries"> = { ...rest };
       if (splitValues) dbPatch.split_values = splitValues;
+      if (participantIds) dbPatch.participant_ids = participantIds;
       if (date) {
         dbPatch.entry_date = date;
         dbPatch.month = monthKey(date);
@@ -313,15 +328,42 @@ export function SpaceProvider({
         month: selectedMonth,
         participant_ids: [],
         created_by: userId,
+        status: "pending",
       });
       if (error) {
         showToast("Couldn't mark that settled — nothing changed, try again");
         return;
       }
-      showToast("Settled up — all square now");
+      showToast("Sent — waiting for them to confirm");
       loadSpaceData(activeSpaceId);
     },
     [supabase, activeSpaceId, userId, selectedMonth, showToast, loadSpaceData]
+  );
+
+  const confirmSettlement = useCallback(
+    async (id: string) => {
+      const { error } = await supabase.from("entries").update({ status: "confirmed" }).eq("id", id);
+      if (error) {
+        showToast("Couldn't confirm that — try again");
+        return;
+      }
+      showToast("Settled up — all square now");
+      if (activeSpaceId) loadSpaceData(activeSpaceId);
+    },
+    [supabase, activeSpaceId, loadSpaceData, showToast]
+  );
+
+  const declineSettlement = useCallback(
+    async (id: string) => {
+      const { error } = await supabase.from("entries").delete().eq("id", id);
+      if (error) {
+        showToast("Couldn't decline that — try again");
+        return;
+      }
+      showToast("Declined — the balance is still open");
+      if (activeSpaceId) loadSpaceData(activeSpaceId);
+    },
+    [supabase, activeSpaceId, loadSpaceData, showToast]
   );
 
   const addCategory = useCallback(
@@ -410,6 +452,8 @@ export function SpaceProvider({
     updateEntry,
     deleteEntry,
     settle,
+    confirmSettlement,
+    declineSettlement,
     addCategory,
     toggleCategory,
     updateMyMembership,
