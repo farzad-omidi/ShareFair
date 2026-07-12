@@ -15,7 +15,7 @@ export function InsightsView() {
 
   const months = useMemo(
     () =>
-      [...new Set(entries.filter((e) => e.kind !== "settlement").map((e) => e.month))].sort(),
+      [...new Set(entries.filter((e) => e.kind !== "settlement" && e.kind !== "request").map((e) => e.month))].sort(),
     [entries]
   );
   const count = months.length || 1;
@@ -25,7 +25,7 @@ export function InsightsView() {
     const paid: Record<string, number> = Object.fromEntries(memberIds.map((id) => [id, 0]));
     const byCat: Record<string, { total: number; count: number }> = {};
     entries
-      .filter((e) => e.kind !== "settlement")
+      .filter((e) => e.kind !== "settlement" && e.kind !== "request")
       .forEach((e) => {
         if (excludeHousing && isHousing(e, catsById)) return;
         const a = signed(e);

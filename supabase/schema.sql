@@ -1,10 +1,10 @@
 -- ShareFair database schema
 --
 -- Applied to the Supabase project as migrations (sharefair_initial_schema,
--- harden_function_permissions, settlement_confirmation_flow). This file is the
--- reproducible, combined source of truth — apply it to a fresh Supabase project's
--- SQL editor (or via `supabase db push` / the `apply_migration` MCP tool) to stand
--- the app back up.
+-- harden_function_permissions, settlement_confirmation_flow, payment_requests). This
+-- file is the reproducible, combined source of truth — apply it to a fresh Supabase
+-- project's SQL editor (or via `supabase db push` / the `apply_migration` MCP tool)
+-- to stand the app back up.
 
 -- ============ profiles ============
 -- Supabase provisions an "extensions" schema in every project; pin pgcrypto there
@@ -73,11 +73,11 @@ create table public.categories (
 
 alter table public.categories enable row level security;
 
--- ============ entries (expenses, credits, and settlements) ============
+-- ============ entries (expenses, credits, settlements, and payment requests) ============
 create table public.entries (
   id uuid primary key default gen_random_uuid(),
   space_id uuid not null references public.spaces(id) on delete cascade,
-  kind text not null check (kind in ('expense','credit','settlement')),
+  kind text not null check (kind in ('expense','credit','settlement','request')),
   payer_id uuid references public.profiles(id),
   from_id uuid references public.profiles(id),
   to_id uuid references public.profiles(id),
@@ -96,7 +96,14 @@ create table public.entries (
   status text not null default 'confirmed' check (status in ('pending','confirmed')),
   created_by uuid not null references public.profiles(id),
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  -- A 'request' is a nudge from whoever's owed money ("please pay me") -- it never
+  -- claims payment already happened, so it never counts toward balances and can only
+  -- be created by the person it names as owed (to_id), naming no payer.
+  constraint entries_request_shape_check check (
+    kind <> 'request'
+    or (created_by = to_id and from_id is not null and to_id is not null and payer_id is null)
+  )
 );
 
 create index entries_space_month_idx on public.entries(space_id, month);
@@ -363,6 +370,7 @@ create policy entries_delete on public.entries for delete
       created_by = auth.uid()
       or public.is_space_owner(space_id)
       or (kind = 'settlement' and status = 'pending' and (from_id = auth.uid() or to_id = auth.uid()))
+      or (kind = 'request' and (from_id = auth.uid() or to_id = auth.uid()))
     )
   );
 

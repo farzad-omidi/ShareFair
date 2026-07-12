@@ -83,6 +83,8 @@ type SpaceContextValue = {
   settle: (fromId: string, toId: string, amount: number) => Promise<void>;
   confirmSettlement: (id: string) => Promise<void>;
   declineSettlement: (id: string) => Promise<void>;
+  requestPayment: (fromId: string, toId: string, amount: number) => Promise<void>;
+  cancelRequest: (id: string) => Promise<void>;
   importEntries: (rows: ImportRow[]) => Promise<{ imported: number; skipped: number }>;
 
   addCategory: (name: string, grp: "daily" | "housing") => Promise<void>;
@@ -376,6 +378,11 @@ export function SpaceProvider({
         showToast("Couldn't mark that settled — nothing changed, try again");
         return;
       }
+      // A payment request for this pair is moot once payment is actually underway.
+      await supabase
+        .from("entries")
+        .delete()
+        .match({ space_id: activeSpaceId, kind: "request", from_id: fromId, to_id: toId });
       showToast("Sent — waiting for them to confirm");
       loadSpaceData(activeSpaceId);
     },
@@ -403,6 +410,42 @@ export function SpaceProvider({
         return;
       }
       showToast("Declined — the balance is still open");
+      if (activeSpaceId) loadSpaceData(activeSpaceId);
+    },
+    [supabase, activeSpaceId, loadSpaceData, showToast]
+  );
+
+  const requestPayment = useCallback(
+    async (fromId: string, toId: string, amount: number) => {
+      if (!activeSpaceId) return;
+      const { error } = await supabase.from("entries").insert({
+        space_id: activeSpaceId,
+        kind: "request",
+        from_id: fromId,
+        to_id: toId,
+        amount,
+        entry_date: today(),
+        month: selectedMonth,
+        participant_ids: [],
+        created_by: userId,
+      });
+      if (error) {
+        showToast("Couldn't send that request — try again");
+        return;
+      }
+      showToast("Payment request sent");
+      loadSpaceData(activeSpaceId);
+    },
+    [supabase, activeSpaceId, userId, selectedMonth, showToast, loadSpaceData]
+  );
+
+  const cancelRequest = useCallback(
+    async (id: string) => {
+      const { error } = await supabase.from("entries").delete().eq("id", id);
+      if (error) {
+        showToast("Couldn't remove that — try again");
+        return;
+      }
       if (activeSpaceId) loadSpaceData(activeSpaceId);
     },
     [supabase, activeSpaceId, loadSpaceData, showToast]
@@ -619,6 +662,8 @@ export function SpaceProvider({
     settle,
     confirmSettlement,
     declineSettlement,
+    requestPayment,
+    cancelRequest,
     importEntries,
     addCategory,
     toggleCategory,

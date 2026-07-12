@@ -29,7 +29,7 @@ export function MonthView() {
   const list = useMemo(
     () =>
       entries
-        .filter((e) => e.month === selectedMonth)
+        .filter((e) => e.month === selectedMonth && e.kind !== "request")
         .sort((a, b) => b.entry_date.localeCompare(a.entry_date) || b.created_at.localeCompare(a.created_at)),
     [entries, selectedMonth]
   );

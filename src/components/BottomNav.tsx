@@ -25,10 +25,11 @@ export function BottomNav() {
   const awaitingMe = profile
     ? entries.filter(
         (e) =>
-          e.kind === "settlement" &&
-          e.status === "pending" &&
-          e.created_by !== profile.id &&
-          (e.from_id === profile.id || e.to_id === profile.id)
+          (e.kind === "settlement" &&
+            e.status === "pending" &&
+            e.created_by !== profile.id &&
+            (e.from_id === profile.id || e.to_id === profile.id)) ||
+          (e.kind === "request" && e.from_id === profile.id)
       ).length
     : 0;
 
