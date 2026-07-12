@@ -30,9 +30,71 @@ export function ModalHost() {
       return <JoinSpaceModal onClose={closeModal} />;
     case "editEntry":
       return <EditEntryModal entryId={modal.entryId} onClose={closeModal} />;
+    case "unlock":
+      return <UnlockModal onClose={closeModal} />;
     default:
       return null;
   }
+}
+
+// Preview-only: no payment is actually wired up yet. This exists to see how the
+// unlock moment looks and feels before deciding whether/how to build it for real.
+function UnlockModal({ onClose }: { onClose: () => void }) {
+  const { activeSpace, showToast } = useSpace();
+
+  return (
+    <ModalSheet onClose={onClose}>
+      <div className="hero balanced">
+        <div className="hero-label">All square</div>
+        <div className="flow">
+          <IconCheck width={20} height={20} />
+          {activeSpace?.name ?? "Your space"} is off to a good start
+        </div>
+        <div className="hero-text">
+          You&apos;ve kept things fair together. A small one-time unlock keeps ShareFair running for
+          everyone here.
+        </div>
+      </div>
+
+      <h3>Unlock {activeSpace?.name ?? "this space"}</h3>
+      <p className="sub">One person, one time, everyone in this space — no subscription, no ads, ever.</p>
+
+      <div className="unlock-benefits">
+        <div>
+          <IconCheck width={15} height={15} />
+          Everyone in {activeSpace?.name ?? "this space"} unlocked at once
+        </div>
+        <div>
+          <IconCheck width={15} height={15} />
+          Yours forever — pay once, no renewals
+        </div>
+        <div>
+          <IconCheck width={15} height={15} />
+          Your history stays, whatever you decide
+        </div>
+      </div>
+
+      <div style={{ textAlign: "center", margin: "6px 0 16px" }}>
+        <div className="big-money">€1</div>
+        <p className="mini">one time, not a subscription</p>
+      </div>
+
+      <div className="modal-actions">
+        <button className="ghost" onClick={onClose}>
+          Maybe later
+        </button>
+        <button
+          className="primary green"
+          onClick={() => {
+            showToast("Preview only — payment isn't connected yet");
+            onClose();
+          }}
+        >
+          Unlock for €1
+        </button>
+      </div>
+    </ModalSheet>
+  );
 }
 
 function MonthModal({ onClose }: { onClose: () => void }) {

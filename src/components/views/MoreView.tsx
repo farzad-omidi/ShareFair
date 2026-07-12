@@ -243,6 +243,18 @@ export function MoreView() {
       <div className="card">
         <div className="card-title">
           <div>
+            <h2>Unlock</h2>
+            <p>Preview only — payment isn&apos;t connected yet.</p>
+          </div>
+        </div>
+        <button className="ghost" style={{ width: "100%" }} onClick={() => openModal({ type: "unlock" })}>
+          Preview the unlock screen
+        </button>
+      </div>
+
+      <div className="card">
+        <div className="card-title">
+          <div>
             <h2>Account</h2>
             <p>{userEmail}</p>
           </div>

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSpace } from "@/lib/store";
+import { useUI } from "@/lib/ui";
 import { calcThrough, simplify, monthName } from "@/lib/domain";
 import { MemberAvatar } from "@/components/Avatar";
 import { AnimatedMoney } from "@/components/AnimatedMoney";
@@ -36,6 +37,7 @@ export function SettleView() {
     cancelRequest,
     showToast,
   } = useSpace();
+  const { openModal } = useUI();
   const [settlingKey, setSettlingKey] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -81,6 +83,10 @@ export function SettleView() {
     setBusyId(id);
     await confirmSettlement(id);
     setBusyId(null);
+    // Confirming is the actual payoff moment -- the debt is really gone, not just
+    // claimed. Trial-and-buy timing isn't decided yet; this just previews how
+    // showing the unlock screen right here would feel.
+    openModal({ type: "unlock" });
   }
 
   async function handleDecline(id: string) {

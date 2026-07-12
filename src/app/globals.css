@@ -767,6 +767,25 @@ button {
   color: var(--muted);
   margin-bottom: 14px;
 }
+
+.unlock-benefits {
+  display: grid;
+  gap: 9px;
+  margin: 16px 0;
+}
+.unlock-benefits div {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.unlock-benefits svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--green);
+}
 .actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
