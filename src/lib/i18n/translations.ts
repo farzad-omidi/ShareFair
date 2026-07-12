@@ -166,6 +166,13 @@ const en = {
   signin_submit_idle: "Send magic link",
   signin_submit_busy: "Sending…",
   login_footer_tagline: "A fair, transparent way to split expenses with roommates, partners, family, or a trip crew.",
+
+  // Shared fallbacks / misc
+  fallback_other: "Other",
+  fallback_someone: "Someone",
+  settle_amount_copied_toast: "Amount copied",
+  metric_months_count: "{count} months",
+  bycategory_entries_note: "{count} entries · average per month",
 };
 
 const es: Partial<Record<TranslationKey, string>> = {
@@ -309,6 +316,11 @@ const es: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Enviar enlace mágico",
   signin_submit_busy: "Enviando…",
   login_footer_tagline: "Una forma justa y transparente de repartir gastos con compañeros de piso, pareja, familia o un viaje en grupo.",
+  fallback_other: "Otro",
+  fallback_someone: "Alguien",
+  settle_amount_copied_toast: "Importe copiado",
+  metric_months_count: "{count} meses",
+  bycategory_entries_note: "{count} movimientos · promedio por mes",
 };
 
 const fr: Partial<Record<TranslationKey, string>> = {
@@ -452,6 +464,11 @@ const fr: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Envoyer le lien magique",
   signin_submit_busy: "Envoi…",
   login_footer_tagline: "Une façon juste et transparente de partager les dépenses avec des colocataires, un partenaire, la famille ou une bande de voyageurs.",
+  fallback_other: "Autre",
+  fallback_someone: "Quelqu'un",
+  settle_amount_copied_toast: "Montant copié",
+  metric_months_count: "{count} mois",
+  bycategory_entries_note: "{count} entrées · moyenne par mois",
 };
 
 const de: Partial<Record<TranslationKey, string>> = {
@@ -595,6 +612,11 @@ const de: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Magischen Link senden",
   signin_submit_busy: "Wird gesendet…",
   login_footer_tagline: "Eine faire, transparente Art, Ausgaben mit Mitbewohnern, Partnern, Familie oder einer Reisegruppe zu teilen.",
+  fallback_other: "Sonstiges",
+  fallback_someone: "Jemand",
+  settle_amount_copied_toast: "Betrag kopiert",
+  metric_months_count: "{count} Monate",
+  bycategory_entries_note: "{count} Einträge · Durchschnitt pro Monat",
 };
 
 const pt: Partial<Record<TranslationKey, string>> = {
@@ -738,6 +760,11 @@ const pt: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Enviar link mágico",
   signin_submit_busy: "Enviando…",
   login_footer_tagline: "Uma forma justa e transparente de dividir despesas com colegas de quarto, parceiro(a), família ou um grupo de viagem.",
+  fallback_other: "Outro",
+  fallback_someone: "Alguém",
+  settle_amount_copied_toast: "Valor copiado",
+  metric_months_count: "{count} meses",
+  bycategory_entries_note: "{count} lançamentos · média mensal",
 };
 
 const ru: Partial<Record<TranslationKey, string>> = {
@@ -881,6 +908,11 @@ const ru: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Отправить волшебную ссылку",
   signin_submit_busy: "Отправка…",
   login_footer_tagline: "Честный и прозрачный способ делить расходы с соседями, партнёром, семьёй или компанией в поездке.",
+  fallback_other: "Другое",
+  fallback_someone: "Кто-то",
+  settle_amount_copied_toast: "Сумма скопирована",
+  metric_months_count: "{count} месяцев",
+  bycategory_entries_note: "{count} записей · в среднем за месяц",
 };
 
 const zh: Partial<Record<TranslationKey, string>> = {
@@ -1024,6 +1056,11 @@ const zh: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "发送魔法链接",
   signin_submit_busy: "发送中…",
   login_footer_tagline: "与室友、伴侣、家人或旅行伙伴公平、透明地分摊开销。",
+  fallback_other: "其他",
+  fallback_someone: "某人",
+  settle_amount_copied_toast: "金额已复制",
+  metric_months_count: "{count} 个月",
+  bycategory_entries_note: "{count} 条记录 · 月均",
 };
 
 const hi: Partial<Record<TranslationKey, string>> = {
@@ -1167,6 +1204,11 @@ const hi: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "मैजिक लिंक भेजें",
   signin_submit_busy: "भेजा जा रहा है…",
   login_footer_tagline: "रूममेट्स, पार्टनर, परिवार या यात्रा साथियों के साथ खर्च बाँटने का एक निष्पक्ष, पारदर्शी तरीका।",
+  fallback_other: "अन्य",
+  fallback_someone: "कोई",
+  settle_amount_copied_toast: "राशि कॉपी की गई",
+  metric_months_count: "{count} महीने",
+  bycategory_entries_note: "{count} प्रविष्टियाँ · मासिक औसत",
 };
 
 const ar: Partial<Record<TranslationKey, string>> = {
@@ -1310,6 +1352,11 @@ const ar: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "إرسال الرابط السحري",
   signin_submit_busy: "جارٍ الإرسال…",
   login_footer_tagline: "طريقة عادلة وشفافة لتقسيم المصروفات مع زملاء السكن أو الشريك أو العائلة أو مجموعة الرحلة.",
+  fallback_other: "أخرى",
+  fallback_someone: "شخص ما",
+  settle_amount_copied_toast: "تم نسخ المبلغ",
+  metric_months_count: "{count} أشهر",
+  bycategory_entries_note: "{count} سجلات · متوسط شهري",
 };
 
 const fa: Partial<Record<TranslationKey, string>> = {
@@ -1453,6 +1500,11 @@ const fa: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "ارسال لینک جادویی",
   signin_submit_busy: "در حال ارسال…",
   login_footer_tagline: "راهی منصفانه و شفاف برای تقسیم هزینه‌ها با هم‌خانه‌ای‌ها، شریک زندگی، خانواده یا همسفران.",
+  fallback_other: "سایر",
+  fallback_someone: "کسی",
+  settle_amount_copied_toast: "مبلغ کپی شد",
+  metric_months_count: "{count} ماه",
+  bycategory_entries_note: "{count} تراکنش · میانگین ماهانه",
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Partial<Record<TranslationKey, string>>> = {
