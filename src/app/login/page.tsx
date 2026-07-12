@@ -41,7 +41,7 @@ function LoginForm() {
       setError(
         message && message !== "{}"
           ? message
-          : "Something went wrong sending that email. Please try again in a moment."
+          : t("login_send_error")
       );
       return;
     }
@@ -66,8 +66,9 @@ function LoginForm() {
                 <div>
                   <h2>{t("checkemail_title")}</h2>
                   <p>
-                    We sent a sign-in link to <strong>{email}</strong>. Open it on this
-                    device to continue.
+                    {t("checkemail_body_before")}
+                    <strong>{email}</strong>
+                    {t("checkemail_body_after")}
                   </p>
                 </div>
               </div>
@@ -85,7 +86,7 @@ function LoginForm() {
               </div>
               {linkError && (
                 <p className="mini" style={{ color: "var(--red)", marginBottom: 8 }}>
-                  That sign-in link doesn&apos;t work anymore — request a new one below.
+                  {t("login_link_expired")}
                 </p>
               )}
               <form onSubmit={handleSubmit}>
@@ -96,7 +97,7 @@ function LoginForm() {
                     type="email"
                     required
                     autoFocus
-                    placeholder="you@example.com"
+                    placeholder={t("field_email_placeholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />

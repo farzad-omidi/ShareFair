@@ -166,6 +166,19 @@ const en = {
   signin_submit_idle: "Send magic link",
   signin_submit_busy: "Sending…",
   login_footer_tagline: "A fair, transparent way to split expenses with roommates, partners, family, or a trip crew.",
+
+  // Login / onboarding / join extras
+  login_send_error: "Something went wrong sending that email. Please try again in a moment.",
+  checkemail_body_before: "We sent a sign-in link to ",
+  checkemail_body_after: ". Open it on this device to continue.",
+  login_link_expired: "That sign-in link doesn't work anymore — request a new one below.",
+  field_email_placeholder: "you@example.com",
+  error_invalid_invite_code: "That invite code doesn't look right",
+  field_space_name_placeholder: "Our Home",
+  field_invite_code_placeholder: "e.g. a1b2c3d4",
+  join_link_expired: "That invite link doesn't work anymore — ask for a new one.",
+  join_failed_title: "Couldn't join",
+  join_go_home_btn: "Go to ShareFair",
 };
 
 const es: Partial<Record<TranslationKey, string>> = {
@@ -309,6 +322,18 @@ const es: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Enviar enlace mágico",
   signin_submit_busy: "Enviando…",
   login_footer_tagline: "Una forma justa y transparente de repartir gastos con compañeros de piso, pareja, familia o un viaje en grupo.",
+
+  login_send_error: "Algo salió mal al enviar ese correo. Inténtalo de nuevo en un momento.",
+  checkemail_body_before: "Enviamos un enlace de acceso a ",
+  checkemail_body_after: ". Ábrelo en este dispositivo para continuar.",
+  login_link_expired: "Ese enlace de acceso ya no funciona — solicita uno nuevo abajo.",
+  field_email_placeholder: "tucorreo@ejemplo.com",
+  error_invalid_invite_code: "Ese código de invitación no parece correcto",
+  field_space_name_placeholder: "Nuestra casa",
+  field_invite_code_placeholder: "p. ej. a1b2c3d4",
+  join_link_expired: "Ese enlace de invitación ya no funciona — pide uno nuevo.",
+  join_failed_title: "No se pudo unir",
+  join_go_home_btn: "Ir a ShareFair",
 };
 
 const fr: Partial<Record<TranslationKey, string>> = {
@@ -452,6 +477,18 @@ const fr: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Envoyer le lien magique",
   signin_submit_busy: "Envoi…",
   login_footer_tagline: "Une façon juste et transparente de partager les dépenses avec des colocataires, un partenaire, la famille ou une bande de voyageurs.",
+
+  login_send_error: "Une erreur est survenue lors de l'envoi de cet e-mail. Réessayez dans un instant.",
+  checkemail_body_before: "Nous avons envoyé un lien de connexion à ",
+  checkemail_body_after: ". Ouvrez-le sur cet appareil pour continuer.",
+  login_link_expired: "Ce lien de connexion ne fonctionne plus — demandez-en un nouveau ci-dessous.",
+  field_email_placeholder: "vous@exemple.com",
+  error_invalid_invite_code: "Ce code d'invitation ne semble pas correct",
+  field_space_name_placeholder: "Notre maison",
+  field_invite_code_placeholder: "ex. a1b2c3d4",
+  join_link_expired: "Ce lien d'invitation ne fonctionne plus — demandez-en un nouveau.",
+  join_failed_title: "Impossible de rejoindre",
+  join_go_home_btn: "Aller à ShareFair",
 };
 
 const de: Partial<Record<TranslationKey, string>> = {
@@ -595,6 +632,18 @@ const de: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Magischen Link senden",
   signin_submit_busy: "Wird gesendet…",
   login_footer_tagline: "Eine faire, transparente Art, Ausgaben mit Mitbewohnern, Partnern, Familie oder einer Reisegruppe zu teilen.",
+
+  login_send_error: "Beim Senden dieser E-Mail ist etwas schiefgelaufen. Bitte versuche es gleich noch einmal.",
+  checkemail_body_before: "Wir haben einen Anmeldelink gesendet an ",
+  checkemail_body_after: ". Öffne ihn auf diesem Gerät, um fortzufahren.",
+  login_link_expired: "Dieser Anmeldelink funktioniert nicht mehr — fordere unten einen neuen an.",
+  field_email_placeholder: "du@beispiel.de",
+  error_invalid_invite_code: "Dieser Einladungscode sieht nicht richtig aus",
+  field_space_name_placeholder: "Unser Zuhause",
+  field_invite_code_placeholder: "z. B. a1b2c3d4",
+  join_link_expired: "Dieser Einladungslink funktioniert nicht mehr — fordere einen neuen an.",
+  join_failed_title: "Beitritt fehlgeschlagen",
+  join_go_home_btn: "Zu ShareFair",
 };
 
 const pt: Partial<Record<TranslationKey, string>> = {
@@ -738,6 +787,18 @@ const pt: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Enviar link mágico",
   signin_submit_busy: "Enviando…",
   login_footer_tagline: "Uma forma justa e transparente de dividir despesas com colegas de quarto, parceiro(a), família ou um grupo de viagem.",
+
+  login_send_error: "Algo deu errado ao enviar esse e-mail. Tente novamente em instantes.",
+  checkemail_body_before: "Enviamos um link de acesso para ",
+  checkemail_body_after: ". Abra-o neste dispositivo para continuar.",
+  login_link_expired: "Esse link de acesso não funciona mais — solicite um novo abaixo.",
+  field_email_placeholder: "voce@exemplo.com",
+  error_invalid_invite_code: "Esse código de convite não parece correto",
+  field_space_name_placeholder: "Nossa casa",
+  field_invite_code_placeholder: "ex. a1b2c3d4",
+  join_link_expired: "Esse link de convite não funciona mais — peça um novo.",
+  join_failed_title: "Não foi possível entrar",
+  join_go_home_btn: "Ir para o ShareFair",
 };
 
 const ru: Partial<Record<TranslationKey, string>> = {
@@ -881,6 +942,18 @@ const ru: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Отправить волшебную ссылку",
   signin_submit_busy: "Отправка…",
   login_footer_tagline: "Честный и прозрачный способ делить расходы с соседями, партнёром, семьёй или компанией в поездке.",
+
+  login_send_error: "Не удалось отправить письмо. Попробуйте ещё раз через минуту.",
+  checkemail_body_before: "Мы отправили ссылку для входа на ",
+  checkemail_body_after: ". Откройте её на этом устройстве, чтобы продолжить.",
+  login_link_expired: "Эта ссылка для входа больше не работает — запросите новую ниже.",
+  field_email_placeholder: "you@example.com",
+  error_invalid_invite_code: "Похоже, этот код приглашения неверный",
+  field_space_name_placeholder: "Наш дом",
+  field_invite_code_placeholder: "например, a1b2c3d4",
+  join_link_expired: "Эта ссылка-приглашение больше не работает — запросите новую.",
+  join_failed_title: "Не удалось присоединиться",
+  join_go_home_btn: "Перейти в ShareFair",
 };
 
 const zh: Partial<Record<TranslationKey, string>> = {
@@ -1024,6 +1097,18 @@ const zh: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "发送魔法链接",
   signin_submit_busy: "发送中…",
   login_footer_tagline: "与室友、伴侣、家人或旅行伙伴公平、透明地分摊开销。",
+
+  login_send_error: "发送该邮件时出了点问题，请稍后再试。",
+  checkemail_body_before: "我们已将登录链接发送至 ",
+  checkemail_body_after: "。请在此设备上打开以继续。",
+  login_link_expired: "该登录链接已失效——请在下方重新申请。",
+  field_email_placeholder: "you@example.com",
+  error_invalid_invite_code: "该邀请码看起来不正确",
+  field_space_name_placeholder: "我们的家",
+  field_invite_code_placeholder: "例如 a1b2c3d4",
+  join_link_expired: "该邀请链接已失效——请索取新的链接。",
+  join_failed_title: "无法加入",
+  join_go_home_btn: "前往 ShareFair",
 };
 
 const hi: Partial<Record<TranslationKey, string>> = {
@@ -1167,6 +1252,18 @@ const hi: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "मैजिक लिंक भेजें",
   signin_submit_busy: "भेजा जा रहा है…",
   login_footer_tagline: "रूममेट्स, पार्टनर, परिवार या यात्रा साथियों के साथ खर्च बाँटने का एक निष्पक्ष, पारदर्शी तरीका।",
+
+  login_send_error: "वह ईमेल भेजने में कुछ गड़बड़ हो गई। कृपया थोड़ी देर में फिर से प्रयास करें।",
+  checkemail_body_before: "हमने साइन-इन लिंक भेज दिया है ",
+  checkemail_body_after: " पर। जारी रखने के लिए इसे इसी डिवाइस पर खोलें।",
+  login_link_expired: "वह साइन-इन लिंक अब काम नहीं करता — नीचे से नया लिंक मंगाएं।",
+  field_email_placeholder: "you@example.com",
+  error_invalid_invite_code: "वह आमंत्रण कोड सही नहीं लगता",
+  field_space_name_placeholder: "हमारा घर",
+  field_invite_code_placeholder: "जैसे a1b2c3d4",
+  join_link_expired: "वह आमंत्रण लिंक अब काम नहीं करता — नया लिंक मांगें।",
+  join_failed_title: "जुड़ नहीं सके",
+  join_go_home_btn: "ShareFair पर जाएं",
 };
 
 const ar: Partial<Record<TranslationKey, string>> = {
@@ -1310,6 +1407,18 @@ const ar: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "إرسال الرابط السحري",
   signin_submit_busy: "جارٍ الإرسال…",
   login_footer_tagline: "طريقة عادلة وشفافة لتقسيم المصروفات مع زملاء السكن أو الشريك أو العائلة أو مجموعة الرحلة.",
+
+  login_send_error: "حدث خطأ أثناء إرسال ذلك البريد الإلكتروني. يرجى المحاولة مرة أخرى بعد قليل.",
+  checkemail_body_before: "أرسلنا رابط تسجيل الدخول إلى ",
+  checkemail_body_after: ". افتحه على هذا الجهاز للمتابعة.",
+  login_link_expired: "رابط تسجيل الدخول هذا لم يعد يعمل — اطلب رابطًا جديدًا أدناه.",
+  field_email_placeholder: "you@example.com",
+  error_invalid_invite_code: "رمز الدعوة هذا لا يبدو صحيحًا",
+  field_space_name_placeholder: "منزلنا",
+  field_invite_code_placeholder: "مثال: a1b2c3d4",
+  join_link_expired: "رابط الدعوة هذا لم يعد يعمل — اطلب رابطًا جديدًا.",
+  join_failed_title: "تعذّر الانضمام",
+  join_go_home_btn: "الذهاب إلى ShareFair",
 };
 
 const fa: Partial<Record<TranslationKey, string>> = {
@@ -1453,6 +1562,18 @@ const fa: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "ارسال لینک جادویی",
   signin_submit_busy: "در حال ارسال…",
   login_footer_tagline: "راهی منصفانه و شفاف برای تقسیم هزینه‌ها با هم‌خانه‌ای‌ها، شریک زندگی، خانواده یا همسفران.",
+
+  login_send_error: "مشکلی در ارسال آن ایمیل پیش آمد. لطفاً کمی بعد دوباره تلاش کنید.",
+  checkemail_body_before: "ما یک لینک ورود به ",
+  checkemail_body_after: " ارسال کردیم. برای ادامه، آن را روی همین دستگاه باز کنید.",
+  login_link_expired: "این لینک ورود دیگر کار نمی‌کند — یک لینک جدید در پایین درخواست کنید.",
+  field_email_placeholder: "you@example.com",
+  error_invalid_invite_code: "این کد دعوت درست به‌نظر نمی‌رسد",
+  field_space_name_placeholder: "خانه ما",
+  field_invite_code_placeholder: "مثلاً a1b2c3d4",
+  join_link_expired: "این لینک دعوت دیگر کار نمی‌کند — یک لینک جدید درخواست کنید.",
+  join_failed_title: "پیوستن ممکن نشد",
+  join_go_home_btn: "رفتن به ShareFair",
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Partial<Record<TranslationKey, string>>> = {
