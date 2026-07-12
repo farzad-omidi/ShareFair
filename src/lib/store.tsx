@@ -92,6 +92,7 @@ type SpaceContextValue = {
 
   updateMyMembership: (displayName: string, palette: number) => Promise<void>;
   updateMyProfile: (displayName: string, palette: number) => Promise<void>;
+  setMyActiveSince: (date: string) => Promise<void>;
   removeMember: (memberId: string) => Promise<void>;
 
   signOut: () => Promise<void>;
@@ -604,6 +605,20 @@ export function SpaceProvider({
     [supabase, members, userId, activeSpaceId, loadSpaceData, showToast]
   );
 
+  const setMyActiveSince = useCallback(
+    async (date: string) => {
+      const mine = members.find((m) => m.user_id === userId);
+      if (!mine) return;
+      const { error } = await supabase.from("space_members").update({ active_since: date }).eq("id", mine.id);
+      if (error) {
+        showToast("Couldn't save that — try again");
+        return;
+      }
+      if (activeSpaceId) loadSpaceData(activeSpaceId);
+    },
+    [supabase, members, userId, activeSpaceId, loadSpaceData, showToast]
+  );
+
   const updateMyProfile = useCallback(
     async (displayName: string, palette: number) => {
       const { error } = await supabase
@@ -669,6 +684,7 @@ export function SpaceProvider({
     toggleCategory,
     updateMyMembership,
     updateMyProfile,
+    setMyActiveSince,
     removeMember,
     signOut,
   };

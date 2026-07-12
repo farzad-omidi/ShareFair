@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { SpaceProvider, useSpace } from "@/lib/store";
 import { UIProvider, useUI } from "@/lib/ui";
 import { monthName } from "@/lib/domain";
@@ -24,8 +25,21 @@ export function AppShell({ userId, userEmail }: { userId: string; userEmail: str
 }
 
 function AppShellInner() {
-  const { loading, activeSpace, spaces, members, selectedMonth, realtimeStatus } = useSpace();
+  const { loading, activeSpace, spaces, members, selectedMonth, realtimeStatus, profile } = useSpace();
   const { view, openModal } = useUI();
+
+  // Ask a brand-new member since when they've actually been involved, once per
+  // session -- existing members were backfilled at migration time, so a null
+  // active_since only ever means "just joined, hasn't answered yet."
+  const askedActiveSinceRef = useRef(false);
+  useEffect(() => {
+    if (askedActiveSinceRef.current || !activeSpace || !profile) return;
+    const mine = members.find((m) => m.user_id === profile.id);
+    if (mine && mine.active_since === null) {
+      askedActiveSinceRef.current = true;
+      openModal({ type: "activeSince" });
+    }
+  }, [activeSpace, profile, members, openModal]);
 
   if (loading) {
     return (
