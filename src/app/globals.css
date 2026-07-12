@@ -1559,3 +1559,18 @@ button {
     animation-duration: 0.001ms !important;
   }
 }
+
+/* RTL (Persian, Arabic): most of the flexbox layout already mirrors correctly
+   from the dir="rtl" attribute alone, since flex-start/flex-end are logical
+   (relative to text direction), not physical, in the flexbox spec. This covers
+   what doesn't -- explicit physical text-align, and a literal directional
+   arrow glyph that otherwise keeps pointing the LTR way. Baseline support, not
+   an exhaustive mirror of every decorative element. */
+[dir="rtl"] .member-card,
+[dir="rtl"] .entry {
+  text-align: right;
+}
+[dir="rtl"] .arrow {
+  display: inline-block;
+  transform: scaleX(-1);
+}

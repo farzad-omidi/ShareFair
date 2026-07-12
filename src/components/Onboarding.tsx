@@ -2,11 +2,12 @@
 
 import { useState, type FormEvent } from "react";
 import { useSpace } from "@/lib/store";
-
-const CURRENCIES = ["EUR", "USD", "GBP", "CAD", "AUD", "TRY"];
+import { useLanguage } from "@/lib/i18n/context";
+import { CURRENCIES } from "@/lib/currencies";
 
 export function Onboarding() {
   const { createSpace, joinSpaceByCode, signOut } = useSpace();
+  const { t } = useLanguage();
   const [mode, setMode] = useState<"create" | "join">("create");
   const [name, setName] = useState("Our Home");
   const [currency, setCurrency] = useState("EUR");
@@ -37,49 +38,49 @@ export function Onboarding() {
       <div className="glow" />
       <div className="app-shell" style={{ paddingBottom: 24 }}>
         <div style={{ textAlign: "center", margin: "12px 0 8px" }}>
-          <div className="eyebrow">Welcome</div>
+          <div className="eyebrow">{t("onboarding_eyebrow")}</div>
           <h1 className="brand" style={{ fontSize: "clamp(32px,9vw,44px)" }}>
-            Let&apos;s set up your space
+            {t("onboarding_headline")}
           </h1>
           <p className="mini" style={{ marginTop: 8 }}>
-            A space is where expenses are shared — a home, a trip, a family.
+            {t("onboarding_subtitle")}
           </p>
         </div>
 
         <div className="card">
           <div className="segment">
             <button className={mode === "create" ? "active" : ""} onClick={() => setMode("create")}>
-              Create a space
+              {t("onboarding_tab_create")}
             </button>
             <button className={mode === "join" ? "active" : ""} onClick={() => setMode("join")}>
-              Join with a code
+              {t("onboarding_tab_join")}
             </button>
           </div>
 
           {mode === "create" ? (
             <form onSubmit={handleCreate}>
               <div className="field">
-                <label>Space name</label>
+                <label>{t("field_space_name")}</label>
                 <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Our Home" />
               </div>
               <div className="field">
-                <label>Currency</label>
+                <label>{t("field_currency")}</label>
                 <select className="select" value={currency} onChange={(e) => setCurrency(e.target.value)}>
                   {CURRENCIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
+                    <option key={c.code} value={c.code}>
+                      {c.symbol} {c.label}
                     </option>
                   ))}
                 </select>
               </div>
               <button className="primary" type="submit" disabled={busy} style={{ marginTop: 14 }}>
-                {busy ? "Creating…" : "Create space"}
+                {busy ? t("create_btn_busy") : t("create_btn_idle")}
               </button>
             </form>
           ) : (
             <form onSubmit={handleJoin}>
               <div className="field">
-                <label>Invite code</label>
+                <label>{t("field_invite_code")}</label>
                 <input
                   className="input"
                   value={code}
@@ -95,14 +96,14 @@ export function Onboarding() {
                 </p>
               )}
               <button className="primary" type="submit" disabled={busy} style={{ marginTop: 14 }}>
-                {busy ? "Joining…" : "Join space"}
+                {busy ? t("join_btn_busy") : t("join_btn_idle")}
               </button>
             </form>
           )}
         </div>
 
         <button className="ghost" style={{ width: "100%" }} onClick={signOut}>
-          Sign out
+          {t("account_signout_btn")}
         </button>
       </div>
     </div>

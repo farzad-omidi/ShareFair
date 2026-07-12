@@ -2,11 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { useSpace } from "@/lib/store";
+import { useLanguage } from "@/lib/i18n/context";
 import { calcMonth, isHousing, monthName, round, signed } from "@/lib/domain";
 import { AnimatedMoney } from "@/components/AnimatedMoney";
 
 export function InsightsView() {
   const { entries, members, categories, selectedMonth, activeSpace } = useSpace();
+  const { t } = useLanguage();
   const [mode, setMode] = useState<"including" | "excluding">("including");
   const excludeHousing = mode === "excluding";
 
@@ -53,21 +55,21 @@ export function InsightsView() {
       <div className="card">
         <div className="card-title">
           <div>
-            <h2>Your rhythm</h2>
-            <p>Average spending without turning life into a spreadsheet.</p>
+            <h2>{t("rhythm_card_title")}</h2>
+            <p>{t("rhythm_card_subtitle")}</p>
           </div>
         </div>
         <div className="segment">
           <button className={mode === "including" ? "active" : ""} onClick={() => setMode("including")}>
-            Including housing
+            {t("rhythm_toggle_including")}
           </button>
           <button className={mode === "excluding" ? "active" : ""} onClick={() => setMode("excluding")}>
-            Excluding housing
+            {t("rhythm_toggle_excluding")}
           </button>
         </div>
         <div style={{ marginTop: 12 }}>
           {recent.length === 0 ? (
-            <div className="empty">Add a few months to see your rhythm.</div>
+            <div className="empty">{t("rhythm_empty")}</div>
           ) : (
             <div className="chart-bars">
               {recent.map((x) => (
@@ -86,28 +88,28 @@ export function InsightsView() {
 
       <div className="card">
         <div className="card-title">
-          <h2>Averages</h2>
+          <h2>{t("averages_card_title")}</h2>
         </div>
         <div className="metric-grid">
           <div className="metric wide">
-            <span>Average month</span>
+            <span>{t("metric_average_month")}</span>
             <strong>
               <AnimatedMoney value={total / count} currency={activeSpace?.currency} />
             </strong>
             <small>
-              {excludeHousing ? "Housing excluded" : "Housing included"} · based on {count} month
+              {excludeHousing ? t("rhythm_toggle_excluding") : t("rhythm_toggle_including")} · {count} month
               {count === 1 ? "" : "s"}
             </small>
           </div>
           <div className="metric">
-            <span>Average per person</span>
+            <span>{t("metric_average_per_person")}</span>
             <strong>
               <AnimatedMoney value={total / count / (members.length || 1)} currency={activeSpace?.currency} />
             </strong>
           </div>
           {members.slice(0, 3).map((m) => (
             <div className="metric" key={m.id}>
-              <span>{m.display_name} paid avg.</span>
+              <span>{t("metric_member_avg", { name: m.display_name })}</span>
               <strong>
                 <AnimatedMoney value={(paid[m.user_id] || 0) / count} currency={activeSpace?.currency} />
               </strong>
@@ -118,10 +120,10 @@ export function InsightsView() {
 
       <div className="card">
         <div className="card-title">
-          <h2>By category</h2>
+          <h2>{t("bycategory_card_title")}</h2>
         </div>
         {catEntries.length === 0 ? (
-          <div className="empty">No category data yet.</div>
+          <div className="empty">{t("bycategory_empty")}</div>
         ) : (
           catEntries.map(([name, d]) => (
             <div className="row" key={name}>
