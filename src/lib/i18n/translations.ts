@@ -166,6 +166,21 @@ const en = {
   signin_submit_idle: "Send magic link",
   signin_submit_busy: "Sending…",
   login_footer_tagline: "A fair, transparent way to split expenses with roommates, partners, family, or a trip crew.",
+
+  // Edit entry modal
+  entry_settling_heading: "Settlement — awaiting confirmation",
+  entry_pending_sub: "{from} → {to}",
+  person_someone_cap: "Someone",
+  person_someone_lower: "someone",
+  entry_confirm_note: "Confirm this actually happened before it counts toward balances.",
+  entry_settled_heading: "Settlement",
+  edit_entry_title: "Edit entry",
+  edit_entry_readonly_note: "Only whoever added this, or the space owner, can change it — you can still see it.",
+  field_amount: "Amount",
+  field_note: "Note",
+  field_date: "Date",
+  field_repeats: "Repeats",
+  edit_entry_late_join_note: "Someone who joined later? Add them here to fold this expense into their balance too.",
 };
 
 const es: Partial<Record<TranslationKey, string>> = {
@@ -309,6 +324,21 @@ const es: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Enviar enlace mágico",
   signin_submit_busy: "Enviando…",
   login_footer_tagline: "Una forma justa y transparente de repartir gastos con compañeros de piso, pareja, familia o un viaje en grupo.",
+
+  // Edit entry modal
+  entry_settling_heading: "Liquidación — pendiente de confirmación",
+  entry_pending_sub: "{from} → {to}",
+  person_someone_cap: "Alguien",
+  person_someone_lower: "alguien",
+  entry_confirm_note: "Confirma que esto realmente ocurrió antes de que cuente en los saldos.",
+  entry_settled_heading: "Liquidación",
+  edit_entry_title: "Editar entrada",
+  edit_entry_readonly_note: "Solo quien la añadió, o el propietario del espacio, puede cambiarla — tú aún puedes verla.",
+  field_amount: "Importe",
+  field_note: "Nota",
+  field_date: "Fecha",
+  field_repeats: "Repeticiones",
+  edit_entry_late_join_note: "¿Alguien se unió más tarde? Añádelo aquí para incluirlo también en este gasto.",
 };
 
 const fr: Partial<Record<TranslationKey, string>> = {
@@ -452,6 +482,21 @@ const fr: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Envoyer le lien magique",
   signin_submit_busy: "Envoi…",
   login_footer_tagline: "Une façon juste et transparente de partager les dépenses avec des colocataires, un partenaire, la famille ou une bande de voyageurs.",
+
+  // Edit entry modal
+  entry_settling_heading: "Règlement — en attente de confirmation",
+  entry_pending_sub: "{from} → {to}",
+  person_someone_cap: "Quelqu'un",
+  person_someone_lower: "quelqu'un",
+  entry_confirm_note: "Confirmez que cela s'est bien passé avant que ça compte dans les soldes.",
+  entry_settled_heading: "Règlement",
+  edit_entry_title: "Modifier l'entrée",
+  edit_entry_readonly_note: "Seule la personne qui l'a ajoutée, ou le propriétaire de l'espace, peut la modifier — vous pouvez tout de même la voir.",
+  field_amount: "Montant",
+  field_note: "Note",
+  field_date: "Date",
+  field_repeats: "Répétitions",
+  edit_entry_late_join_note: "Quelqu'un a rejoint plus tard ? Ajoutez-le ici pour l'inclure aussi dans cette dépense.",
 };
 
 const de: Partial<Record<TranslationKey, string>> = {
@@ -595,6 +640,21 @@ const de: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Magischen Link senden",
   signin_submit_busy: "Wird gesendet…",
   login_footer_tagline: "Eine faire, transparente Art, Ausgaben mit Mitbewohnern, Partnern, Familie oder einer Reisegruppe zu teilen.",
+
+  // Edit entry modal
+  entry_settling_heading: "Ausgleich — wartet auf Bestätigung",
+  entry_pending_sub: "{from} → {to}",
+  person_someone_cap: "Jemand",
+  person_someone_lower: "jemand",
+  entry_confirm_note: "Bestätige, dass dies wirklich passiert ist, bevor es auf die Salden angerechnet wird.",
+  entry_settled_heading: "Ausgleich",
+  edit_entry_title: "Eintrag bearbeiten",
+  edit_entry_readonly_note: "Nur wer es hinzugefügt hat oder der Space-Besitzer kann es ändern — du kannst es trotzdem sehen.",
+  field_amount: "Betrag",
+  field_note: "Notiz",
+  field_date: "Datum",
+  field_repeats: "Wiederholungen",
+  edit_entry_late_join_note: "Ist jemand später beigetreten? Füge die Person hier hinzu, um sie auch in diese Ausgabe einzubeziehen.",
 };
 
 const pt: Partial<Record<TranslationKey, string>> = {
@@ -738,6 +798,21 @@ const pt: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Enviar link mágico",
   signin_submit_busy: "Enviando…",
   login_footer_tagline: "Uma forma justa e transparente de dividir despesas com colegas de quarto, parceiro(a), família ou um grupo de viagem.",
+
+  // Edit entry modal
+  entry_settling_heading: "Acerto — aguardando confirmação",
+  entry_pending_sub: "{from} → {to}",
+  person_someone_cap: "Alguém",
+  person_someone_lower: "alguém",
+  entry_confirm_note: "Confirme que isso realmente aconteceu antes que conte para os saldos.",
+  entry_settled_heading: "Acerto",
+  edit_entry_title: "Editar lançamento",
+  edit_entry_readonly_note: "Só quem adicionou, ou o dono do espaço, pode alterar — você ainda pode ver.",
+  field_amount: "Valor",
+  field_note: "Nota",
+  field_date: "Data",
+  field_repeats: "Repetições",
+  edit_entry_late_join_note: "Alguém entrou depois? Adicione a pessoa aqui para incluí-la também nessa despesa.",
 };
 
 const ru: Partial<Record<TranslationKey, string>> = {
@@ -881,6 +956,21 @@ const ru: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Отправить волшебную ссылку",
   signin_submit_busy: "Отправка…",
   login_footer_tagline: "Честный и прозрачный способ делить расходы с соседями, партнёром, семьёй или компанией в поездке.",
+
+  // Edit entry modal
+  entry_settling_heading: "Расчёт — ожидает подтверждения",
+  entry_pending_sub: "{from} → {to}",
+  person_someone_cap: "Кто-то",
+  person_someone_lower: "кто-то",
+  entry_confirm_note: "Подтвердите, что это действительно произошло, прежде чем это учтётся в балансах.",
+  entry_settled_heading: "Расчёт",
+  edit_entry_title: "Изменить запись",
+  edit_entry_readonly_note: "Изменить может только тот, кто её добавил, или владелец пространства — остальные могут только просматривать.",
+  field_amount: "Сумма",
+  field_note: "Заметка",
+  field_date: "Дата",
+  field_repeats: "Повторения",
+  edit_entry_late_join_note: "Кто-то присоединился позже? Добавьте его сюда, чтобы включить в этот расход.",
 };
 
 const zh: Partial<Record<TranslationKey, string>> = {
@@ -1024,6 +1114,21 @@ const zh: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "发送魔法链接",
   signin_submit_busy: "发送中…",
   login_footer_tagline: "与室友、伴侣、家人或旅行伙伴公平、透明地分摊开销。",
+
+  // Edit entry modal
+  entry_settling_heading: "结算 — 等待确认",
+  entry_pending_sub: "{from} → {to}",
+  person_someone_cap: "某人",
+  person_someone_lower: "某人",
+  entry_confirm_note: "确认这笔款项确实已经发生，再计入余额。",
+  entry_settled_heading: "结算",
+  edit_entry_title: "编辑记录",
+  edit_entry_readonly_note: "只有添加者或空间所有者可以修改 — 你仍然可以查看。",
+  field_amount: "金额",
+  field_note: "备注",
+  field_date: "日期",
+  field_repeats: "重复",
+  edit_entry_late_join_note: "有人后来加入了？在这里添加他们，把这笔支出也计入他们的余额。",
 };
 
 const hi: Partial<Record<TranslationKey, string>> = {
@@ -1167,6 +1272,21 @@ const hi: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "मैजिक लिंक भेजें",
   signin_submit_busy: "भेजा जा रहा है…",
   login_footer_tagline: "रूममेट्स, पार्टनर, परिवार या यात्रा साथियों के साथ खर्च बाँटने का एक निष्पक्ष, पारदर्शी तरीका।",
+
+  // Edit entry modal
+  entry_settling_heading: "निपटान — पुष्टि की प्रतीक्षा में",
+  entry_pending_sub: "{from} → {to}",
+  person_someone_cap: "कोई",
+  person_someone_lower: "कोई",
+  entry_confirm_note: "बैलेंस में गिनने से पहले पुष्टि करें कि यह वाकई हुआ।",
+  entry_settled_heading: "निपटान",
+  edit_entry_title: "प्रविष्टि संपादित करें",
+  edit_entry_readonly_note: "इसे केवल जोड़ने वाला व्यक्ति या स्पेस का मालिक बदल सकता है — आप इसे अब भी देख सकते हैं।",
+  field_amount: "राशि",
+  field_note: "नोट",
+  field_date: "तारीख़",
+  field_repeats: "दोहराव",
+  edit_entry_late_join_note: "कोई बाद में शामिल हुआ? उसे यहाँ जोड़ें ताकि यह खर्च भी उनके बैलेंस में शामिल हो जाए।",
 };
 
 const ar: Partial<Record<TranslationKey, string>> = {
@@ -1310,6 +1430,21 @@ const ar: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "إرسال الرابط السحري",
   signin_submit_busy: "جارٍ الإرسال…",
   login_footer_tagline: "طريقة عادلة وشفافة لتقسيم المصروفات مع زملاء السكن أو الشريك أو العائلة أو مجموعة الرحلة.",
+
+  // Edit entry modal
+  entry_settling_heading: "تسوية — بانتظار التأكيد",
+  entry_pending_sub: "{from} → {to}",
+  person_someone_cap: "شخص ما",
+  person_someone_lower: "شخص ما",
+  entry_confirm_note: "أكّد أن هذا حدث بالفعل قبل احتسابه ضمن الأرصدة.",
+  entry_settled_heading: "تسوية",
+  edit_entry_title: "تعديل الإدخال",
+  edit_entry_readonly_note: "فقط من أضافه، أو مالك المساحة، يمكنه تغييره — لا يزال بإمكانك رؤيته.",
+  field_amount: "المبلغ",
+  field_note: "ملاحظة",
+  field_date: "التاريخ",
+  field_repeats: "التكرارات",
+  edit_entry_late_join_note: "هل انضم شخص لاحقًا؟ أضفه هنا لإدراج هذا المصروف ضمن رصيده أيضًا.",
 };
 
 const fa: Partial<Record<TranslationKey, string>> = {
@@ -1453,6 +1588,21 @@ const fa: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "ارسال لینک جادویی",
   signin_submit_busy: "در حال ارسال…",
   login_footer_tagline: "راهی منصفانه و شفاف برای تقسیم هزینه‌ها با هم‌خانه‌ای‌ها، شریک زندگی، خانواده یا همسفران.",
+
+  // Edit entry modal
+  entry_settling_heading: "تسویه — در انتظار تأیید",
+  entry_pending_sub: "{from} → {to}",
+  person_someone_cap: "کسی",
+  person_someone_lower: "کسی",
+  entry_confirm_note: "پیش از احتساب در موجودی‌ها، تأیید کنید که این واقعاً اتفاق افتاده است.",
+  entry_settled_heading: "تسویه",
+  edit_entry_title: "ویرایش ورودی",
+  edit_entry_readonly_note: "فقط کسی که آن را اضافه کرده، یا مالک فضا می‌تواند آن را تغییر دهد — شما همچنان می‌توانید آن را ببینید.",
+  field_amount: "مبلغ",
+  field_note: "یادداشت",
+  field_date: "تاریخ",
+  field_repeats: "تکرارها",
+  edit_entry_late_join_note: "کسی بعداً عضو شده؟ او را اینجا اضافه کنید تا این هزینه هم در موجودی او لحاظ شود.",
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Partial<Record<TranslationKey, string>>> = {
