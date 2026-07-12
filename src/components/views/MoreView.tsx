@@ -48,6 +48,7 @@ export function MoreView() {
     const catName = (id: string | null) => categories.find((c) => c.id === id)?.name ?? "";
     const rows: string[][] = [CSV_HEADER];
     entries.forEach((e) => {
+      if (e.kind === "request") return;
       const participantNames = (e.participant_ids || []).map(memberName).filter(Boolean).join(";");
       const splitValues = (e.split_values as Record<string, number>) || {};
       const splitValuesByName = Object.fromEntries(

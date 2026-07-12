@@ -8,6 +8,7 @@ import { money } from "@/lib/format";
 import { ModalSheet } from "@/components/ModalSheet";
 import { PALETTES, memberVars } from "@/lib/palettes";
 import { MemberAvatar } from "@/components/Avatar";
+import { IconCheck } from "@/components/icons";
 import QRCode from "qrcode";
 
 export function ModalHost() {
@@ -587,11 +588,12 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
       <div className="field">
         <label>Repeats</label>
         <button
-          className="ghost"
+          className={`ghost toggle-pill${recurring ? " on" : ""}`}
           style={{ width: "100%" }}
           disabled={!canDelete}
           onClick={() => setRecurring((r) => !r)}
         >
+          {recurring && <IconCheck width={14} height={14} />}
           {recurring ? "Repeats monthly" : "No repeat"}
         </button>
       </div>

@@ -107,9 +107,14 @@ export function calcThrough(
   entries
     .filter((e) => e.month <= month)
     .forEach((e) => {
+      if (e.kind === "request") {
+        // A payment request is just a nudge -- it never claims money already
+        // moved, so it can never affect balances, confirmed or not.
+        return;
+      }
       if (e.kind === "settlement") {
         // A settlement only moves balances once the other party has confirmed it --
-        // a pending request shouldn't make a debt disappear before that happens.
+        // an unconfirmed one shouldn't make a debt disappear before that happens.
         if (e.status === "pending") return;
         if (e.from_id) bal[e.from_id] = (bal[e.from_id] || 0) + Number(e.amount || 0);
         if (e.to_id) bal[e.to_id] = (bal[e.to_id] || 0) - Number(e.amount || 0);
@@ -154,7 +159,7 @@ export function calcMonth(
   const byCat: CategoryBreakdown = {};
 
   entries
-    .filter((e) => e.month === month && e.kind !== "settlement")
+    .filter((e) => e.month === month && e.kind !== "settlement" && e.kind !== "request")
     .forEach((e) => {
       if (excludeHousing && isHousing(e, categoriesById)) return;
       const amount = signed(e);

@@ -5,7 +5,7 @@ import { useSpace } from "@/lib/store";
 import { calcThrough, simplify, monthName } from "@/lib/domain";
 import { MemberAvatar } from "@/components/Avatar";
 import { AnimatedMoney } from "@/components/AnimatedMoney";
-import { IconCheck, IconClock, IconX } from "@/components/icons";
+import { IconCheck, IconClock, IconX, IconBell } from "@/components/icons";
 
 const SETTLE_EXIT_MS = 340;
 const EPSILON = 0.005;
@@ -32,6 +32,8 @@ export function SettleView() {
     settle,
     confirmSettlement,
     declineSettlement,
+    requestPayment,
+    cancelRequest,
     showToast,
   } = useSpace();
   const [settlingKey, setSettlingKey] = useState<string | null>(null);
@@ -50,6 +52,11 @@ export function SettleView() {
     entries
       .filter((e) => e.kind === "settlement" && e.status === "pending")
       .forEach((e) => map.set(`${e.from_id}-${e.to_id}`, e));
+    return map;
+  }, [entries]);
+  const requestByPair = useMemo(() => {
+    const map = new Map<string, (typeof entries)[number]>();
+    entries.filter((e) => e.kind === "request").forEach((e) => map.set(`${e.from_id}-${e.to_id}`, e));
     return map;
   }, [entries]);
 
@@ -79,6 +86,18 @@ export function SettleView() {
   async function handleDecline(id: string) {
     setBusyId(id);
     await declineSettlement(id);
+    setBusyId(null);
+  }
+
+  async function handleRequest(key: string, fromId: string, toId: string, amount: number) {
+    setBusyId(`req-${key}`);
+    await requestPayment(fromId, toId, amount);
+    setBusyId(null);
+  }
+
+  async function handleCancelRequest(id: string) {
+    setBusyId(id);
+    await cancelRequest(id);
     setBusyId(null);
   }
 
@@ -162,7 +181,7 @@ export function SettleView() {
                       </>
                     );
                   }
-                  return (
+                  const normalActions = (
                     <div className="grid2">
                       <button
                         className="ghost"
@@ -188,6 +207,50 @@ export function SettleView() {
                         )}
                       </button>
                     </div>
+                  );
+
+                  const request = requestByPair.get(key);
+                  if (request) {
+                    const busy = busyId === request.id;
+                    if (profile?.id === request.created_by) {
+                      return (
+                        <>
+                          <p className="mini pending-note">
+                            <IconBell width={13} height={13} />{" "}
+                            {`Waiting for ${nameFor(d.fromId)} to pay.`}
+                          </p>
+                          <button className="ghost" disabled={busy} onClick={() => handleCancelRequest(request.id)}>
+                            Cancel request
+                          </button>
+                        </>
+                      );
+                    }
+                    return (
+                      <>
+                        <p className="mini pending-note">
+                          <IconBell width={13} height={13} />{" "}
+                          {`${nameFor(request.to_id ?? "")} requested this payment.`}
+                        </p>
+                        {normalActions}
+                      </>
+                    );
+                  }
+
+                  const requesting = busyId === `req-${key}`;
+                  return (
+                    <>
+                      {normalActions}
+                      {profile?.id === d.toId && (
+                        <button
+                          className="link"
+                          style={{ marginTop: 8, display: "block", width: "100%", textAlign: "center" }}
+                          disabled={requesting}
+                          onClick={() => handleRequest(key, d.fromId, d.toId, d.amount)}
+                        >
+                          {requesting ? "Sending…" : "Or request payment instead"}
+                        </button>
+                      )}
+                    </>
                   );
                 })()}
               </div>

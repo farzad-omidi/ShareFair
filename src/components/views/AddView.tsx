@@ -8,6 +8,7 @@ import { money, symbol, parseAmount } from "@/lib/format";
 import { memberVars, paletteFor } from "@/lib/palettes";
 import { MemberAvatar } from "@/components/Avatar";
 import { AnimatedMoney } from "@/components/AnimatedMoney";
+import { IconCheck } from "@/components/icons";
 import type { SplitType } from "@/lib/types";
 
 export function AddView() {
@@ -271,7 +272,8 @@ export function AddView() {
           <label className="ghost date-field">
             <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </label>
-          <button className="ghost" onClick={() => setRepeat((r) => !r)}>
+          <button className={`ghost toggle-pill${repeat ? " on" : ""}`} onClick={() => setRepeat((r) => !r)}>
+            {repeat && <IconCheck width={14} height={14} />}
             {repeat ? "Repeat monthly" : "No repeat"}
           </button>
         </div>

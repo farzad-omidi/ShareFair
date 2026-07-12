@@ -635,6 +635,21 @@ button {
   font-weight: 700;
   font-size: 13.5px;
 }
+/* A toggle needs to look pressed when it's on, not just say so in its label --
+   text alone reads the same as any other idle button. */
+.toggle-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--muted);
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.toggle-pill.on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-dark);
+}
 /* Native <input type="date"> draws its own internal segments/icon in a
    browser-controlled shadow DOM that ignores things like text-align and can
    report an intrinsic width wider than its box on some engines, spilling into
