@@ -1,10 +1,13 @@
 "use client";
 
+import { useRef } from "react";
 import { useUI } from "@/lib/ui";
 import { useSpace } from "@/lib/store";
 import type { UiView } from "@/lib/types";
 import { IconPlus, IconGrid, IconSwap, IconPulse, IconDots } from "@/components/icons";
 import type { ComponentType, SVGProps } from "react";
+
+const DOUBLE_TAP_MS = 350;
 
 const items: { view: UiView; Icon: ComponentType<SVGProps<SVGSVGElement>>; label: string }[] = [
   { view: "Add", Icon: IconPlus, label: "Add" },
@@ -17,6 +20,7 @@ const items: { view: UiView; Icon: ComponentType<SVGProps<SVGSVGElement>>; label
 export function BottomNav() {
   const { view, setView } = useUI();
   const { entries, profile } = useSpace();
+  const lastTap = useRef<{ view: UiView; time: number } | null>(null);
 
   const awaitingMe = profile
     ? entries.filter(
@@ -34,7 +38,16 @@ export function BottomNav() {
         <button
           key={item.view}
           className={view === item.view ? "active" : ""}
-          onClick={() => setView(item.view)}
+          onClick={() => {
+            const now = Date.now();
+            // A second tap on the tab you're already on, in quick succession,
+            // jumps that view back to its top instead of doing nothing.
+            const isDoubleTap =
+              lastTap.current?.view === item.view && now - lastTap.current.time < DOUBLE_TAP_MS;
+            setView(item.view);
+            if (isDoubleTap) window.scrollTo({ top: 0, behavior: "smooth" });
+            lastTap.current = { view: item.view, time: now };
+          }}
         >
           <span className="nav-ico">
             <item.Icon />

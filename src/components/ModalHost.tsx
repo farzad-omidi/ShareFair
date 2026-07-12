@@ -345,6 +345,7 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
   const [note, setNote] = useState(e?.note || "");
   const [date, setDate] = useState(e?.entry_date || "");
   const [participantIds, setParticipantIds] = useState<Set<string>>(new Set(e?.participant_ids ?? []));
+  const [recurring, setRecurring] = useState(e?.recurring ?? false);
 
   if (!e) return null;
 
@@ -459,17 +460,32 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
   return (
     <ModalSheet onClose={onClose}>
       <h3>Edit entry</h3>
+      {!canDelete && (
+        <p className="sub">Only whoever added this, or the space owner, can change it — you can still see it.</p>
+      )}
       <div className="field">
         <label>Amount</label>
-        <input className="input" inputMode="decimal" value={amount} onChange={(ev) => setAmount(ev.target.value)} />
+        <input
+          className="input"
+          inputMode="decimal"
+          value={amount}
+          disabled={!canDelete}
+          onChange={(ev) => setAmount(ev.target.value)}
+        />
       </div>
       <div className="field">
         <label>Note</label>
-        <input className="input" value={note} onChange={(ev) => setNote(ev.target.value)} />
+        <input className="input" value={note} disabled={!canDelete} onChange={(ev) => setNote(ev.target.value)} />
       </div>
       <div className="field">
         <label>Date</label>
-        <input className="input" type="date" value={date} onChange={(ev) => setDate(ev.target.value)} />
+        <input
+          className="input"
+          type="date"
+          value={date}
+          disabled={!canDelete}
+          onChange={(ev) => setDate(ev.target.value)}
+        />
       </div>
       <div className="field">
         <label>Shared by</label>
@@ -479,6 +495,7 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
               key={m.id}
               className={`chip person-chip${participantIds.has(m.user_id) ? " active" : ""}`}
               style={memberVars(m.palette)}
+              disabled={!canDelete}
               onClick={() => toggleParticipant(m.user_id)}
             >
               <MemberAvatar member={m} size={16} maxLetters={1} />
@@ -486,58 +503,78 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
             </button>
           ))}
         </div>
-        <p className="mini" style={{ margin: "6px 0 0" }}>
-          Someone who joined later? Add them here to fold this expense into their balance too.
-        </p>
+        {canDelete && (
+          <p className="mini" style={{ margin: "6px 0 0" }}>
+            Someone who joined later? Add them here to fold this expense into their balance too.
+          </p>
+        )}
+      </div>
+      <div className="field">
+        <label>Repeats</label>
+        <button
+          className="ghost"
+          style={{ width: "100%" }}
+          disabled={!canDelete}
+          onClick={() => setRecurring((r) => !r)}
+        >
+          {recurring ? "Repeats monthly" : "No repeat"}
+        </button>
       </div>
       <div className="modal-actions">
-        {canDelete && (
-          <button
-            className="danger"
-            onClick={async () => {
-              await deleteEntry(entryId);
-              onClose();
-            }}
-          >
-            Delete
+        {canDelete ? (
+          <>
+            <button
+              className="danger"
+              onClick={async () => {
+                await deleteEntry(entryId);
+                onClose();
+              }}
+            >
+              Delete
+            </button>
+            <button
+              className="primary"
+              onClick={async () => {
+                const a = Number(String(amount).replace(",", "."));
+                if (!a || a <= 0) return;
+                if (!date) return;
+                if (participantIds.size === 0) return;
+                const rounded = Math.round(a * 100) / 100;
+                const patch: {
+                  amount: number;
+                  note: string;
+                  date: string;
+                  splitValues?: Record<string, number>;
+                  participantIds: string[];
+                  recurring: boolean;
+                } = {
+                  amount: rounded,
+                  note: note.trim(),
+                  date,
+                  participantIds: [...participantIds],
+                  recurring,
+                };
+                // "amounts" splits are absolute values pinned to the old total; rescale them
+                // proportionally so they still add up to the new amount.
+                if (e.split_type === "amounts" && e.amount > 0) {
+                  const oldValues = (e.split_values as Record<string, number>) || {};
+                  const scale = rounded / e.amount;
+                  patch.splitValues = Object.fromEntries(
+                    Object.entries(oldValues).map(([id, v]) => [id, Math.round(Number(v) * scale * 100) / 100])
+                  );
+                }
+                await updateEntry(entryId, patch);
+                onClose();
+              }}
+            >
+              Save
+            </button>
+          </>
+        ) : (
+          <button className="ghost" onClick={onClose} style={{ gridColumn: "1 / -1" }}>
+            Close
           </button>
         )}
-        <button
-          className="primary"
-          style={canDelete ? undefined : { gridColumn: "1 / -1" }}
-          onClick={async () => {
-            const a = Number(String(amount).replace(",", "."));
-            if (!a || a <= 0) return;
-            if (!date) return;
-            if (participantIds.size === 0) return;
-            const rounded = Math.round(a * 100) / 100;
-            const patch: {
-              amount: number;
-              note: string;
-              date: string;
-              splitValues?: Record<string, number>;
-              participantIds: string[];
-            } = {
-              amount: rounded,
-              note: note.trim(),
-              date,
-              participantIds: [...participantIds],
-            };
-            // "amounts" splits are absolute values pinned to the old total; rescale them
-            // proportionally so they still add up to the new amount.
-            if (e.split_type === "amounts" && e.amount > 0) {
-              const oldValues = (e.split_values as Record<string, number>) || {};
-              const scale = rounded / e.amount;
-              patch.splitValues = Object.fromEntries(
-                Object.entries(oldValues).map(([id, v]) => [id, Math.round(Number(v) * scale * 100) / 100])
-              );
-            }
-            await updateEntry(entryId, patch);
-            onClose();
-          }}
-        >
-          Save
-        </button>
       </div>
     </ModalSheet>
   );

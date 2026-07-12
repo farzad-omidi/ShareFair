@@ -555,6 +555,13 @@ button {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
+.input:disabled,
+.select:disabled,
+.textarea:disabled,
+.chip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
 .textarea {
   min-height: 74px;
   resize: vertical;
@@ -650,6 +657,21 @@ button {
   font-weight: 700;
   font-size: 13.5px;
   font-family: inherit;
+}
+/* The date field needs real room: a squeezed-down native date input can clip its
+   own clear/calendar affordances so they're unreachable, not just visually tight.
+   Give it a generous flexible minimum and let the repeat button size to its own
+   (short, fixed) label instead of forcing an even 50/50 split. */
+.date-repeat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.date-repeat-row .date-field {
+  flex: 1 1 150px;
+}
+.date-repeat-row > button {
+  flex: 0 0 auto;
 }
 .danger {
   padding: 10px 14px;
