@@ -232,6 +232,7 @@ export type Database = {
       }
       space_members: {
         Row: {
+          active_since: string | null
           display_name: string
           id: string
           joined_at: string
@@ -241,6 +242,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          active_since?: string | null
           display_name: string
           id?: string
           joined_at?: string
@@ -250,6 +252,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          active_since?: string | null
           display_name?: string
           id?: string
           joined_at?: string

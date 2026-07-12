@@ -2,9 +2,9 @@
 --
 -- Applied to the Supabase project as migrations (sharefair_initial_schema,
 -- harden_function_permissions, settlement_confirmation_flow, payment_requests,
--- payer_can_edit_own_entries). This file is the reproducible, combined source of
--- truth — apply it to a fresh Supabase project's SQL editor (or via
--- `supabase db push` / the `apply_migration` MCP tool) to stand the app back up.
+-- payer_can_edit_own_entries, member_active_since). This file is the reproducible,
+-- combined source of truth — apply it to a fresh Supabase project's SQL editor (or
+-- via `supabase db push` / the `apply_migration` MCP tool) to stand the app back up.
 
 -- ============ profiles ============
 -- Supabase provisions an "extensions" schema in every project; pin pgcrypto there
@@ -41,6 +41,12 @@ create table public.space_members (
   palette int not null default 0,
   role text not null default 'member' check (role in ('owner','member')),
   joined_at timestamptz not null default now(),
+  -- Since when this member actually considers themselves involved in the space's
+  -- shared expenses -- distinct from joined_at, which is just when they redeemed an
+  -- invite. Null means "not asked yet" (only true for a brand-new join; existing
+  -- rows get backfilled to joined_at, and a space's own creator gets it set to the
+  -- creation date directly).
+  active_since date,
   unique (space_id, user_id)
 );
 
@@ -185,8 +191,8 @@ begin
 
   select display_name into v_display_name from public.profiles where id = auth.uid();
 
-  insert into public.space_members (space_id, user_id, display_name, palette, role)
-  values (v_space_id, auth.uid(), coalesce(v_display_name, 'You'), 0, 'owner');
+  insert into public.space_members (space_id, user_id, display_name, palette, role, active_since)
+  values (v_space_id, auth.uid(), coalesce(v_display_name, 'You'), 0, 'owner', now()::date);
 
   insert into public.categories (space_id, name, grp, sort_order) values
     (v_space_id,'Groceries','daily',1),

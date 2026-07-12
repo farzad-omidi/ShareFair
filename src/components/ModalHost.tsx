@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useUI } from "@/lib/ui";
 import { useSpace } from "@/lib/store";
-import { currentMonth } from "@/lib/domain";
+import { currentMonth, today } from "@/lib/domain";
 import { money } from "@/lib/format";
 import { ModalSheet } from "@/components/ModalSheet";
 import { PALETTES, memberVars } from "@/lib/palettes";
@@ -33,6 +33,8 @@ export function ModalHost() {
       return <EditEntryModal entryId={modal.entryId} onClose={closeModal} />;
     case "unlock":
       return <UnlockModal onClose={closeModal} />;
+    case "activeSince":
+      return <ActiveSinceModal onClose={closeModal} />;
     default:
       return null;
   }
@@ -142,6 +144,62 @@ function UnlockModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+function ActiveSinceModal({ onClose }: { onClose: () => void }) {
+  const { activeSpace, setMyActiveSince } = useSpace();
+  const [mode, setMode] = useState<"choose" | "date">("choose");
+  const [date, setDate] = useState(today());
+  const [busy, setBusy] = useState(false);
+
+  async function confirm(value: string) {
+    setBusy(true);
+    await setMyActiveSince(value);
+    setBusy(false);
+    onClose();
+  }
+
+  return (
+    <ModalSheet onClose={onClose}>
+      <h3>Welcome to {activeSpace?.name ?? "the space"}</h3>
+      <p className="sub">
+        Since when have you been sharing expenses with this group? This just keeps everyone&apos;s
+        history accurate — it won&apos;t change anything on its own.
+      </p>
+
+      {mode === "choose" ? (
+        <div className="modal-actions">
+          <button className="ghost" disabled={busy} onClick={() => setMode("date")}>
+            Pick a date
+          </button>
+          <button className="primary" disabled={busy} onClick={() => confirm(today())}>
+            From now on
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className="field">
+            <label>Involved since</label>
+            <input
+              className="input"
+              type="date"
+              value={date}
+              max={today()}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </div>
+          <div className="modal-actions">
+            <button className="ghost" disabled={busy} onClick={() => setMode("choose")}>
+              Back
+            </button>
+            <button className="primary" disabled={busy || !date} onClick={() => confirm(date)}>
+              Confirm
+            </button>
+          </div>
+        </>
+      )}
+    </ModalSheet>
+  );
+}
+
 function MonthModal({ onClose }: { onClose: () => void }) {
   const { selectedMonth, setSelectedMonth } = useSpace();
   const [val, setVal] = useState(selectedMonth);
@@ -231,11 +289,12 @@ function CategoryManagerModal({ onClose }: { onClose: () => void }) {
 }
 
 function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () => void }) {
-  const { members, updateMyMembership, profile } = useSpace();
+  const { members, updateMyMembership, setMyActiveSince, profile } = useSpace();
   const m = members.find((x) => x.id === memberId);
   const canEdit = !!m && !!profile && m.user_id === profile.id;
   const [name, setName] = useState(m?.display_name || "");
   const [palette, setPalette] = useState(m?.palette ?? 0);
+  const [activeSince, setActiveSince] = useState(m?.active_since || today());
 
   if (!m) return null;
 
@@ -270,6 +329,16 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
               ))}
             </div>
           </div>
+          <div className="field">
+            <label>Involved since</label>
+            <input
+              className="input"
+              type="date"
+              value={activeSince}
+              max={today()}
+              onChange={(e) => setActiveSince(e.target.value)}
+            />
+          </div>
           <div className="modal-actions">
             <button className="ghost" onClick={onClose}>
               Cancel
@@ -280,6 +349,7 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
                 const trimmed = name.trim();
                 if (!trimmed) return;
                 await updateMyMembership(trimmed, palette);
+                if (activeSince !== m.active_since) await setMyActiveSince(activeSince);
                 onClose();
               }}
             >
