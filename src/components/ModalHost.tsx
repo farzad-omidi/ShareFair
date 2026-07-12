@@ -8,6 +8,7 @@ import { money } from "@/lib/format";
 import { ModalSheet } from "@/components/ModalSheet";
 import { PALETTES, memberVars } from "@/lib/palettes";
 import { MemberAvatar } from "@/components/Avatar";
+import QRCode from "qrcode";
 
 export function ModalHost() {
   const { modal, closeModal } = useUI();
@@ -232,17 +233,22 @@ function NewSpaceModal({ onClose }: { onClose: () => void }) {
 }
 
 function InviteModal({ onClose }: { onClose: () => void }) {
-  const { createInvite, activeSpace } = useSpace();
+  const { createInvite, activeSpace, getPastCollaborators, showToast } = useSpace();
   const [code, setCode] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [collaborators, setCollaborators] = useState<
+    { user_id: string; display_name: string; palette: number }[]
+  >([]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setBusy(true);
-      const c = await createInvite();
+      const [c, people] = await Promise.all([createInvite(), getPastCollaborators()]);
       if (!cancelled) {
         setCode(c);
+        setCollaborators(people);
         setBusy(false);
       }
     })();
@@ -254,6 +260,42 @@ function InviteModal({ onClose }: { onClose: () => void }) {
 
   const link = code && typeof window !== "undefined" ? `${window.location.origin}/join/${code}` : "";
 
+  useEffect(() => {
+    if (!link) return;
+    let cancelled = false;
+    // Generated entirely client-side -- the invite link never leaves the device
+    // just to render a QR code, unlike a third-party QR image API would.
+    QRCode.toDataURL(link, { margin: 1, width: 200 })
+      .then((url) => {
+        if (!cancelled) setQrDataUrl(url);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [link]);
+
+  function shareText(name?: string) {
+    return name
+      ? `Hey ${name}, join "${activeSpace?.name}" on ShareFair: ${link}`
+      : `Join "${activeSpace?.name}" on ShareFair: ${link}`;
+  }
+
+  async function share(name?: string) {
+    const text = shareText(name);
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: `Join ${activeSpace?.name}`, text, url: link });
+        return;
+      } catch {
+        // User cancelled, or the platform rejected it -- fall back to clipboard below
+        // rather than leaving them with no way to actually send the invite.
+      }
+    }
+    navigator.clipboard?.writeText(text).catch(() => {});
+    showToast(name ? `Message copied — paste it to invite ${name}` : "Invite message copied");
+  }
+
   return (
     <ModalSheet onClose={onClose}>
       <h3>Invite to {activeSpace?.name}</h3>
@@ -262,6 +304,12 @@ function InviteModal({ onClose }: { onClose: () => void }) {
         <div className="empty">Creating invite…</div>
       ) : link ? (
         <>
+          {qrDataUrl && (
+            <div className="qr-wrap">
+              {/* eslint-disable-next-line @next/next/no-img-element -- a data: URL, not an optimizable remote image */}
+              <img src={qrDataUrl} alt="QR code for the invite link" width={168} height={168} />
+            </div>
+          )}
           <div className="field">
             <label>Invite link</label>
             <input className="input" readOnly value={link} onFocus={(e) => e.target.select()} />
@@ -272,6 +320,27 @@ function InviteModal({ onClose }: { onClose: () => void }) {
               {code}
             </div>
           </div>
+          {collaborators.length > 0 && (
+            <div className="field">
+              <label>People you&apos;ve shared spaces with</label>
+              <div className="chips">
+                {collaborators.map((p) => (
+                  <button
+                    key={p.user_id}
+                    className="chip person-chip"
+                    style={memberVars(p.palette)}
+                    onClick={() => share(p.display_name)}
+                  >
+                    <MemberAvatar member={p} size={16} maxLetters={1} />
+                    {p.display_name}
+                  </button>
+                ))}
+              </div>
+              <p className="mini" style={{ margin: "6px 0 0" }}>
+                Tap someone to share this invite with them directly — they still need to open it to join.
+              </p>
+            </div>
+          )}
         </>
       ) : (
         <div className="empty">Could not create an invite link.</div>
@@ -280,16 +349,22 @@ function InviteModal({ onClose }: { onClose: () => void }) {
         <button className="ghost" onClick={onClose}>
           Close
         </button>
-        <button
-          className="primary"
-          disabled={!link}
-          onClick={() => {
-            navigator.clipboard?.writeText(link).catch(() => {});
-          }}
-        >
-          Copy link
+        <button className="primary" disabled={!link} onClick={() => share()}>
+          Share
         </button>
       </div>
+      {link && (
+        <button
+          className="link"
+          style={{ width: "100%", marginTop: 10, textAlign: "center" }}
+          onClick={() => {
+            navigator.clipboard?.writeText(link).catch(() => {});
+            showToast("Link copied");
+          }}
+        >
+          Copy link instead
+        </button>
+      )}
     </ModalSheet>
   );
 }

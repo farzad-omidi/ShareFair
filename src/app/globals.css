@@ -899,6 +899,21 @@ button {
   line-height: 1.5;
 }
 
+.qr-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 14px;
+  margin: 4px 0 2px;
+  background: var(--solid);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-md);
+}
+.qr-wrap img {
+  width: 168px;
+  height: 168px;
+  border-radius: 8px;
+}
+
 .row {
   display: grid;
   grid-template-columns: 1fr auto;

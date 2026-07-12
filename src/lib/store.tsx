@@ -65,6 +65,7 @@ type SpaceContextValue = {
   createSpace: (name: string, currency: string) => Promise<void>;
   joinSpaceByCode: (code: string) => Promise<{ ok: boolean; error?: string }>;
   createInvite: () => Promise<string | null>;
+  getPastCollaborators: () => Promise<{ user_id: string; display_name: string; palette: number }[]>;
 
   addEntry: (input: NewEntryInput) => Promise<void>;
   updateEntry: (
@@ -264,6 +265,27 @@ export function SpaceProvider({
     }
     return data;
   }, [supabase, activeSpaceId, showToast]);
+
+  // People you've shared any other space with, minus whoever's already in the
+  // current one -- a shortcut for who to send this invite to, not a way to add
+  // them directly (joining still always requires them to redeem the invite).
+  const getPastCollaborators = useCallback(async () => {
+    if (spaces.length === 0) return [];
+    const spaceIds = spaces.map((s) => s.id);
+    const { data, error } = await supabase
+      .from("space_members")
+      .select("user_id, display_name, palette")
+      .in("space_id", spaceIds)
+      .neq("user_id", userId);
+    if (error || !data) return [];
+    const currentIds = new Set(members.map((m) => m.user_id));
+    const seen = new Map<string, { user_id: string; display_name: string; palette: number }>();
+    data.forEach((m) => {
+      if (currentIds.has(m.user_id) || seen.has(m.user_id)) return;
+      seen.set(m.user_id, m);
+    });
+    return [...seen.values()];
+  }, [supabase, spaces, members, userId]);
 
   const addEntry = useCallback(
     async (input: NewEntryInput) => {
@@ -590,6 +612,7 @@ export function SpaceProvider({
     createSpace,
     joinSpaceByCode,
     createInvite,
+    getPastCollaborators,
     addEntry,
     updateEntry,
     deleteEntry,
