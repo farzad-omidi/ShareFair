@@ -167,6 +167,11 @@ const en = {
   signin_submit_busy: "Sending…",
   login_footer_tagline: "A fair, transparent way to split expenses with roommates, partners, family, or a trip crew.",
 
+  // Add view (added later)
+  add_toast_amounts_over: "Custom amounts add up to more than the total",
+  add_toast_amounts_under: "Custom amounts add up to less than the total",
+  add_split_shares_unit: "shares",
+  add_category_housing_tag: "housing",
   // Toasts (store.tsx)
   toast_create_space_error: "Couldn't create the space — nothing was saved, try again",
   toast_create_space_success: "Space created",
@@ -427,6 +432,10 @@ const es: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Enviar enlace mágico",
   signin_submit_busy: "Enviando…",
   login_footer_tagline: "Una forma justa y transparente de repartir gastos con compañeros de piso, pareja, familia o un viaje en grupo.",
+  add_toast_amounts_over: "Los importes personalizados suman más que el total",
+  add_toast_amounts_under: "Los importes personalizados suman menos que el total",
+  add_split_shares_unit: "partes",
+  add_category_housing_tag: "vivienda",
 
   // Toasts (store.tsx)
   toast_create_space_error: "No se pudo crear el espacio — no se guardó nada, inténtalo de nuevo",
@@ -684,6 +693,10 @@ const fr: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Envoyer le lien magique",
   signin_submit_busy: "Envoi…",
   login_footer_tagline: "Une façon juste et transparente de partager les dépenses avec des colocataires, un partenaire, la famille ou une bande de voyageurs.",
+  add_toast_amounts_over: "Les montants personnalisés dépassent le total",
+  add_toast_amounts_under: "Les montants personnalisés n'atteignent pas le total",
+  add_split_shares_unit: "parts",
+  add_category_housing_tag: "logement",
 
   // Toasts (store.tsx)
   toast_create_space_error: "Impossible de créer l'espace — rien n'a été enregistré, réessayez",
@@ -941,6 +954,10 @@ const de: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Magischen Link senden",
   signin_submit_busy: "Wird gesendet…",
   login_footer_tagline: "Eine faire, transparente Art, Ausgaben mit Mitbewohnern, Partnern, Familie oder einer Reisegruppe zu teilen.",
+  add_toast_amounts_over: "Die benutzerdefinierten Beträge ergeben mehr als die Gesamtsumme",
+  add_toast_amounts_under: "Die benutzerdefinierten Beträge ergeben weniger als die Gesamtsumme",
+  add_split_shares_unit: "Anteile",
+  add_category_housing_tag: "Wohnen",
 
   // Toasts (store.tsx)
   toast_create_space_error: "Der Bereich konnte nicht erstellt werden — nichts wurde gespeichert, versuch es erneut",
@@ -1198,6 +1215,10 @@ const pt: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Enviar link mágico",
   signin_submit_busy: "Enviando…",
   login_footer_tagline: "Uma forma justa e transparente de dividir despesas com colegas de quarto, parceiro(a), família ou um grupo de viagem.",
+  add_toast_amounts_over: "Os valores personalizados somam mais do que o total",
+  add_toast_amounts_under: "Os valores personalizados somam menos do que o total",
+  add_split_shares_unit: "partes",
+  add_category_housing_tag: "moradia",
 
   // Toasts (store.tsx)
   toast_create_space_error: "Não foi possível criar o espaço — nada foi salvo, tente novamente",
@@ -1455,6 +1476,10 @@ const ru: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "Отправить волшебную ссылку",
   signin_submit_busy: "Отправка…",
   login_footer_tagline: "Честный и прозрачный способ делить расходы с соседями, партнёром, семьёй или компанией в поездке.",
+  add_toast_amounts_over: "Пользовательские суммы превышают итог",
+  add_toast_amounts_under: "Пользовательские суммы меньше итога",
+  add_split_shares_unit: "доли",
+  add_category_housing_tag: "жильё",
 
   // Toasts (store.tsx)
   toast_create_space_error: "Не удалось создать пространство — ничего не сохранено, попробуйте снова",
@@ -1712,6 +1737,10 @@ const zh: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "发送魔法链接",
   signin_submit_busy: "发送中…",
   login_footer_tagline: "与室友、伴侣、家人或旅行伙伴公平、透明地分摊开销。",
+  add_toast_amounts_over: "自定义金额之和超过了总额",
+  add_toast_amounts_under: "自定义金额之和小于总额",
+  add_split_shares_unit: "份额",
+  add_category_housing_tag: "住房",
 
   // Toasts (store.tsx)
   toast_create_space_error: "无法创建空间——未保存任何内容，请重试",
@@ -1969,6 +1998,10 @@ const hi: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "मैजिक लिंक भेजें",
   signin_submit_busy: "भेजा जा रहा है…",
   login_footer_tagline: "रूममेट्स, पार्टनर, परिवार या यात्रा साथियों के साथ खर्च बाँटने का एक निष्पक्ष, पारदर्शी तरीका।",
+  add_toast_amounts_over: "कस्टम राशियों का योग कुल से अधिक है",
+  add_toast_amounts_under: "कस्टम राशियों का योग कुल से कम है",
+  add_split_shares_unit: "हिस्से",
+  add_category_housing_tag: "आवास",
 
   // Toasts (store.tsx)
   toast_create_space_error: "स्पेस नहीं बन पाया — कुछ भी सेव नहीं हुआ, फिर से कोशिश करें",
@@ -2226,6 +2259,10 @@ const ar: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "إرسال الرابط السحري",
   signin_submit_busy: "جارٍ الإرسال…",
   login_footer_tagline: "طريقة عادلة وشفافة لتقسيم المصروفات مع زملاء السكن أو الشريك أو العائلة أو مجموعة الرحلة.",
+  add_toast_amounts_over: "مجموع المبالغ المخصصة أكبر من الإجمالي",
+  add_toast_amounts_under: "مجموع المبالغ المخصصة أقل من الإجمالي",
+  add_split_shares_unit: "حصص",
+  add_category_housing_tag: "سكن",
 
   // Toasts (store.tsx)
   toast_create_space_error: "تعذّر إنشاء المساحة — لم يتم حفظ أي شيء، حاول مرة أخرى",
@@ -2483,6 +2520,10 @@ const fa: Partial<Record<TranslationKey, string>> = {
   signin_submit_idle: "ارسال لینک جادویی",
   signin_submit_busy: "در حال ارسال…",
   login_footer_tagline: "راهی منصفانه و شفاف برای تقسیم هزینه‌ها با هم‌خانه‌ای‌ها، شریک زندگی، خانواده یا همسفران.",
+  add_toast_amounts_over: "مجموع مبلغ‌های سفارشی از کل بیشتر است",
+  add_toast_amounts_under: "مجموع مبلغ‌های سفارشی از کل کمتر است",
+  add_split_shares_unit: "سهم‌ها",
+  add_category_housing_tag: "مسکن",
 
   // Toasts (store.tsx)
   toast_create_space_error: "فضا ساخته نشد — چیزی ذخیره نشد، دوباره تلاش کنید",

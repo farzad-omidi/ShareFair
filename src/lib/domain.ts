@@ -75,9 +75,21 @@ export function sharesForEntry(e: EntryRow, allMemberIds: string[]): SplitValues
       }
     });
     const target = Math.abs(amount);
+    if (empty.length === 0 && used > 0 && Math.abs(used - target) > 0.005) {
+      // Every participant entered an explicit amount, but they don't add up to the
+      // total (over- or under-allocated) and there's no one left with a blank field
+      // to absorb the difference: scale them proportionally so shares still sum to
+      // the entry amount instead of silently breaking the zero-sum balance invariant.
+      const scale = target / used;
+      ids.forEach((id) => {
+        if (out[id]) out[id] = out[id] * scale;
+      });
+      return out;
+    }
     if (used > target + 0.005 && used > 0) {
-      // Entered amounts over-allocate the total: scale them down so shares still sum
-      // to the entry amount instead of silently breaking the zero-sum balance invariant.
+      // Entered amounts over-allocate the total even though some participants left
+      // their field empty: scale down so shares still sum to the entry amount instead
+      // of silently breaking the zero-sum balance invariant.
       const scale = target / used;
       ids.forEach((id) => {
         if (out[id]) out[id] = out[id] * scale;
