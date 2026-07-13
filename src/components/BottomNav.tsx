@@ -21,7 +21,7 @@ const items: { view: UiView; Icon: ComponentType<SVGProps<SVGSVGElement>>; label
 
 export function BottomNav() {
   const { view, setView } = useUI();
-  const { entries, profile } = useSpace();
+  const { entries, profile, myInvitations } = useSpace();
   const { t } = useLanguage();
   const lastTap = useRef<{ view: UiView; time: number } | null>(null);
 
@@ -56,6 +56,7 @@ export function BottomNav() {
           <span className="nav-ico">
             <item.Icon />
             {item.view === "Settle" && awaitingMe > 0 && <span className="nav-badge" />}
+            {item.view === "More" && myInvitations.length > 0 && <span className="nav-badge" />}
           </span>
           <span>{t(item.labelKey)}</span>
         </button>

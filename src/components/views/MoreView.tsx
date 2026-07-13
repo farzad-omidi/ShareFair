@@ -39,6 +39,8 @@ export function MoreView() {
     importEntries,
     showToast,
     signOut,
+    myInvitations,
+    respondToInvitation,
   } = useSpace();
   const { openModal } = useUI();
   const { t, language, setLanguage } = useLanguage();
@@ -87,7 +89,7 @@ export function MoreView() {
     const text = await file.text();
     const rows = parseCsv(text);
     if (rows.length < 2) {
-      showToast("That file doesn't look like a ShareFair export");
+      showToast(t("more_import_bad_file_toast"));
       return;
     }
     const header = rows[0].map((h) => h.trim().toLowerCase());
@@ -104,7 +106,7 @@ export function MoreView() {
     const splitValI = col("split_values");
     const recI = col("recurring");
     if (dateI < 0 || kindI < 0 || fromI < 0 || amtI < 0) {
-      showToast("That file doesn't look like a ShareFair export");
+      showToast(t("more_import_bad_file_toast"));
       return;
     }
 
@@ -143,6 +145,35 @@ export function MoreView() {
 
   return (
     <>
+      {myInvitations.length > 0 && (
+        <div className="card">
+          <div className="card-title">
+            <div>
+              <h2>{t("more_invites_card_title")}</h2>
+              <p>{t("more_invites_card_subtitle")}</p>
+            </div>
+          </div>
+          {myInvitations.map((inv) => (
+            <div className="debt-row" key={inv.id}>
+              <div className="top">
+                <div>
+                  <strong>{inv.space_name}</strong>
+                  <small>{t("more_invite_from", { name: inv.invited_by_name })}</small>
+                </div>
+              </div>
+              <div className="grid2">
+                <button className="ghost" onClick={() => respondToInvitation(inv.id, false)}>
+                  {t("action_decline")}
+                </button>
+                <button className="primary green" onClick={() => respondToInvitation(inv.id, true)}>
+                  {t("action_confirm")}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="card">
         <div className="card-title">
           <div>
@@ -186,8 +217,9 @@ export function MoreView() {
               <div>
                 <strong>{m.display_name}</strong>
                 <small>
-                  {paletteFor(m.palette).name} palette{m.user_id === profile?.id ? " · you" : ""}
-                  {m.role === "owner" ? " · owner" : ""}
+                  {t("more_palette_suffix", { palette: paletteFor(m.palette).name })}
+                  {m.user_id === profile?.id ? t("more_you_suffix") : ""}
+                  {m.role === "owner" ? t("more_owner_suffix") : ""}
                 </small>
               </div>
             </div>
@@ -200,7 +232,7 @@ export function MoreView() {
                 <button
                   className="ghost"
                   onClick={() => {
-                    if (window.confirm(`Remove ${m.display_name} from this space?`)) removeMember(m.id);
+                    if (window.confirm(t("more_confirm_remove_member", { name: m.display_name }))) removeMember(m.id);
                   }}
                 >
                   {t("action_delete")}
@@ -258,8 +290,7 @@ export function MoreView() {
           }}
         />
         <p className="mini" style={{ margin: "10px 0 0" }}>
-          Import only understands CSV files exported from ShareFair — names are matched
-          against this space&apos;s current members and categories.
+          {t("more_import_mini")}
         </p>
       </div>
 
@@ -267,11 +298,11 @@ export function MoreView() {
         <div className="card-title">
           <div>
             <h2>{t("unlock_card_title")}</h2>
-            <p>Preview only — payment isn&apos;t connected yet.</p>
+            <p>{t("more_unlock_preview_subtitle")}</p>
           </div>
         </div>
         <button className="ghost" style={{ width: "100%" }} onClick={() => openModal({ type: "unlock" })}>
-          Preview the unlock screen
+          {t("more_preview_unlock_btn")}
         </button>
       </div>
 
