@@ -30,7 +30,7 @@ export function Onboarding() {
     setError(null);
     const res = await joinSpaceByCode(code);
     setBusy(false);
-    if (!res.ok) setError(res.error || "That invite code doesn't look right");
+    if (!res.ok) setError(res.error || t("error_invalid_invite_code"));
   }
 
   return (
@@ -61,7 +61,7 @@ export function Onboarding() {
             <form onSubmit={handleCreate}>
               <div className="field">
                 <label>{t("field_space_name")}</label>
-                <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Our Home" />
+                <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder={t("field_space_name_placeholder")} />
               </div>
               <div className="field">
                 <label>{t("field_currency")}</label>
@@ -85,7 +85,7 @@ export function Onboarding() {
                   className="input"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  placeholder="e.g. a1b2c3d4"
+                  placeholder={t("field_invite_code_placeholder")}
                   autoCapitalize="off"
                   autoCorrect="off"
                 />

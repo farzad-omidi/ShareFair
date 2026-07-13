@@ -241,36 +241,44 @@ function MonthModal({ onClose }: { onClose: () => void }) {
 
 function CategoryManagerModal({ onClose }: { onClose: () => void }) {
   const { categories, addCategory, toggleCategory } = useSpace();
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [housing, setHousing] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   return (
     <ModalSheet onClose={onClose}>
-      <h3>Categories</h3>
-      <p className="sub">Keep the first screen clean. Hide what you don&apos;t use.</p>
+      <h3>{t("categories_modal_title")}</h3>
+      <p className="sub">{t("categories_modal_subtitle")}</p>
       <div>
         {categories.map((c) => (
           <div className="row" key={c.id}>
             <div>
               <strong>{c.name}</strong>
               <small>
-                {c.grp === "housing" ? "Housing" : "Regular"} · {c.active ? "Visible" : "Hidden"}
+                {c.grp === "housing" ? t("category_group_housing") : t("category_group_regular")} ·{" "}
+                {c.active ? t("category_status_visible") : t("category_status_hidden")}
               </small>
             </div>
             <button className="ghost" onClick={() => toggleCategory(c.id)}>
-              {c.active ? "Hide" : "Show"}
+              {c.active ? t("category_action_hide") : t("category_action_show")}
             </button>
           </div>
         ))}
       </div>
       <div className="field">
-        <label>New category</label>
-        <input className="input" placeholder="For example: Plants" value={name} onChange={(e) => setName(e.target.value)} />
+        <label>{t("category_new_label")}</label>
+        <input
+          className="input"
+          placeholder={t("category_new_placeholder")}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
       </div>
       <div className="switch-line">
         <div>
-          <strong>Housing category</strong>
-          <small className="mini">Excluded when viewing without rent/housing</small>
+          <strong>{t("category_housing_label")}</strong>
+          <small className="mini">{t("category_housing_hint")}</small>
         </div>
         <label className="switch">
           <input type="checkbox" checked={housing} onChange={(e) => setHousing(e.target.checked)} />
@@ -279,19 +287,25 @@ function CategoryManagerModal({ onClose }: { onClose: () => void }) {
       </div>
       <div className="modal-actions">
         <button className="ghost" onClick={onClose}>
-          Done
+          {t("action_done")}
         </button>
         <button
           className="primary"
+          disabled={submitting}
           onClick={async () => {
             const trimmed = name.trim();
             if (!trimmed) return;
-            await addCategory(trimmed, housing ? "housing" : "daily");
-            setName("");
-            setHousing(false);
+            setSubmitting(true);
+            try {
+              await addCategory(trimmed, housing ? "housing" : "daily");
+              setName("");
+              setHousing(false);
+            } finally {
+              setSubmitting(false);
+            }
           }}
         >
-          Add category
+          {t("category_add_btn")}
         </button>
       </div>
     </ModalSheet>
@@ -300,6 +314,7 @@ function CategoryManagerModal({ onClose }: { onClose: () => void }) {
 
 function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () => void }) {
   const { members, updateMyMembership, setMyActiveSince, profile } = useSpace();
+  const { t } = useLanguage();
   const m = members.find((x) => x.id === memberId);
   const canEdit = !!m && !!profile && m.user_id === profile.id;
   const [name, setName] = useState(m?.display_name || "");
@@ -310,20 +325,20 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
 
   return (
     <ModalSheet onClose={onClose}>
-      <h3>{canEdit ? "Your profile" : m.display_name}</h3>
+      <h3>{canEdit ? t("member_modal_your_profile") : m.display_name}</h3>
       <p className="sub">
         {canEdit
-          ? "Pick a color — it helps everyone spot your entries at a glance."
-          : `Only ${m.display_name} can change their own name and color.`}
+          ? t("member_modal_subtitle_self")
+          : t("member_modal_subtitle_other", { name: m.display_name })}
       </p>
       {canEdit ? (
         <>
           <div className="field">
-            <label>Name</label>
+            <label>{t("field_name")}</label>
             <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="field">
-            <label>Color palette</label>
+            <label>{t("field_color_palette")}</label>
             <div className="color-grid">
               {PALETTES.map((p, i) => (
                 <button
@@ -340,7 +355,7 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
             </div>
           </div>
           <div className="field">
-            <label>Involved since</label>
+            <label>{t("field_involved_since")}</label>
             <input
               className="input"
               type="date"
@@ -351,7 +366,7 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
           </div>
           <div className="modal-actions">
             <button className="ghost" onClick={onClose}>
-              Cancel
+              {t("action_cancel")}
             </button>
             <button
               className="primary"
@@ -363,14 +378,14 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
                 onClose();
               }}
             >
-              Save
+              {t("action_save")}
             </button>
           </div>
         </>
       ) : (
         <div className="modal-actions" style={{ gridTemplateColumns: "1fr" }}>
           <button className="ghost" onClick={onClose}>
-            Close
+            {t("action_close")}
           </button>
         </div>
       )}
@@ -559,17 +574,23 @@ function InviteModal({ onClose }: { onClose: () => void }) {
 
 function JoinSpaceModal({ onClose }: { onClose: () => void }) {
   const { joinSpaceByCode } = useSpace();
+  const { t } = useLanguage();
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   return (
     <ModalSheet onClose={onClose}>
-      <h3>Join a space</h3>
-      <p className="sub">Enter the invite code someone shared with you.</p>
+      <h3>{t("joinspace_modal_title")}</h3>
+      <p className="sub">{t("joinspace_modal_subtitle")}</p>
       <div className="field">
-        <label>Invite code</label>
-        <input className="input" value={code} onChange={(e) => setCode(e.target.value)} placeholder="e.g. a1b2c3d4" />
+        <label>{t("field_invite_code")}</label>
+        <input
+          className="input"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          placeholder={t("joinspace_code_placeholder")}
+        />
       </div>
       {error && (
         <p className="mini" style={{ color: "var(--red)", marginTop: 8 }}>
@@ -578,7 +599,7 @@ function JoinSpaceModal({ onClose }: { onClose: () => void }) {
       )}
       <div className="modal-actions">
         <button className="ghost" onClick={onClose}>
-          Cancel
+          {t("action_cancel")}
         </button>
         <button
           className="primary"
@@ -590,10 +611,10 @@ function JoinSpaceModal({ onClose }: { onClose: () => void }) {
             const res = await joinSpaceByCode(code);
             setBusy(false);
             if (res.ok) onClose();
-            else setError(res.error || "That invite code doesn't look right");
+            else setError(res.error || t("error_invalid_invite_code"));
           }}
         >
-          {busy ? "Joining…" : "Join"}
+          {busy ? t("join_btn_busy") : t("joinspace_submit_btn")}
         </button>
       </div>
     </ModalSheet>
