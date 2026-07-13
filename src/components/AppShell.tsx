@@ -6,6 +6,7 @@ import { UIProvider, useUI } from "@/lib/ui";
 import { useLanguage } from "@/lib/i18n/context";
 import { monthName } from "@/lib/domain";
 import { Onboarding } from "@/components/Onboarding";
+import { Splash } from "@/components/Splash";
 import { BottomNav } from "@/components/BottomNav";
 import { Toast } from "@/components/Toast";
 import { ModalHost } from "@/components/ModalHost";
@@ -44,11 +45,7 @@ function AppShellInner() {
   }, [activeSpace, profile, members, openModal]);
 
   if (loading) {
-    return (
-      <div className="center-screen">
-        <div className="spinner" />
-      </div>
-    );
+    return <Splash />;
   }
 
   if (!activeSpace || spaces.length === 0) {

@@ -1459,6 +1459,52 @@ button {
   padding: 24px;
 }
 
+.splash {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+  padding: 24px;
+  background: var(--bg);
+}
+.splash-mark {
+  width: 88px;
+  height: 88px;
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  animation: splash-breathe 2.4s ease-in-out infinite;
+}
+.splash-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+@keyframes splash-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+.splash-brand {
+  font-family: var(--sans);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 4px 0 0;
+}
+.splash-tagline {
+  color: var(--muted);
+  font-size: 14px;
+  max-width: 280px;
+  margin: 0 0 6px;
+}
+
 .color-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
