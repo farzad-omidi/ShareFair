@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>سلفژ با فرزاد — ثبت‌نام کلاس تئوری موسیقی و سلفژ</title>
-<meta name="description" content="کلاس‌های تئوری موسیقی و سلفژ برای فارسی‌زبانان مقیم هلند. حضوری در آمستردام یا آنلاین. همین حالا ثبت‌نام کنید." />
+<title>سلفژ با فرزاد — ثبت‌نام کلاس تئوری موسیقی، سلفژ و کر</title>
+<meta name="description" content="کلاس‌های تئوری موسیقی، سلفژ و راهنمایی برای آواز گروهی (کر) — برای فارسی‌زبانان مقیم هلند. حضوری در آمستردام یا آنلاین. همین حالا ثبت‌نام کنید." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f5e64'/%3E%3Cline x1='11' y1='23' x2='11' y2='8' stroke='%23f4ecd8' stroke-width='1.4'/%3E%3Cellipse cx='9.3' cy='23' rx='3.6' ry='2.6' fill='%23c68f3a' transform='rotate(-18 9.3 23)'/%3E%3Cpath d='M11 8c3 .3 5 1.8 5 4' stroke='%23c68f3a' stroke-width='1.4' fill='none'/%3E%3C/svg%3E" />
 <style>
   @font-face {
@@ -41,6 +41,7 @@
     --line: rgba(33, 50, 58, 0.18);
     --danger: #9c3b3b;
     --focus: #0f5e64;
+    --band-tint: rgba(15, 94, 100, 0.07);
 
     --fs-h1: clamp(2rem, 1.55rem + 2vw, 3.1rem);
     --fs-h2: clamp(1.4rem, 1.25rem + 0.7vw, 1.8rem);
@@ -66,6 +67,7 @@
       --line: rgba(236, 227, 207, 0.16);
       --danger: #e08a8a;
       --focus: #7fd0d2;
+      --band-tint: rgba(85, 185, 189, 0.1);
       color-scheme: dark;
     }
   }
@@ -81,6 +83,7 @@
     --line: rgba(236, 227, 207, 0.16);
     --danger: #e08a8a;
     --focus: #7fd0d2;
+    --band-tint: rgba(85, 185, 189, 0.1);
     color-scheme: dark;
   }
   :root[data-theme="light"] {
@@ -95,6 +98,7 @@
     --line: rgba(33, 50, 58, 0.18);
     --danger: #9c3b3b;
     --focus: #0f5e64;
+    --band-tint: rgba(15, 94, 100, 0.07);
     color-scheme: light;
   }
 
@@ -278,6 +282,20 @@
   }
   .feature-text { padding-block-start: 0.15rem; }
 
+  /* ---------- section: choir ---------- */
+  section.choir {
+    background: var(--band-tint);
+    padding-block: 2.5rem;
+  }
+  .choir-note {
+    margin-block-start: 1.4rem;
+    padding: 1.1rem 1.3rem;
+    border-inline-start: 3px solid var(--gold);
+    background: var(--paper-raised);
+    border-radius: 6px;
+  }
+  .choir-note p { margin: 0; }
+
   /* ---------- form ---------- */
   section.register { padding-block: 1rem 3rem; }
   .form-card {
@@ -439,13 +457,14 @@
 
   <section class="hero">
     <div class="wrap">
-      <span class="eyebrow" dir="ltr">Music Theory &amp; Solfège — Amsterdam</span>
+      <span class="eyebrow" dir="ltr">Music Theory, Solfège &amp; Choir — Amsterdam</span>
       <h1>زبان موسیقی را با هم یاد بگیریم</h1>
-      <p class="hero-en" dir="ltr">Music theory &amp; solfège lessons for Persian speakers in the Netherlands.</p>
-      <p class="lead">کلاس‌های تئوری موسیقی و سلفژ، ویژه‌ی فارسی‌زبانان ساکن هلند؛ حضوری در آمستردام یا آنلاین از هر شهری.</p>
+      <p class="hero-en" dir="ltr">Music theory, solfège &amp; choir singing for Persian speakers in the Netherlands.</p>
+      <p class="lead">کلاس‌های تئوری موسیقی و سلفژ، و در کنارش راهنمایی برای آواز گروهی (کر) — ویژه‌ی فارسی‌زبانان ساکن هلند؛ حضوری در آمستردام یا آنلاین از هر شهری.</p>
       <p class="bio">
         من فرزاد هستم. بعد از چند سال دوری از کلاس درس، دوباره برگشتم سراغ چیزی که همیشه دوستش داشتم: یاد دادن تئوری موسیقی و سلفژ.
-        این‌بار می‌خواهم این دانش را به فارسی‌زبان‌های ساکن هلند برسانم؛ چه تازه‌کار باشید و چه سال‌هاست سازی می‌نوازید و می‌خواهید پایه‌تان را محکم‌تر کنید.
+        در کنار این، سال‌هاست هم به‌عنوان خواننده و هم رهبر کر (کورال) فعالیت کرده‌ام.
+        این‌بار می‌خواهم همه‌ی این تجربه را به فارسی‌زبان‌های ساکن هلند برسانم؛ چه تازه‌کار باشید و چه سال‌هاست سازی می‌نوازید و می‌خواهید پایه‌تان را محکم‌تر کنید.
       </p>
       <div class="cta-row">
         <a class="btn btn-primary" href="#form">ثبت‌نام در کلاس</a>
@@ -478,6 +497,35 @@
           <span class="feature-text">کلاس خصوصی یا گروه کوچک — آنلاین یا حضوری در آمستردام</span>
         </li>
       </ul>
+    </div>
+  </section>
+
+  <div class="staff" role="presentation"></div>
+
+  <section class="choir" id="choir">
+    <div class="wrap">
+      <h2>چرا آواز گروهی (کر)، مخصوصاً برای یک مهاجر؟</h2>
+      <p class="section-intro">خواندن فقط یک مهارت موسیقایی نیست؛ برای خیلی از ما که غریبِ یک کشور تازه‌ایم، می‌تواند یک‌جور خانه هم باشد:</p>
+      <ul class="features">
+        <li>
+          <span class="sol-tag" aria-hidden="true">سل</span>
+          <span class="feature-text">حس تعلق — هم‌صدا شدن با آدم‌های دیگر، آن هم به زبان خودتان</span>
+        </li>
+        <li>
+          <span class="sol-tag" aria-hidden="true">لا</span>
+          <span class="feature-text">کم شدن تنهایی دوران مهاجرت، با یک قرار ثابت هفتگی و جمعی که منتظرتان است</span>
+        </li>
+        <li>
+          <span class="sol-tag" aria-hidden="true">سی</span>
+          <span class="feature-text">تمرین گوش دادن و هماهنگ شدن با دیگران — مهارتی که به زندگی روزمره در کشور تازه هم کمک می‌کند</span>
+        </li>
+      </ul>
+      <div class="choir-note">
+        <p>
+          خودم سال‌هاست هم به‌عنوان خواننده و هم رهبر کر (کورال) فعالیت کرده‌ام و می‌دانم رسیدن به آن لحظه‌ای که صدای چند نفر با هم یکی می‌شود چه حسی دارد.
+          اگر دوست دارید یک روز عضو یک گروه کر باشید، از همین حالا و از پایه‌ای‌ترین قدم‌ها می‌توانم همراه‌تان باشم.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -576,6 +624,10 @@
                   <label class="choice">
                     <input type="checkbox" name="هدف" value="صرفاً علاقه شخصی و لذت بردن" />
                     صرفاً علاقه‌ی شخصی و لذت بردن
+                  </label>
+                  <label class="choice">
+                    <input type="checkbox" name="هدف" value="علاقه به آواز گروهی (کر) در آینده" />
+                    علاقه به آواز گروهی (کر) در آینده
                   </label>
                 </div>
               </fieldset>
