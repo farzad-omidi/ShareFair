@@ -68,7 +68,7 @@ export function SettleView() {
     return members.find((m) => m.user_id === userId);
   }
   function nameFor(userId: string) {
-    return memberFor(userId)?.display_name ?? "Someone";
+    return memberFor(userId)?.display_name ?? t("fallback_someone");
   }
 
   async function handleSettle(key: string, fromId: string, toId: string, amount: number) {
@@ -198,7 +198,7 @@ export function SettleView() {
                         disabled={settling}
                         onClick={() => {
                           navigator.clipboard?.writeText(String(d.amount)).catch(() => {});
-                          showToast("Amount copied");
+                          showToast(t("settle_amount_copied_toast"));
                         }}
                       >
                         {t("settle_copy_amount_btn")}
