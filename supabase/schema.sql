@@ -32,6 +32,7 @@ create table public.spaces (
   created_at timestamptz not null default now()
 );
 
+create index if not exists spaces_created_by_idx on public.spaces(created_by);
 alter table public.spaces enable row level security;
 
 -- ============ space_members ============
@@ -52,6 +53,7 @@ create table public.space_members (
   unique (space_id, user_id)
 );
 
+create index if not exists space_members_user_id_idx on public.space_members(user_id);
 alter table public.space_members enable row level security;
 
 -- ============ space_invites ============
@@ -66,6 +68,8 @@ create table public.space_invites (
   created_at timestamptz not null default now()
 );
 
+create index if not exists space_invites_space_id_idx on public.space_invites(space_id);
+create index if not exists space_invites_created_by_idx on public.space_invites(created_by);
 alter table public.space_invites enable row level security;
 
 -- ============ space_invitations ============
@@ -101,6 +105,7 @@ create table public.categories (
   created_at timestamptz not null default now()
 );
 
+create index if not exists categories_space_id_idx on public.categories(space_id);
 alter table public.categories enable row level security;
 
 -- ============ entries (expenses, credits, settlements, and payment requests) ============
@@ -137,6 +142,14 @@ create table public.entries (
 );
 
 create index entries_space_month_idx on public.entries(space_id, month);
+-- Covering indexes for entries' foreign keys (payer/from/to/category/created_by),
+-- flagged by the performance advisor as unindexed -- these are hit on every balance
+-- calculation, entry list, and lookup by author.
+create index if not exists entries_payer_id_idx on public.entries(payer_id);
+create index if not exists entries_from_id_idx on public.entries(from_id);
+create index if not exists entries_to_id_idx on public.entries(to_id);
+create index if not exists entries_category_id_idx on public.entries(category_id);
+create index if not exists entries_created_by_idx on public.entries(created_by);
 alter table public.entries enable row level security;
 
 create or replace function public.set_updated_at()
@@ -345,18 +358,20 @@ $$;
 -- ============ RLS policies ============
 
 -- profiles: self, or anyone sharing a space with you
+-- auth.uid() is wrapped in (select ...) throughout these policies so Postgres can
+-- evaluate it once per query instead of re-evaluating it per row (auth_rls_initplan).
 create policy profiles_select on public.profiles for select
   using (
-    id = auth.uid()
+    id = (select auth.uid())
     or exists (
       select 1 from public.space_members sm1
       join public.space_members sm2 on sm1.space_id = sm2.space_id
-      where sm1.user_id = auth.uid() and sm2.user_id = profiles.id
+      where sm1.user_id = (select auth.uid()) and sm2.user_id = profiles.id
     )
   );
 
 create policy profiles_update_self on public.profiles for update
-  using (id = auth.uid());
+  using (id = (select auth.uid()));
 
 -- An invitee needs to see the inviter's display name before accepting --
 -- profiles_select only covers people who already share a space, which isn't
@@ -406,10 +421,10 @@ create policy space_members_select on public.space_members for select
   using (public.is_space_member(space_id));
 
 create policy space_members_update_self on public.space_members for update
-  using (user_id = auth.uid());
+  using (user_id = (select auth.uid()));
 
 create policy space_members_delete on public.space_members for delete
-  using (user_id = auth.uid() or public.is_space_owner(space_id));
+  using (user_id = (select auth.uid()) or public.is_space_owner(space_id));
 
 -- space_invites
 create policy space_invites_select on public.space_invites for select
@@ -460,8 +475,36 @@ create policy categories_delete on public.categories for delete
 create policy entries_select on public.entries for select
   using (public.is_space_member(space_id));
 
+-- Beyond membership + authorship, insert is further restricted per kind so a client
+-- can't bypass the app's two-party settlement confirmation flow by inserting an
+-- already-confirmed settlement (or a request not tied to the actual payee) directly
+-- via the REST API:
+--   * settlement: must start 'pending'. Deliberately does NOT require auth.uid() to
+--     be from_id/to_id -- the app's SettleView lets any space member record that two
+--     other members settled up (verified against live data: a meaningful share of
+--     existing settlement rows were created by a third party), and that recording is
+--     inert until confirmed by the actual from_id/to_id party via entries_update +
+--     protect_entry_columns, which already restrict who can flip status to
+--     'confirmed'.
+--   * request: to_id must be the caller. This mirrors (and is already fully
+--     guaranteed by) the entries_request_shape_check CHECK constraint below, which
+--     requires created_by = to_id for every request row -- listed here explicitly as
+--     a defense-in-depth RLS guard, not a new restriction. Deliberately does NOT
+--     require status = 'pending': requestPayment() never sets status (it defaults to
+--     'confirmed'), and a request's status is never consulted for balances anyway.
+--   * expense/credit: unrestricted beyond is_space_member + created_by = auth.uid()
+--     (unchanged) -- payer/participant semantics for these kinds are intentionally
+--     flexible, since anyone in the space can log an expense paid by anyone.
 create policy entries_insert on public.entries for insert
-  with check (public.is_space_member(space_id) and created_by = auth.uid());
+  with check (
+    public.is_space_member(space_id)
+    and created_by = (select auth.uid())
+    and (
+      kind in ('expense', 'credit')
+      or (kind = 'settlement' and status = 'pending')
+      or (kind = 'request' and to_id = (select auth.uid()))
+    )
+  );
 
 -- Only the entry's author or the space owner may edit/delete it (not any member) --
 -- except that either party to a *pending* settlement may also update it (to
@@ -474,19 +517,19 @@ create policy entries_update on public.entries for update
   using (
     public.is_space_member(space_id)
     and (
-      created_by = auth.uid()
+      created_by = (select auth.uid())
       or public.is_space_owner(space_id)
-      or (kind = 'settlement' and status = 'pending' and (from_id = auth.uid() or to_id = auth.uid()))
-      or (kind in ('expense', 'credit') and payer_id = auth.uid())
+      or (kind = 'settlement' and status = 'pending' and (from_id = (select auth.uid()) or to_id = (select auth.uid())))
+      or (kind in ('expense', 'credit') and payer_id = (select auth.uid()))
     )
   )
   with check (
     public.is_space_member(space_id)
     and (
-      created_by = auth.uid()
+      created_by = (select auth.uid())
       or public.is_space_owner(space_id)
-      or (kind = 'settlement' and (from_id = auth.uid() or to_id = auth.uid()))
-      or (kind in ('expense', 'credit') and payer_id = auth.uid())
+      or (kind = 'settlement' and (from_id = (select auth.uid()) or to_id = (select auth.uid())))
+      or (kind in ('expense', 'credit') and payer_id = (select auth.uid()))
     )
   );
 
@@ -494,11 +537,11 @@ create policy entries_delete on public.entries for delete
   using (
     public.is_space_member(space_id)
     and (
-      created_by = auth.uid()
+      created_by = (select auth.uid())
       or public.is_space_owner(space_id)
-      or (kind = 'settlement' and status = 'pending' and (from_id = auth.uid() or to_id = auth.uid()))
-      or (kind = 'request' and (from_id = auth.uid() or to_id = auth.uid()))
-      or (kind in ('expense', 'credit') and payer_id = auth.uid())
+      or (kind = 'settlement' and status = 'pending' and (from_id = (select auth.uid()) or to_id = (select auth.uid())))
+      or (kind = 'request' and (from_id = (select auth.uid()) or to_id = (select auth.uid())))
+      or (kind in ('expense', 'credit') and payer_id = (select auth.uid()))
     )
   );
 
@@ -630,17 +673,40 @@ alter publication supabase_realtime add table public.spaces;
 alter publication supabase_realtime add table public.space_invitations;
 
 -- ============ hardened function permissions ============
--- Internal helpers are not meant to be called directly via REST, only used inside RLS
--- policies/functions. User-facing RPCs require a signed-in user.
-revoke execute on function public.is_space_member(uuid) from anon, authenticated;
-revoke execute on function public.is_space_owner(uuid) from anon, authenticated;
-revoke execute on function public.handle_new_user() from anon, authenticated;
-
-revoke execute on function public.create_space(text, text) from anon;
-revoke execute on function public.create_invite(uuid, int, int) from anon;
-revoke execute on function public.redeem_invite(text) from anon;
+-- Postgres grants EXECUTE to PUBLIC by default when a function is created, and that
+-- default is what actually made these callable by anon -- revoking from anon/
+-- authenticated directly is a no-op while PUBLIC still holds the grant (anon and
+-- authenticated inherit it through PUBLIC either way). So revoke from PUBLIC first,
+-- which removes it from every role including anon, then re-grant to authenticated
+-- only where a signed-in user genuinely needs to call it:
+--   * is_space_member / is_space_owner are referenced inside nearly every RLS policy
+--     below -- Postgres requires the *querying* role to hold EXECUTE on a function
+--     used in a policy even though the function itself is SECURITY DEFINER, so these
+--     must stay executable by authenticated for RLS to work at all. They still must
+--     not be callable by anon.
+--   * handle_new_user is only ever invoked by the on_auth_user_created trigger, never
+--     called directly by a client role, so no role needs a direct EXECUTE grant on it.
+--   * create_space / create_invite / redeem_invite are the app's own user-facing
+--     RPCs and must stay callable by authenticated; anon must not be able to call
+--     them. (respond_to_space_invitation is the same kind of RPC but isn't in this
+--     from-public batch -- see the note by its own revoke statement below.)
+revoke execute on function public.is_space_member(uuid) from public;
+revoke execute on function public.is_space_owner(uuid) from public;
+revoke execute on function public.handle_new_user() from public;
+revoke execute on function public.create_space(text, text) from public;
+revoke execute on function public.create_invite(uuid, int, int) from public;
+revoke execute on function public.redeem_invite(text) from public;
+-- NOTE: this one is intentionally still "from anon" rather than "from public" like the
+-- others above -- it reflects what's ACTUALLY live right now (applied by an earlier,
+-- separate migration before the public-vs-anon distinction above was understood), not an
+-- aspirational fix. It very likely has the same PUBLIC-inherited-grant gap the other six
+-- functions had. Follow-up needed: revoke from public + re-grant to authenticated, same as
+-- the others, once Supabase tooling access is available again (blocked mid-session by a
+-- persistent MCP approval-gate issue).
 revoke execute on function public.respond_to_space_invitation(uuid, boolean) from anon;
 
+grant execute on function public.is_space_member(uuid) to authenticated;
+grant execute on function public.is_space_owner(uuid) to authenticated;
 grant execute on function public.create_space(text, text) to authenticated;
 grant execute on function public.create_invite(uuid, int, int) to authenticated;
 grant execute on function public.redeem_invite(text) to authenticated;

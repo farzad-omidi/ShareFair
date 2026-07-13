@@ -11,10 +11,14 @@ import {
   type ReactNode,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { currentMonth, today, monthKey } from "@/lib/domain";
+import { currentMonth, today, monthKey, calcThrough } from "@/lib/domain";
 import { useLanguage } from "@/lib/i18n/context";
 import type { Category, EntryRow, MyInvitation, Profile, Space, SpaceMember, SplitType } from "@/lib/types";
 import type { TablesInsert, TablesUpdate } from "@/lib/database.types";
+
+// A sentinel month far beyond any real entry, used with calcThrough to get a
+// member's all-time balance (rather than a balance through some specific month).
+const FAR_FUTURE_MONTH = "9999-12";
 
 type NewEntryInput = {
   kind: "expense" | "credit";
@@ -137,6 +141,10 @@ export function SpaceProvider({
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [realtimeStatus, setRealtimeStatus] = useState<"connecting" | "live" | "offline">("connecting");
+  // Bumped on every loadSpaceData call; a response only gets applied if it's still the
+  // most recent one requested, so a slow, stale fetch (e.g. from a space the user has
+  // already switched away from) can never clobber newer state with older data.
+  const spaceDataRequestRef = useRef(0);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -164,11 +172,16 @@ export function SpaceProvider({
 
   const loadSpaceData = useCallback(
     async (spaceId: string) => {
+      const requestId = ++spaceDataRequestRef.current;
       const [membersRes, categoriesRes, entriesRes] = await Promise.all([
         supabase.from("space_members").select("*").eq("space_id", spaceId).order("joined_at"),
         supabase.from("categories").select("*").eq("space_id", spaceId).order("sort_order"),
         supabase.from("entries").select("*").eq("space_id", spaceId).order("entry_date", { ascending: false }),
       ]);
+      // A newer loadSpaceData call has been issued since this one started (e.g. the user
+      // switched spaces again before this request resolved) -- applying this response now
+      // would overwrite fresher state with stale data, so drop it on the floor instead.
+      if (requestId !== spaceDataRequestRef.current) return;
       setMembers(membersRes.data ?? []);
       setCategories(categoriesRes.data ?? []);
       setEntries(entriesRes.data ?? []);
@@ -289,43 +302,43 @@ export function SpaceProvider({
     async (name: string, currency: string) => {
       const { data, error } = await supabase.rpc("create_space", { p_name: name, p_currency: currency });
       if (error || !data) {
-        showToast("Couldn't create the space — nothing was saved, try again");
+        showToast(t("toast_create_space_error"));
         return null;
       }
       await loadSpaces();
       switchSpace(data);
-      showToast("Space created");
+      showToast(t("toast_create_space_success"));
       // Returned so callers that need the new space's id right away (e.g. to invite
       // people to it before the modal closes) don't have to rely on activeSpaceId
       // having already re-rendered through context by the time this await resolves.
       return data;
     },
-    [supabase, loadSpaces, switchSpace, showToast]
+    [supabase, loadSpaces, switchSpace, showToast, t]
   );
 
   const joinSpaceByCode = useCallback(
     async (code: string) => {
       const { data, error } = await supabase.rpc("redeem_invite", { p_code: code.trim() });
       if (error || !data) {
-        return { ok: false, error: error?.message || "That invite code doesn't look right" };
+        return { ok: false, error: error?.message || t("error_invalid_invite_code") };
       }
       await loadSpaces();
       switchSpace(data);
-      showToast("Joined space");
+      showToast(t("toast_join_space_success"));
       return { ok: true };
     },
-    [supabase, loadSpaces, switchSpace, showToast]
+    [supabase, loadSpaces, switchSpace, showToast, t]
   );
 
   const createInvite = useCallback(async () => {
     if (!activeSpaceId) return null;
     const { data, error } = await supabase.rpc("create_invite", { p_space_id: activeSpaceId });
     if (error || !data) {
-      showToast("Couldn't create an invite link — try again in a moment");
+      showToast(t("toast_create_invite_error"));
       return null;
     }
     return data;
-  }, [supabase, activeSpaceId, showToast]);
+  }, [supabase, activeSpaceId, showToast, t]);
 
   // People you've shared any other space with, minus whoever's already in the
   // target space -- a shortcut for who to send this invite to, not a way to add
@@ -423,14 +436,14 @@ export function SpaceProvider({
         created_by: userId,
       });
       if (error) {
-        showToast("Couldn't add that — nothing was saved, try again");
+        showToast(t("toast_add_entry_error"));
         return;
       }
       setSelectedMonth(monthKey(input.date));
-      showToast(input.kind === "credit" ? "Credit added" : "Expense added");
+      showToast(input.kind === "credit" ? t("toast_credit_added") : t("toast_expense_added"));
       loadSpaceData(activeSpaceId);
     },
-    [supabase, activeSpaceId, userId, showToast, loadSpaceData]
+    [supabase, activeSpaceId, userId, showToast, loadSpaceData, t]
   );
 
   const updateEntry = useCallback(
@@ -454,24 +467,24 @@ export function SpaceProvider({
       }
       const { error } = await supabase.from("entries").update(dbPatch).eq("id", id);
       if (error) {
-        showToast("Couldn't save those changes — the entry is unchanged, try again");
+        showToast(t("toast_update_entry_error"));
         return;
       }
       if (activeSpaceId) loadSpaceData(activeSpaceId);
     },
-    [supabase, activeSpaceId, loadSpaceData, showToast]
+    [supabase, activeSpaceId, loadSpaceData, showToast, t]
   );
 
   const deleteEntry = useCallback(
     async (id: string) => {
       const { error } = await supabase.from("entries").delete().eq("id", id);
       if (error) {
-        showToast("Couldn't delete that entry — it's still there, try again");
+        showToast(t("toast_delete_entry_error"));
         return;
       }
       if (activeSpaceId) loadSpaceData(activeSpaceId);
     },
-    [supabase, activeSpaceId, loadSpaceData, showToast]
+    [supabase, activeSpaceId, loadSpaceData, showToast, t]
   );
 
   const settle = useCallback(
@@ -490,7 +503,7 @@ export function SpaceProvider({
         status: "pending",
       });
       if (error) {
-        showToast("Couldn't mark that settled — nothing changed, try again");
+        showToast(t("toast_settle_error"));
         return;
       }
       // A payment request for this pair is moot once payment is actually underway.
@@ -498,36 +511,36 @@ export function SpaceProvider({
         .from("entries")
         .delete()
         .match({ space_id: activeSpaceId, kind: "request", from_id: fromId, to_id: toId });
-      showToast("Sent — waiting for them to confirm");
+      showToast(t("toast_settle_sent"));
       loadSpaceData(activeSpaceId);
     },
-    [supabase, activeSpaceId, userId, selectedMonth, showToast, loadSpaceData]
+    [supabase, activeSpaceId, userId, selectedMonth, showToast, loadSpaceData, t]
   );
 
   const confirmSettlement = useCallback(
     async (id: string) => {
       const { error } = await supabase.from("entries").update({ status: "confirmed" }).eq("id", id);
       if (error) {
-        showToast("Couldn't confirm that — try again");
+        showToast(t("toast_confirm_settlement_error"));
         return;
       }
-      showToast("Settled up — all square now");
+      showToast(t("toast_settlement_confirmed"));
       if (activeSpaceId) loadSpaceData(activeSpaceId);
     },
-    [supabase, activeSpaceId, loadSpaceData, showToast]
+    [supabase, activeSpaceId, loadSpaceData, showToast, t]
   );
 
   const declineSettlement = useCallback(
     async (id: string) => {
       const { error } = await supabase.from("entries").delete().eq("id", id);
       if (error) {
-        showToast("Couldn't decline that — try again");
+        showToast(t("toast_decline_settlement_error"));
         return;
       }
-      showToast("Declined — the balance is still open");
+      showToast(t("toast_settlement_declined"));
       if (activeSpaceId) loadSpaceData(activeSpaceId);
     },
-    [supabase, activeSpaceId, loadSpaceData, showToast]
+    [supabase, activeSpaceId, loadSpaceData, showToast, t]
   );
 
   const requestPayment = useCallback(
@@ -545,25 +558,25 @@ export function SpaceProvider({
         created_by: userId,
       });
       if (error) {
-        showToast("Couldn't send that request — try again");
+        showToast(t("toast_request_payment_error"));
         return;
       }
-      showToast("Payment request sent");
+      showToast(t("toast_payment_requested"));
       loadSpaceData(activeSpaceId);
     },
-    [supabase, activeSpaceId, userId, selectedMonth, showToast, loadSpaceData]
+    [supabase, activeSpaceId, userId, selectedMonth, showToast, loadSpaceData, t]
   );
 
   const cancelRequest = useCallback(
     async (id: string) => {
       const { error } = await supabase.from("entries").delete().eq("id", id);
       if (error) {
-        showToast("Couldn't remove that — try again");
+        showToast(t("toast_cancel_request_error"));
         return;
       }
       if (activeSpaceId) loadSpaceData(activeSpaceId);
     },
-    [supabase, activeSpaceId, loadSpaceData, showToast]
+    [supabase, activeSpaceId, loadSpaceData, showToast, t]
   );
 
   const importEntries = useCallback(
@@ -656,23 +669,23 @@ export function SpaceProvider({
       });
 
       if (toInsert.length === 0) {
-        showToast("Nothing to import — check the file and try again");
+        showToast(t("toast_import_nothing_error"));
         return { imported: 0, skipped };
       }
       const { error } = await supabase.from("entries").insert(toInsert);
       if (error) {
-        showToast("Import failed — nothing was added, try again");
+        showToast(t("toast_import_failed_error"));
         return { imported: 0, skipped: rows.length };
       }
       showToast(
         skipped > 0
-          ? `Imported ${toInsert.length}, skipped ${skipped} we couldn't match`
-          : `Imported ${toInsert.length} ${toInsert.length === 1 ? "entry" : "entries"}`
+          ? t("toast_import_partial_success", { count: toInsert.length, skipped })
+          : t("toast_import_success", { count: toInsert.length })
       );
       loadSpaceData(activeSpaceId);
       return { imported: toInsert.length, skipped };
     },
-    [supabase, activeSpaceId, members, categories, userId, loadSpaceData, showToast]
+    [supabase, activeSpaceId, members, categories, userId, loadSpaceData, showToast, t]
   );
 
   const addCategory = useCallback(
@@ -683,12 +696,12 @@ export function SpaceProvider({
         .from("categories")
         .insert({ space_id: activeSpaceId, name, grp, sort_order: sortOrder });
       if (error) {
-        showToast("Couldn't add that category — try again");
+        showToast(t("toast_add_category_error"));
         return;
       }
       loadSpaceData(activeSpaceId);
     },
-    [supabase, activeSpaceId, categories, loadSpaceData, showToast]
+    [supabase, activeSpaceId, categories, loadSpaceData, showToast, t]
   );
 
   const toggleCategory = useCallback(
@@ -711,12 +724,12 @@ export function SpaceProvider({
         .update({ display_name: displayName, palette })
         .eq("id", mine.id);
       if (error) {
-        showToast("Couldn't save your profile — try again");
+        showToast(t("toast_update_membership_error"));
         return;
       }
       if (activeSpaceId) loadSpaceData(activeSpaceId);
     },
-    [supabase, members, userId, activeSpaceId, loadSpaceData, showToast]
+    [supabase, members, userId, activeSpaceId, loadSpaceData, showToast, t]
   );
 
   const setMyActiveSince = useCallback(
@@ -725,12 +738,12 @@ export function SpaceProvider({
       if (!mine) return;
       const { error } = await supabase.from("space_members").update({ active_since: date }).eq("id", mine.id);
       if (error) {
-        showToast("Couldn't save that — try again");
+        showToast(t("toast_set_active_since_error"));
         return;
       }
       if (activeSpaceId) loadSpaceData(activeSpaceId);
     },
-    [supabase, members, userId, activeSpaceId, loadSpaceData, showToast]
+    [supabase, members, userId, activeSpaceId, loadSpaceData, showToast, t]
   );
 
   const updateMyProfile = useCallback(
@@ -747,15 +760,34 @@ export function SpaceProvider({
 
   const removeMember = useCallback(
     async (memberId: string) => {
+      const target = members.find((m) => m.id === memberId);
+      // Historical entries keep referencing a removed member's user_id as payer/from/to
+      // forever, so removing someone with an open balance would leave an unresolvable
+      // "phantom" debt with no member to attach it to. Block the removal instead --
+      // the group has to settle up with this person first.
+      if (target) {
+        const categoriesById = new Map(categories.map((c) => [c.id, c]));
+        const balances = calcThrough(
+          entries,
+          members.map((m) => m.user_id),
+          categoriesById,
+          FAR_FUTURE_MONTH
+        );
+        const outstanding = balances[target.user_id] ?? 0;
+        if (Math.abs(outstanding) > 0.005) {
+          showToast(t("toast_remove_member_has_balance"));
+          return;
+        }
+      }
       const { error } = await supabase.from("space_members").delete().eq("id", memberId);
       if (error) {
-        showToast("Couldn't remove that member — try again");
+        showToast(t("toast_remove_member_error"));
         return;
       }
-      showToast("Member removed");
+      showToast(t("toast_member_removed"));
       if (activeSpaceId) loadSpaceData(activeSpaceId);
     },
-    [supabase, activeSpaceId, loadSpaceData, showToast]
+    [supabase, activeSpaceId, loadSpaceData, showToast, members, categories, entries, t]
   );
 
   const signOut = useCallback(async () => {

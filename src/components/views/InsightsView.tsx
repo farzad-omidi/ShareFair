@@ -33,13 +33,13 @@ export function InsightsView() {
         const a = signed(e);
         total += a;
         if (e.payer_id) paid[e.payer_id] = (paid[e.payer_id] || 0) + a;
-        const cn = (e.category_id ? catsById.get(e.category_id)?.name : undefined) || "Other";
+        const cn = (e.category_id ? catsById.get(e.category_id)?.name : undefined) || t("fallback_other");
         byCat[cn] = byCat[cn] || { total: 0, count: 0 };
         byCat[cn].total += a;
         byCat[cn].count++;
       });
     return { total: round(total), paid, byCat };
-  }, [entries, excludeHousing, catsById, memberIds]);
+  }, [entries, excludeHousing, catsById, memberIds, t]);
 
   const totals = useMemo(
     () => months.map((m) => ({ m, total: calcMonth(entries, memberIds, catsById, m, { excludeHousing }).total })),
@@ -97,8 +97,8 @@ export function InsightsView() {
               <AnimatedMoney value={total / count} currency={activeSpace?.currency} />
             </strong>
             <small>
-              {excludeHousing ? t("rhythm_toggle_excluding") : t("rhythm_toggle_including")} · {count} month
-              {count === 1 ? "" : "s"}
+              {excludeHousing ? t("rhythm_toggle_excluding") : t("rhythm_toggle_including")} ·{" "}
+              {t("metric_months_count", { count })}
             </small>
           </div>
           <div className="metric">
@@ -129,7 +129,7 @@ export function InsightsView() {
             <div className="row" key={name}>
               <div>
                 <strong>{name}</strong>
-                <small>{d.count} entries · average per month</small>
+                <small>{t("bycategory_entries_note", { count: d.count })}</small>
               </div>
               <strong>
                 <AnimatedMoney value={d.total / count} currency={activeSpace?.currency} />
