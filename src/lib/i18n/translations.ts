@@ -192,6 +192,12 @@ const en = {
   joinspace_code_placeholder: "e.g. a1b2c3d4",
   error_invalid_invite_code: "That invite code doesn't look right",
   joinspace_submit_btn: "Join",
+  // Shared fallbacks / misc
+  fallback_other: "Other",
+  fallback_someone: "Someone",
+  settle_amount_copied_toast: "Amount copied",
+  metric_months_count: "{count} months",
+  bycategory_entries_note: "{count} entries · average per month",
 };
 
 const es: Partial<Record<TranslationKey, string>> = {
@@ -359,6 +365,11 @@ const es: Partial<Record<TranslationKey, string>> = {
   joinspace_code_placeholder: "p. ej. a1b2c3d4",
   error_invalid_invite_code: "Ese código de invitación no parece correcto",
   joinspace_submit_btn: "Unirse",
+  fallback_other: "Otro",
+  fallback_someone: "Alguien",
+  settle_amount_copied_toast: "Importe copiado",
+  metric_months_count: "{count} meses",
+  bycategory_entries_note: "{count} movimientos · promedio por mes",
 };
 
 const fr: Partial<Record<TranslationKey, string>> = {
@@ -526,6 +537,11 @@ const fr: Partial<Record<TranslationKey, string>> = {
   joinspace_code_placeholder: "ex. a1b2c3d4",
   error_invalid_invite_code: "Ce code d'invitation ne semble pas correct",
   joinspace_submit_btn: "Rejoindre",
+  fallback_other: "Autre",
+  fallback_someone: "Quelqu'un",
+  settle_amount_copied_toast: "Montant copié",
+  metric_months_count: "{count} mois",
+  bycategory_entries_note: "{count} entrées · moyenne par mois",
 };
 
 const de: Partial<Record<TranslationKey, string>> = {
@@ -693,6 +709,11 @@ const de: Partial<Record<TranslationKey, string>> = {
   joinspace_code_placeholder: "z. B. a1b2c3d4",
   error_invalid_invite_code: "Dieser Einladungscode scheint nicht zu stimmen",
   joinspace_submit_btn: "Beitreten",
+  fallback_other: "Sonstiges",
+  fallback_someone: "Jemand",
+  settle_amount_copied_toast: "Betrag kopiert",
+  metric_months_count: "{count} Monate",
+  bycategory_entries_note: "{count} Einträge · Durchschnitt pro Monat",
 };
 
 const pt: Partial<Record<TranslationKey, string>> = {
@@ -860,6 +881,11 @@ const pt: Partial<Record<TranslationKey, string>> = {
   joinspace_code_placeholder: "ex.: a1b2c3d4",
   error_invalid_invite_code: "Esse código de convite não parece correto",
   joinspace_submit_btn: "Entrar",
+  fallback_other: "Outro",
+  fallback_someone: "Alguém",
+  settle_amount_copied_toast: "Valor copiado",
+  metric_months_count: "{count} meses",
+  bycategory_entries_note: "{count} lançamentos · média mensal",
 };
 
 const ru: Partial<Record<TranslationKey, string>> = {
@@ -1027,6 +1053,11 @@ const ru: Partial<Record<TranslationKey, string>> = {
   joinspace_code_placeholder: "например, a1b2c3d4",
   error_invalid_invite_code: "Этот код приглашения выглядит неверным",
   joinspace_submit_btn: "Присоединиться",
+  fallback_other: "Другое",
+  fallback_someone: "Кто-то",
+  settle_amount_copied_toast: "Сумма скопирована",
+  metric_months_count: "{count} месяцев",
+  bycategory_entries_note: "{count} записей · в среднем за месяц",
 };
 
 const zh: Partial<Record<TranslationKey, string>> = {
@@ -1194,6 +1225,11 @@ const zh: Partial<Record<TranslationKey, string>> = {
   joinspace_code_placeholder: "例如 a1b2c3d4",
   error_invalid_invite_code: "该邀请码似乎不正确",
   joinspace_submit_btn: "加入",
+  fallback_other: "其他",
+  fallback_someone: "某人",
+  settle_amount_copied_toast: "金额已复制",
+  metric_months_count: "{count} 个月",
+  bycategory_entries_note: "{count} 条记录 · 月均",
 };
 
 const hi: Partial<Record<TranslationKey, string>> = {
@@ -1361,6 +1397,11 @@ const hi: Partial<Record<TranslationKey, string>> = {
   joinspace_code_placeholder: "जैसे a1b2c3d4",
   error_invalid_invite_code: "यह आमंत्रण कोड सही नहीं लग रहा है",
   joinspace_submit_btn: "जुड़ें",
+  fallback_other: "अन्य",
+  fallback_someone: "कोई",
+  settle_amount_copied_toast: "राशि कॉपी की गई",
+  metric_months_count: "{count} महीने",
+  bycategory_entries_note: "{count} प्रविष्टियाँ · मासिक औसत",
 };
 
 const ar: Partial<Record<TranslationKey, string>> = {
@@ -1528,6 +1569,11 @@ const ar: Partial<Record<TranslationKey, string>> = {
   joinspace_code_placeholder: "مثال: a1b2c3d4",
   error_invalid_invite_code: "رمز الدعوة هذا لا يبدو صحيحًا",
   joinspace_submit_btn: "انضمام",
+  fallback_other: "أخرى",
+  fallback_someone: "شخص ما",
+  settle_amount_copied_toast: "تم نسخ المبلغ",
+  metric_months_count: "{count} أشهر",
+  bycategory_entries_note: "{count} سجلات · متوسط شهري",
 };
 
 const fa: Partial<Record<TranslationKey, string>> = {
@@ -1695,6 +1741,11 @@ const fa: Partial<Record<TranslationKey, string>> = {
   joinspace_code_placeholder: "مثلاً a1b2c3d4",
   error_invalid_invite_code: "این کد دعوت درست به نظر نمی‌رسد",
   joinspace_submit_btn: "پیوستن",
+  fallback_other: "سایر",
+  fallback_someone: "کسی",
+  settle_amount_copied_toast: "مبلغ کپی شد",
+  metric_months_count: "{count} ماه",
+  bycategory_entries_note: "{count} تراکنش · میانگین ماهانه",
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Partial<Record<TranslationKey, string>>> = {
