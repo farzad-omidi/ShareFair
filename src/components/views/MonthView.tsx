@@ -134,11 +134,11 @@ function EntryItem({ entry: e, onClick }: { entry: EntryRow; onClick: () => void
         {e.kind === "credit" ? <IconUndo width={16} height={16} /> : <IconReceipt width={16} height={16} />}
       </span>
       <span>
-        <strong>{cat?.name ?? "Other"}</strong>
+        <strong>{cat?.name ?? t("fallback_other")}</strong>
         <small>
           <span className="member-name-line" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
             <MemberAvatar member={payer} size={15} maxLetters={1} />
-            {payer?.display_name ?? "Someone"}
+            {payer?.display_name ?? t("fallback_someone")}
           </span>{" "}
           · {e.entry_date}
           {e.note ? ` · ${e.note}` : ""}
