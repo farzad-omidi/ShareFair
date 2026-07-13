@@ -167,6 +167,7 @@ button {
   position: absolute;
   top: -150px;
   left: -110px;
+  right: auto;
   width: 320px;
   height: 320px;
   /* an organic, slightly irregular blob rather than a perfect circle —
@@ -175,6 +176,8 @@ button {
   background: var(--wet-accent);
   animation: breathe 9s ease-in-out infinite;
   transform-origin: center;
+  /* lets the RTL left->right repositioning below glide instead of snap */
+  transition: left 0.8s ease, right 0.8s ease;
 }
 .glow::after {
   content: "";
@@ -1573,4 +1576,12 @@ button {
 [dir="rtl"] .arrow {
   display: inline-block;
   transform: scaleX(-1);
+}
+/* the decorative breathing blob reads as pinned to the header's leading edge,
+   so it should follow reading direction rather than stay physically left --
+   glides to the top-right when Persian/Arabic flips dir to rtl (see the
+   transition on .glow::before above) instead of jumping there instantly */
+[dir="rtl"] .glow::before {
+  left: auto;
+  right: -110px;
 }
