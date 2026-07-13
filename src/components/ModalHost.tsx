@@ -624,12 +624,14 @@ function JoinSpaceModal({ onClose }: { onClose: () => void }) {
 function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => void }) {
   const { entries, members, profile, updateEntry, deleteEntry, confirmSettlement, declineSettlement, activeSpace } =
     useSpace();
+  const { t } = useLanguage();
   const e = entries.find((x) => x.id === entryId);
   const [amount, setAmount] = useState(e ? String(e.amount) : "");
   const [note, setNote] = useState(e?.note || "");
   const [date, setDate] = useState(e?.entry_date || "");
   const [participantIds, setParticipantIds] = useState<Set<string>>(new Set(e?.participant_ids ?? []));
   const [recurring, setRecurring] = useState(e?.recurring ?? false);
+  const [submitting, setSubmitting] = useState(false);
 
   if (!e) return null;
 
@@ -655,40 +657,54 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
   if (e.kind === "settlement") {
     const from = members.find((m) => m.user_id === e.from_id);
     const to = members.find((m) => m.user_id === e.to_id);
+    const fromName = from?.display_name ?? t("person_someone_cap");
+    const toName = to?.display_name ?? t("person_someone_lower");
 
     if (e.status === "pending") {
       const iAmConfirmer = profile?.id !== e.created_by && (profile?.id === e.from_id || profile?.id === e.to_id);
       const iAmInitiator = profile?.id === e.created_by;
       return (
         <ModalSheet onClose={onClose}>
-          <h3>Settlement — awaiting confirmation</h3>
-          <p className="sub">
-            {from?.display_name ?? "Someone"} → {to?.display_name ?? "someone"}
-          </p>
+          <h3>{t("entry_settling_heading")}</h3>
+          <p className="sub">{t("entry_pending_sub", { from: fromName, to: toName })}</p>
           <div className="big-money">{money(e.amount, activeSpace?.currency)}</div>
           {iAmConfirmer ? (
             <>
               <p className="mini" style={{ margin: "0 0 14px" }}>
-                Confirm this actually happened before it counts toward balances.
+                {t("entry_confirm_note")}
               </p>
               <div className="modal-actions">
                 <button
                   className="ghost"
+                  disabled={submitting}
                   onClick={async () => {
-                    await declineSettlement(entryId);
-                    onClose();
+                    if (submitting) return;
+                    setSubmitting(true);
+                    try {
+                      await declineSettlement(entryId);
+                      onClose();
+                    } finally {
+                      setSubmitting(false);
+                    }
                   }}
                 >
-                  Decline
+                  {t("action_decline")}
                 </button>
                 <button
                   className="primary green"
+                  disabled={submitting}
                   onClick={async () => {
-                    await confirmSettlement(entryId);
-                    onClose();
+                    if (submitting) return;
+                    setSubmitting(true);
+                    try {
+                      await confirmSettlement(entryId);
+                      onClose();
+                    } finally {
+                      setSubmitting(false);
+                    }
                   }}
                 >
-                  Confirm
+                  {t("action_confirm")}
                 </button>
               </div>
             </>
@@ -699,17 +715,24 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
                 onClick={onClose}
                 style={iAmInitiator ? undefined : { gridColumn: "1 / -1" }}
               >
-                Close
+                {t("action_close")}
               </button>
               {iAmInitiator && (
                 <button
                   className="danger"
+                  disabled={submitting}
                   onClick={async () => {
-                    await declineSettlement(entryId);
-                    onClose();
+                    if (submitting) return;
+                    setSubmitting(true);
+                    try {
+                      await declineSettlement(entryId);
+                      onClose();
+                    } finally {
+                      setSubmitting(false);
+                    }
                   }}
                 >
-                  Cancel request
+                  {t("settle_cancel_request_btn")}
                 </button>
               )}
             </div>
@@ -720,24 +743,29 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
 
     return (
       <ModalSheet onClose={onClose}>
-        <h3>Settlement</h3>
-        <p className="sub">
-          {from?.display_name ?? "Someone"} settled with {to?.display_name ?? "someone"}
-        </p>
+        <h3>{t("entry_settled_heading")}</h3>
+        <p className="sub">{t("entry_settled", { from: fromName, to: toName })}</p>
         <div className="big-money">{money(e.amount, activeSpace?.currency)}</div>
         <div className="modal-actions">
           <button className="ghost" onClick={onClose} style={canDelete ? undefined : { gridColumn: "1 / -1" }}>
-            Close
+            {t("action_close")}
           </button>
           {canDelete && (
             <button
               className="danger"
+              disabled={submitting}
               onClick={async () => {
-                await deleteEntry(entryId);
-                onClose();
+                if (submitting) return;
+                setSubmitting(true);
+                try {
+                  await deleteEntry(entryId);
+                  onClose();
+                } finally {
+                  setSubmitting(false);
+                }
               }}
             >
-              Delete
+              {t("action_delete")}
             </button>
           )}
         </div>
@@ -747,12 +775,10 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
 
   return (
     <ModalSheet onClose={onClose}>
-      <h3>Edit entry</h3>
-      {!canDelete && (
-        <p className="sub">Only whoever added this, or the space owner, can change it — you can still see it.</p>
-      )}
+      <h3>{t("edit_entry_title")}</h3>
+      {!canDelete && <p className="sub">{t("edit_entry_readonly_note")}</p>}
       <div className="field">
-        <label>Amount</label>
+        <label>{t("field_amount")}</label>
         <input
           className="input"
           inputMode="decimal"
@@ -762,11 +788,11 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
         />
       </div>
       <div className="field">
-        <label>Note</label>
+        <label>{t("field_note")}</label>
         <input className="input" value={note} disabled={!canDelete} onChange={(ev) => setNote(ev.target.value)} />
       </div>
       <div className="field">
-        <label>Date</label>
+        <label>{t("field_date")}</label>
         <input
           className="input"
           type="date"
@@ -776,7 +802,7 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
         />
       </div>
       <div className="field">
-        <label>Shared by</label>
+        <label>{t("shared_by_label")}</label>
         <div className="chips">
           {members.map((m) => (
             <button
@@ -793,12 +819,12 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
         </div>
         {canDelete && (
           <p className="mini" style={{ margin: "6px 0 0" }}>
-            Someone who joined later? Add them here to fold this expense into their balance too.
+            {t("edit_entry_late_join_note")}
           </p>
         )}
       </div>
       <div className="field">
-        <label>Repeats</label>
+        <label>{t("field_repeats")}</label>
         <button
           className={`ghost toggle-pill${recurring ? " on" : ""}`}
           style={{ width: "100%" }}
@@ -806,7 +832,7 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
           onClick={() => setRecurring((r) => !r)}
         >
           {recurring && <IconCheck width={14} height={14} />}
-          {recurring ? "Repeats monthly" : "No repeat"}
+          {t(recurring ? "repeat_on" : "repeat_off")}
         </button>
       </div>
       <div className="modal-actions">
@@ -814,54 +840,68 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
           <>
             <button
               className="danger"
+              disabled={submitting}
               onClick={async () => {
-                await deleteEntry(entryId);
-                onClose();
+                if (submitting) return;
+                setSubmitting(true);
+                try {
+                  await deleteEntry(entryId);
+                  onClose();
+                } finally {
+                  setSubmitting(false);
+                }
               }}
             >
-              Delete
+              {t("action_delete")}
             </button>
             <button
               className="primary"
+              disabled={submitting}
               onClick={async () => {
+                if (submitting) return;
                 const a = Number(String(amount).replace(",", "."));
                 if (!a || a <= 0) return;
                 if (!date) return;
                 if (participantIds.size === 0) return;
-                const rounded = Math.round(a * 100) / 100;
-                const patch: {
-                  amount: number;
-                  note: string;
-                  date: string;
-                  splitValues?: Record<string, number>;
-                  participantIds: string[];
-                  recurring: boolean;
-                } = {
-                  amount: rounded,
-                  note: note.trim(),
-                  date,
-                  participantIds: [...participantIds],
-                  recurring,
-                };
-                // "amounts" splits are absolute values pinned to the old total; rescale them
-                // proportionally so they still add up to the new amount.
-                if (e.split_type === "amounts" && e.amount > 0) {
-                  const oldValues = (e.split_values as Record<string, number>) || {};
-                  const scale = rounded / e.amount;
-                  patch.splitValues = Object.fromEntries(
-                    Object.entries(oldValues).map(([id, v]) => [id, Math.round(Number(v) * scale * 100) / 100])
-                  );
+                setSubmitting(true);
+                try {
+                  const rounded = Math.round(a * 100) / 100;
+                  const patch: {
+                    amount: number;
+                    note: string;
+                    date: string;
+                    splitValues?: Record<string, number>;
+                    participantIds: string[];
+                    recurring: boolean;
+                  } = {
+                    amount: rounded,
+                    note: note.trim(),
+                    date,
+                    participantIds: [...participantIds],
+                    recurring,
+                  };
+                  // "amounts" splits are absolute values pinned to the old total; rescale them
+                  // proportionally so they still add up to the new amount.
+                  if (e.split_type === "amounts" && e.amount > 0) {
+                    const oldValues = (e.split_values as Record<string, number>) || {};
+                    const scale = rounded / e.amount;
+                    patch.splitValues = Object.fromEntries(
+                      Object.entries(oldValues).map(([id, v]) => [id, Math.round(Number(v) * scale * 100) / 100])
+                    );
+                  }
+                  await updateEntry(entryId, patch);
+                  onClose();
+                } finally {
+                  setSubmitting(false);
                 }
-                await updateEntry(entryId, patch);
-                onClose();
               }}
             >
-              Save
+              {t("action_save")}
             </button>
           </>
         ) : (
           <button className="ghost" onClick={onClose} style={{ gridColumn: "1 / -1" }}>
-            Close
+            {t("action_close")}
           </button>
         )}
       </div>
