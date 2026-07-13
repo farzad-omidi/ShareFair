@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useUI } from "@/lib/ui";
 import { useSpace } from "@/lib/store";
 import { currentMonth, today } from "@/lib/domain";
-import { money } from "@/lib/format";
+import { money, symbol } from "@/lib/format";
+import { useLanguage } from "@/lib/i18n/context";
 import { ModalSheet } from "@/components/ModalSheet";
 import { PALETTES, memberVars } from "@/lib/palettes";
 import { CURRENCIES } from "@/lib/currencies";
@@ -42,16 +43,24 @@ export function ModalHost() {
 }
 
 const TIP_OPTIONS = [0, 2, 5, 10];
+const UNLOCK_PRICE = 1;
 
 // Preview-only: no payment is actually wired up yet. This exists to see how the
 // unlock moment (and the thank-you that follows it) looks and feels before
 // deciding whether/how to build it for real.
 function UnlockModal({ onClose }: { onClose: () => void }) {
   const { activeSpace } = useSpace();
+  const { t } = useLanguage();
   const [tip, setTip] = useState(0);
   const [stage, setStage] = useState<"offer" | "thanks">("offer");
   const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([]);
-  const total = 1 + tip;
+  const total = UNLOCK_PRICE + tip;
+  const currency = activeSpace?.currency ?? "EUR";
+  // Toman conventionally trails the amount ("2 تومان") while every other
+  // supported currency's symbol leads it ("€2") -- keep the tip chips compact
+  // (no forced decimals) while still respecting that per-currency ordering.
+  const compactAmount = (amt: number) =>
+    currency === "IRT" ? `${amt} ${symbol(currency)}` : `${symbol(currency)}${amt}`;
 
   if (stage === "thanks") {
     return (
@@ -61,15 +70,15 @@ function UnlockModal({ onClose }: { onClose: () => void }) {
           <div className="thanks-icon">
             <IconHeart width={22} height={22} />
           </div>
-          <div className="flow">Thank you</div>
+          <div className="flow">{t("unlock_thanks_heading")}</div>
           <div className="hero-text">
-            We appreciate your support, and we&apos;re genuinely glad ShareFair has felt good to use.
-            {tip > 0 && " Your tip helps support young engineers building things like this."}
+            {t("unlock_thanks_body")}
+            {tip > 0 && " " + t("unlock_thanks_tip_note")}
           </div>
         </div>
         <div className="modal-actions">
           <button className="primary" style={{ gridColumn: "1 / -1" }} onClick={onClose}>
-            Done
+            {t("action_done")}
           </button>
         </div>
       </ModalSheet>
@@ -79,57 +88,58 @@ function UnlockModal({ onClose }: { onClose: () => void }) {
   return (
     <ModalSheet onClose={onClose}>
       <div className="hero balanced">
-        <div className="hero-label">All square</div>
+        <div className="hero-label">{t("unlock_hero_label")}</div>
         <div className="flow">
           <IconCheck width={20} height={20} />
-          {activeSpace?.name ?? "Your space"} is off to a good start
+          {t("unlock_offer_heading", { name: activeSpace?.name ?? t("fallback_your_space") })}
         </div>
-        <div className="hero-text">
-          You&apos;ve kept things fair together. A small one-time unlock keeps ShareFair running for
-          everyone here.
-        </div>
+        <div className="hero-text">{t("unlock_offer_body")}</div>
       </div>
 
-      <h3>Unlock {activeSpace?.name ?? "this space"}</h3>
-      <p className="sub">One person, one time, everyone in this space — no subscription, no ads, ever.</p>
+      <h3>{t("unlock_cta_heading", { name: activeSpace?.name ?? t("fallback_this_space") })}</h3>
+      <p className="sub">{t("unlock_sub")}</p>
 
       <div className="unlock-benefits">
         <div>
           <IconCheck width={15} height={15} />
-          Everyone in {activeSpace?.name ?? "this space"} unlocked at once
+          {t("unlock_benefit_everyone", { name: activeSpace?.name ?? t("fallback_this_space") })}
         </div>
         <div>
           <IconCheck width={15} height={15} />
-          Yours forever — pay once, no renewals
+          {t("unlock_benefit_forever")}
         </div>
         <div>
           <IconCheck width={15} height={15} />
-          Your history stays, whatever you decide
+          {t("unlock_benefit_history")}
         </div>
       </div>
 
       <div className="field">
-        <label>Want to support more?</label>
+        <label>{t("unlock_tip_label")}</label>
         <div className="chips">
           {TIP_OPTIONS.map((amt) => (
             <button key={amt} className={`chip${tip === amt ? " active" : ""}`} onClick={() => setTip(amt)}>
-              {amt === 0 ? "No tip" : `+€${amt}`}
+              {amt === 0 ? t("unlock_tip_none") : t("unlock_tip_chip", { amount: compactAmount(amt) })}
             </button>
           ))}
         </div>
         <p className="mini" style={{ margin: "6px 0 0" }}>
-          Optional — a little extra to support young engineers building things like this.
+          {t("unlock_tip_hint")}
         </p>
       </div>
 
       <div style={{ textAlign: "center", margin: "14px 0 16px" }}>
-        <div className="big-money">€{total}</div>
-        <p className="mini">{tip > 0 ? `€1 unlock + €${tip} tip` : "one time, not a subscription"}</p>
+        <div className="big-money">{money(total, currency)}</div>
+        <p className="mini">
+          {tip > 0
+            ? t("unlock_summary_with_tip", { unlock: money(UNLOCK_PRICE, currency), tip: money(tip, currency) })
+            : t("unlock_summary_once")}
+        </p>
       </div>
 
       <div className="modal-actions">
         <button className="ghost" onClick={onClose}>
-          Maybe later
+          {t("unlock_maybe_later")}
         </button>
         <button
           className="primary green"
@@ -138,7 +148,7 @@ function UnlockModal({ onClose }: { onClose: () => void }) {
             setStage("thanks");
           }}
         >
-          Unlock for €{total}
+          {t("unlock_cta_button", { amount: money(total, currency) })}
         </button>
       </div>
     </ModalSheet>
@@ -147,6 +157,7 @@ function UnlockModal({ onClose }: { onClose: () => void }) {
 
 function ActiveSinceModal({ onClose }: { onClose: () => void }) {
   const { activeSpace, setMyActiveSince } = useSpace();
+  const { t } = useLanguage();
   const [mode, setMode] = useState<"choose" | "date">("choose");
   const [date, setDate] = useState(today());
   const [busy, setBusy] = useState(false);
@@ -160,25 +171,22 @@ function ActiveSinceModal({ onClose }: { onClose: () => void }) {
 
   return (
     <ModalSheet onClose={onClose}>
-      <h3>Welcome to {activeSpace?.name ?? "the space"}</h3>
-      <p className="sub">
-        Since when have you been sharing expenses with this group? This just keeps everyone&apos;s
-        history accurate — it won&apos;t change anything on its own.
-      </p>
+      <h3>{t("active_since_welcome", { name: activeSpace?.name ?? t("fallback_the_space") })}</h3>
+      <p className="sub">{t("active_since_sub")}</p>
 
       {mode === "choose" ? (
         <div className="modal-actions">
           <button className="ghost" disabled={busy} onClick={() => setMode("date")}>
-            Pick a date
+            {t("active_since_pick_date")}
           </button>
           <button className="primary" disabled={busy} onClick={() => confirm(today())}>
-            From now on
+            {t("active_since_from_now")}
           </button>
         </div>
       ) : (
         <>
           <div className="field">
-            <label>Involved since</label>
+            <label>{t("active_since_label")}</label>
             <input
               className="input"
               type="date"
@@ -189,10 +197,10 @@ function ActiveSinceModal({ onClose }: { onClose: () => void }) {
           </div>
           <div className="modal-actions">
             <button className="ghost" disabled={busy} onClick={() => setMode("choose")}>
-              Back
+              {t("action_back")}
             </button>
             <button className="primary" disabled={busy || !date} onClick={() => confirm(date)}>
-              Confirm
+              {t("action_confirm")}
             </button>
           </div>
         </>
@@ -203,18 +211,19 @@ function ActiveSinceModal({ onClose }: { onClose: () => void }) {
 
 function MonthModal({ onClose }: { onClose: () => void }) {
   const { selectedMonth, setSelectedMonth } = useSpace();
+  const { t } = useLanguage();
   const [val, setVal] = useState(selectedMonth);
   return (
     <ModalSheet onClose={onClose}>
-      <h3>Choose month</h3>
-      <p className="sub">Jump to any month to see its activity.</p>
+      <h3>{t("month_modal_title")}</h3>
+      <p className="sub">{t("month_modal_sub")}</p>
       <div className="field">
-        <label>Month</label>
+        <label>{t("month_modal_label")}</label>
         <input className="input" type="month" value={val} onChange={(e) => setVal(e.target.value)} />
       </div>
       <div className="modal-actions">
         <button className="ghost" onClick={onClose}>
-          Cancel
+          {t("action_cancel")}
         </button>
         <button
           className="primary"
@@ -223,7 +232,7 @@ function MonthModal({ onClose }: { onClose: () => void }) {
             onClose();
           }}
         >
-          Use month
+          {t("month_modal_use")}
         </button>
       </div>
     </ModalSheet>
@@ -232,36 +241,44 @@ function MonthModal({ onClose }: { onClose: () => void }) {
 
 function CategoryManagerModal({ onClose }: { onClose: () => void }) {
   const { categories, addCategory, toggleCategory } = useSpace();
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [housing, setHousing] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   return (
     <ModalSheet onClose={onClose}>
-      <h3>Categories</h3>
-      <p className="sub">Keep the first screen clean. Hide what you don&apos;t use.</p>
+      <h3>{t("categories_modal_title")}</h3>
+      <p className="sub">{t("categories_modal_subtitle")}</p>
       <div>
         {categories.map((c) => (
           <div className="row" key={c.id}>
             <div>
               <strong>{c.name}</strong>
               <small>
-                {c.grp === "housing" ? "Housing" : "Regular"} · {c.active ? "Visible" : "Hidden"}
+                {c.grp === "housing" ? t("category_group_housing") : t("category_group_regular")} ·{" "}
+                {c.active ? t("category_status_visible") : t("category_status_hidden")}
               </small>
             </div>
             <button className="ghost" onClick={() => toggleCategory(c.id)}>
-              {c.active ? "Hide" : "Show"}
+              {c.active ? t("category_action_hide") : t("category_action_show")}
             </button>
           </div>
         ))}
       </div>
       <div className="field">
-        <label>New category</label>
-        <input className="input" placeholder="For example: Plants" value={name} onChange={(e) => setName(e.target.value)} />
+        <label>{t("category_new_label")}</label>
+        <input
+          className="input"
+          placeholder={t("category_new_placeholder")}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
       </div>
       <div className="switch-line">
         <div>
-          <strong>Housing category</strong>
-          <small className="mini">Excluded when viewing without rent/housing</small>
+          <strong>{t("category_housing_label")}</strong>
+          <small className="mini">{t("category_housing_hint")}</small>
         </div>
         <label className="switch">
           <input type="checkbox" checked={housing} onChange={(e) => setHousing(e.target.checked)} />
@@ -270,19 +287,25 @@ function CategoryManagerModal({ onClose }: { onClose: () => void }) {
       </div>
       <div className="modal-actions">
         <button className="ghost" onClick={onClose}>
-          Done
+          {t("action_done")}
         </button>
         <button
           className="primary"
+          disabled={submitting}
           onClick={async () => {
             const trimmed = name.trim();
             if (!trimmed) return;
-            await addCategory(trimmed, housing ? "housing" : "daily");
-            setName("");
-            setHousing(false);
+            setSubmitting(true);
+            try {
+              await addCategory(trimmed, housing ? "housing" : "daily");
+              setName("");
+              setHousing(false);
+            } finally {
+              setSubmitting(false);
+            }
           }}
         >
-          Add category
+          {t("category_add_btn")}
         </button>
       </div>
     </ModalSheet>
@@ -291,6 +314,7 @@ function CategoryManagerModal({ onClose }: { onClose: () => void }) {
 
 function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () => void }) {
   const { members, updateMyMembership, setMyActiveSince, profile } = useSpace();
+  const { t } = useLanguage();
   const m = members.find((x) => x.id === memberId);
   const canEdit = !!m && !!profile && m.user_id === profile.id;
   const [name, setName] = useState(m?.display_name || "");
@@ -301,20 +325,20 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
 
   return (
     <ModalSheet onClose={onClose}>
-      <h3>{canEdit ? "Your profile" : m.display_name}</h3>
+      <h3>{canEdit ? t("member_modal_your_profile") : m.display_name}</h3>
       <p className="sub">
         {canEdit
-          ? "Pick a color — it helps everyone spot your entries at a glance."
-          : `Only ${m.display_name} can change their own name and color.`}
+          ? t("member_modal_subtitle_self")
+          : t("member_modal_subtitle_other", { name: m.display_name })}
       </p>
       {canEdit ? (
         <>
           <div className="field">
-            <label>Name</label>
+            <label>{t("field_name")}</label>
             <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="field">
-            <label>Color palette</label>
+            <label>{t("field_color_palette")}</label>
             <div className="color-grid">
               {PALETTES.map((p, i) => (
                 <button
@@ -331,7 +355,7 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
             </div>
           </div>
           <div className="field">
-            <label>Involved since</label>
+            <label>{t("field_involved_since")}</label>
             <input
               className="input"
               type="date"
@@ -342,7 +366,7 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
           </div>
           <div className="modal-actions">
             <button className="ghost" onClick={onClose}>
-              Cancel
+              {t("action_cancel")}
             </button>
             <button
               className="primary"
@@ -354,14 +378,14 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
                 onClose();
               }}
             >
-              Save
+              {t("action_save")}
             </button>
           </div>
         </>
       ) : (
         <div className="modal-actions" style={{ gridTemplateColumns: "1fr" }}>
           <button className="ghost" onClick={onClose}>
-            Close
+            {t("action_close")}
           </button>
         </div>
       )}
@@ -550,17 +574,23 @@ function InviteModal({ onClose }: { onClose: () => void }) {
 
 function JoinSpaceModal({ onClose }: { onClose: () => void }) {
   const { joinSpaceByCode } = useSpace();
+  const { t } = useLanguage();
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   return (
     <ModalSheet onClose={onClose}>
-      <h3>Join a space</h3>
-      <p className="sub">Enter the invite code someone shared with you.</p>
+      <h3>{t("joinspace_modal_title")}</h3>
+      <p className="sub">{t("joinspace_modal_subtitle")}</p>
       <div className="field">
-        <label>Invite code</label>
-        <input className="input" value={code} onChange={(e) => setCode(e.target.value)} placeholder="e.g. a1b2c3d4" />
+        <label>{t("field_invite_code")}</label>
+        <input
+          className="input"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          placeholder={t("joinspace_code_placeholder")}
+        />
       </div>
       {error && (
         <p className="mini" style={{ color: "var(--red)", marginTop: 8 }}>
@@ -569,7 +599,7 @@ function JoinSpaceModal({ onClose }: { onClose: () => void }) {
       )}
       <div className="modal-actions">
         <button className="ghost" onClick={onClose}>
-          Cancel
+          {t("action_cancel")}
         </button>
         <button
           className="primary"
@@ -581,10 +611,10 @@ function JoinSpaceModal({ onClose }: { onClose: () => void }) {
             const res = await joinSpaceByCode(code);
             setBusy(false);
             if (res.ok) onClose();
-            else setError(res.error || "That invite code doesn't look right");
+            else setError(res.error || t("error_invalid_invite_code"));
           }}
         >
-          {busy ? "Joining…" : "Join"}
+          {busy ? t("join_btn_busy") : t("joinspace_submit_btn")}
         </button>
       </div>
     </ModalSheet>
@@ -594,12 +624,14 @@ function JoinSpaceModal({ onClose }: { onClose: () => void }) {
 function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => void }) {
   const { entries, members, profile, updateEntry, deleteEntry, confirmSettlement, declineSettlement, activeSpace } =
     useSpace();
+  const { t } = useLanguage();
   const e = entries.find((x) => x.id === entryId);
   const [amount, setAmount] = useState(e ? String(e.amount) : "");
   const [note, setNote] = useState(e?.note || "");
   const [date, setDate] = useState(e?.entry_date || "");
   const [participantIds, setParticipantIds] = useState<Set<string>>(new Set(e?.participant_ids ?? []));
   const [recurring, setRecurring] = useState(e?.recurring ?? false);
+  const [submitting, setSubmitting] = useState(false);
 
   if (!e) return null;
 
@@ -625,40 +657,54 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
   if (e.kind === "settlement") {
     const from = members.find((m) => m.user_id === e.from_id);
     const to = members.find((m) => m.user_id === e.to_id);
+    const fromName = from?.display_name ?? t("person_someone_cap");
+    const toName = to?.display_name ?? t("person_someone_lower");
 
     if (e.status === "pending") {
       const iAmConfirmer = profile?.id !== e.created_by && (profile?.id === e.from_id || profile?.id === e.to_id);
       const iAmInitiator = profile?.id === e.created_by;
       return (
         <ModalSheet onClose={onClose}>
-          <h3>Settlement — awaiting confirmation</h3>
-          <p className="sub">
-            {from?.display_name ?? "Someone"} → {to?.display_name ?? "someone"}
-          </p>
+          <h3>{t("entry_settling_heading")}</h3>
+          <p className="sub">{t("entry_pending_sub", { from: fromName, to: toName })}</p>
           <div className="big-money">{money(e.amount, activeSpace?.currency)}</div>
           {iAmConfirmer ? (
             <>
               <p className="mini" style={{ margin: "0 0 14px" }}>
-                Confirm this actually happened before it counts toward balances.
+                {t("entry_confirm_note")}
               </p>
               <div className="modal-actions">
                 <button
                   className="ghost"
+                  disabled={submitting}
                   onClick={async () => {
-                    await declineSettlement(entryId);
-                    onClose();
+                    if (submitting) return;
+                    setSubmitting(true);
+                    try {
+                      await declineSettlement(entryId);
+                      onClose();
+                    } finally {
+                      setSubmitting(false);
+                    }
                   }}
                 >
-                  Decline
+                  {t("action_decline")}
                 </button>
                 <button
                   className="primary green"
+                  disabled={submitting}
                   onClick={async () => {
-                    await confirmSettlement(entryId);
-                    onClose();
+                    if (submitting) return;
+                    setSubmitting(true);
+                    try {
+                      await confirmSettlement(entryId);
+                      onClose();
+                    } finally {
+                      setSubmitting(false);
+                    }
                   }}
                 >
-                  Confirm
+                  {t("action_confirm")}
                 </button>
               </div>
             </>
@@ -669,17 +715,24 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
                 onClick={onClose}
                 style={iAmInitiator ? undefined : { gridColumn: "1 / -1" }}
               >
-                Close
+                {t("action_close")}
               </button>
               {iAmInitiator && (
                 <button
                   className="danger"
+                  disabled={submitting}
                   onClick={async () => {
-                    await declineSettlement(entryId);
-                    onClose();
+                    if (submitting) return;
+                    setSubmitting(true);
+                    try {
+                      await declineSettlement(entryId);
+                      onClose();
+                    } finally {
+                      setSubmitting(false);
+                    }
                   }}
                 >
-                  Cancel request
+                  {t("settle_cancel_request_btn")}
                 </button>
               )}
             </div>
@@ -690,24 +743,29 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
 
     return (
       <ModalSheet onClose={onClose}>
-        <h3>Settlement</h3>
-        <p className="sub">
-          {from?.display_name ?? "Someone"} settled with {to?.display_name ?? "someone"}
-        </p>
+        <h3>{t("entry_settled_heading")}</h3>
+        <p className="sub">{t("entry_settled", { from: fromName, to: toName })}</p>
         <div className="big-money">{money(e.amount, activeSpace?.currency)}</div>
         <div className="modal-actions">
           <button className="ghost" onClick={onClose} style={canDelete ? undefined : { gridColumn: "1 / -1" }}>
-            Close
+            {t("action_close")}
           </button>
           {canDelete && (
             <button
               className="danger"
+              disabled={submitting}
               onClick={async () => {
-                await deleteEntry(entryId);
-                onClose();
+                if (submitting) return;
+                setSubmitting(true);
+                try {
+                  await deleteEntry(entryId);
+                  onClose();
+                } finally {
+                  setSubmitting(false);
+                }
               }}
             >
-              Delete
+              {t("action_delete")}
             </button>
           )}
         </div>
@@ -717,12 +775,10 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
 
   return (
     <ModalSheet onClose={onClose}>
-      <h3>Edit entry</h3>
-      {!canDelete && (
-        <p className="sub">Only whoever added this, or the space owner, can change it — you can still see it.</p>
-      )}
+      <h3>{t("edit_entry_title")}</h3>
+      {!canDelete && <p className="sub">{t("edit_entry_readonly_note")}</p>}
       <div className="field">
-        <label>Amount</label>
+        <label>{t("field_amount")}</label>
         <input
           className="input"
           inputMode="decimal"
@@ -732,11 +788,11 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
         />
       </div>
       <div className="field">
-        <label>Note</label>
+        <label>{t("field_note")}</label>
         <input className="input" value={note} disabled={!canDelete} onChange={(ev) => setNote(ev.target.value)} />
       </div>
       <div className="field">
-        <label>Date</label>
+        <label>{t("field_date")}</label>
         <input
           className="input"
           type="date"
@@ -746,7 +802,7 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
         />
       </div>
       <div className="field">
-        <label>Shared by</label>
+        <label>{t("shared_by_label")}</label>
         <div className="chips">
           {members.map((m) => (
             <button
@@ -763,12 +819,12 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
         </div>
         {canDelete && (
           <p className="mini" style={{ margin: "6px 0 0" }}>
-            Someone who joined later? Add them here to fold this expense into their balance too.
+            {t("edit_entry_late_join_note")}
           </p>
         )}
       </div>
       <div className="field">
-        <label>Repeats</label>
+        <label>{t("field_repeats")}</label>
         <button
           className={`ghost toggle-pill${recurring ? " on" : ""}`}
           style={{ width: "100%" }}
@@ -776,7 +832,7 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
           onClick={() => setRecurring((r) => !r)}
         >
           {recurring && <IconCheck width={14} height={14} />}
-          {recurring ? "Repeats monthly" : "No repeat"}
+          {t(recurring ? "repeat_on" : "repeat_off")}
         </button>
       </div>
       <div className="modal-actions">
@@ -784,54 +840,68 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
           <>
             <button
               className="danger"
+              disabled={submitting}
               onClick={async () => {
-                await deleteEntry(entryId);
-                onClose();
+                if (submitting) return;
+                setSubmitting(true);
+                try {
+                  await deleteEntry(entryId);
+                  onClose();
+                } finally {
+                  setSubmitting(false);
+                }
               }}
             >
-              Delete
+              {t("action_delete")}
             </button>
             <button
               className="primary"
+              disabled={submitting}
               onClick={async () => {
+                if (submitting) return;
                 const a = Number(String(amount).replace(",", "."));
                 if (!a || a <= 0) return;
                 if (!date) return;
                 if (participantIds.size === 0) return;
-                const rounded = Math.round(a * 100) / 100;
-                const patch: {
-                  amount: number;
-                  note: string;
-                  date: string;
-                  splitValues?: Record<string, number>;
-                  participantIds: string[];
-                  recurring: boolean;
-                } = {
-                  amount: rounded,
-                  note: note.trim(),
-                  date,
-                  participantIds: [...participantIds],
-                  recurring,
-                };
-                // "amounts" splits are absolute values pinned to the old total; rescale them
-                // proportionally so they still add up to the new amount.
-                if (e.split_type === "amounts" && e.amount > 0) {
-                  const oldValues = (e.split_values as Record<string, number>) || {};
-                  const scale = rounded / e.amount;
-                  patch.splitValues = Object.fromEntries(
-                    Object.entries(oldValues).map(([id, v]) => [id, Math.round(Number(v) * scale * 100) / 100])
-                  );
+                setSubmitting(true);
+                try {
+                  const rounded = Math.round(a * 100) / 100;
+                  const patch: {
+                    amount: number;
+                    note: string;
+                    date: string;
+                    splitValues?: Record<string, number>;
+                    participantIds: string[];
+                    recurring: boolean;
+                  } = {
+                    amount: rounded,
+                    note: note.trim(),
+                    date,
+                    participantIds: [...participantIds],
+                    recurring,
+                  };
+                  // "amounts" splits are absolute values pinned to the old total; rescale them
+                  // proportionally so they still add up to the new amount.
+                  if (e.split_type === "amounts" && e.amount > 0) {
+                    const oldValues = (e.split_values as Record<string, number>) || {};
+                    const scale = rounded / e.amount;
+                    patch.splitValues = Object.fromEntries(
+                      Object.entries(oldValues).map(([id, v]) => [id, Math.round(Number(v) * scale * 100) / 100])
+                    );
+                  }
+                  await updateEntry(entryId, patch);
+                  onClose();
+                } finally {
+                  setSubmitting(false);
                 }
-                await updateEntry(entryId, patch);
-                onClose();
               }}
             >
-              Save
+              {t("action_save")}
             </button>
           </>
         ) : (
           <button className="ghost" onClick={onClose} style={{ gridColumn: "1 / -1" }}>
-            Close
+            {t("action_close")}
           </button>
         )}
       </div>
