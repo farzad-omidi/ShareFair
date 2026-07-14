@@ -39,6 +39,9 @@
     --teal-deep: #0a4247;
     --gold: #a9772a;
     --gold-bright: #c68f3a;
+    --cassette: #8a4a22;
+    --cassette-bright: #9c5c30;
+    --grain-opacity: 0.045;
     --line: rgba(33, 50, 58, 0.18);
     --danger: #9c3b3b;
     --focus: #0f5e64;
@@ -65,6 +68,9 @@
       --teal-deep: #85d4d6;
       --gold: #d9a84e;
       --gold-bright: #eabf70;
+      --cassette: #d99a5b;
+      --cassette-bright: #e8b378;
+      --grain-opacity: 0.06;
       --line: rgba(236, 227, 207, 0.16);
       --danger: #e08a8a;
       --focus: #7fd0d2;
@@ -81,6 +87,9 @@
     --teal-deep: #85d4d6;
     --gold: #d9a84e;
     --gold-bright: #eabf70;
+    --cassette: #d99a5b;
+    --cassette-bright: #e8b378;
+    --grain-opacity: 0.06;
     --line: rgba(236, 227, 207, 0.16);
     --danger: #e08a8a;
     --focus: #7fd0d2;
@@ -96,6 +105,9 @@
     --teal-deep: #0a4247;
     --gold: #a9772a;
     --gold-bright: #c68f3a;
+    --cassette: #8a4a22;
+    --cassette-bright: #9c5c30;
+    --grain-opacity: 0.045;
     --line: rgba(33, 50, 58, 0.18);
     --danger: #9c3b3b;
     --focus: #0f5e64;
@@ -114,6 +126,19 @@
     font-size: var(--fs-body);
     line-height: 1.75;
     text-rendering: optimizeLegibility;
+  }
+
+  /* a faint sepia grain, like an old cassette-era photograph — atmosphere,
+     not something anyone should consciously notice */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    opacity: var(--grain-opacity);
+    background-repeat: repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   a { color: var(--teal-deep); }
@@ -248,7 +273,9 @@
     font-size: var(--fs-eyebrow);
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--gold-bright);
+    color: var(--cassette);
+    border-block: 1px solid var(--line);
+    padding-block: 0.3rem;
     margin-block-end: 0.9rem;
   }
   h1 {
@@ -375,11 +402,34 @@
   .choir-note {
     margin-block-start: 1.4rem;
     padding: 1.1rem 1.3rem;
-    border-inline-start: 3px solid var(--gold);
+    border-inline-start: 3px solid var(--cassette);
     background: var(--paper-raised);
     border-radius: 6px;
   }
   .choir-note p { margin: 0; }
+
+  .cassette-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-block-end: 0.8rem;
+  }
+  .cassette-icon { flex: none; }
+  .cassette-caption {
+    font-weight: 700;
+    font-size: var(--fs-eyebrow);
+    letter-spacing: 0.14em;
+    color: var(--cassette);
+  }
+  @keyframes reelSpin {
+    to { transform: rotate(360deg); }
+  }
+  .cassette-icon .reel-hub {
+    animation: reelSpin 6s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cassette-icon .reel-hub { animation: none; }
+  }
 
   /* ---------- form ---------- */
   section.register { padding-block: 1rem 3rem; }
@@ -618,6 +668,28 @@
         </li>
       </ul>
       <div class="choir-note reveal">
+        <div class="cassette-tag">
+          <svg class="cassette-icon" viewBox="0 0 120 76" width="64" height="41" aria-hidden="true" focusable="false">
+            <rect x="2" y="2" width="116" height="72" rx="8" fill="var(--paper-raised)" stroke="var(--cassette)" stroke-width="2.5" />
+            <rect x="46" y="14" width="28" height="14" rx="2" fill="none" stroke="var(--cassette)" stroke-width="1.5" />
+            <circle cx="34" cy="38" r="15" fill="none" stroke="var(--cassette)" stroke-width="2.5" />
+            <circle cx="86" cy="38" r="15" fill="none" stroke="var(--cassette)" stroke-width="2.5" />
+            <path d="M22 50 Q60 66 98 50" fill="none" stroke="var(--cassette-bright)" stroke-width="2" />
+            <g class="reel-hub" style="transform-origin: 34px 38px;">
+              <circle cx="34" cy="38" r="5" fill="none" stroke="var(--cassette-bright)" stroke-width="1.5" />
+              <line x1="34" y1="33" x2="34" y2="43" stroke="var(--cassette-bright)" stroke-width="1.5" />
+              <line x1="29" y1="38" x2="39" y2="38" stroke="var(--cassette-bright)" stroke-width="1.5" />
+            </g>
+            <g class="reel-hub" style="transform-origin: 86px 38px;">
+              <circle cx="86" cy="38" r="5" fill="none" stroke="var(--cassette-bright)" stroke-width="1.5" />
+              <line x1="86" y1="33" x2="86" y2="43" stroke="var(--cassette-bright)" stroke-width="1.5" />
+              <line x1="81" y1="38" x2="91" y2="38" stroke="var(--cassette-bright)" stroke-width="1.5" />
+            </g>
+            <circle cx="12" cy="66" r="1.6" fill="var(--cassette)" />
+            <circle cx="108" cy="66" r="1.6" fill="var(--cassette)" />
+          </svg>
+          <span class="cassette-caption" dir="ltr">SIDE A</span>
+        </div>
         <p>
           خودم سال‌هاست هم به‌عنوان خواننده و هم رهبر کر (کورال) فعالیت کرده‌ام و می‌دانم رسیدن به آن لحظه‌ای که صدای چند نفر با هم یکی می‌شود چه حسی دارد.
           اگر دوست دارید یک روز عضو یک گروه کر باشید، از همین حالا و از پایه‌ای‌ترین قدم‌ها می‌توانم همراه‌تان باشم.
