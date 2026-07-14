@@ -162,19 +162,20 @@
 
   /* ---------- staff-line divider ---------- */
   .staff {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     height: 37px;
-    background-image: repeating-linear-gradient(
-      to bottom,
-      var(--line) 0,
-      var(--line) 1px,
-      transparent 1px,
-      transparent 9px
-    );
-    background-repeat: no-repeat;
     margin-block: 0.5rem;
-    transform-origin: right center;
   }
   .staff.tight { height: 19px; }
+  .staff-line {
+    display: block;
+    height: 1px;
+    width: 100%;
+    background: var(--line);
+    transform-origin: right center;
+  }
 
   /* ---------- motion: hero entrance ---------- */
   @keyframes fadeUp {
@@ -211,13 +212,14 @@
   html.js ul.features li:nth-child(3).is-visible { animation-delay: 0.16s; }
   html.js ul.features li:nth-child(4).is-visible { animation-delay: 0.24s; }
 
-  html.js .staff {
-    opacity: 0;
+  /* each staff line draws in on its own, one by one, as the page is
+     scrolled past the divider — see the scroll handler in the script
+     at the bottom of the page */
+  html.js .staff-line {
     transform: scaleX(0);
-    transition: opacity 0.5s ease, transform 0.9s ease;
+    transition: transform 0.35s ease;
   }
-  html.js .staff.is-visible {
-    opacity: 1;
+  html.js .staff-line.is-visible {
     transform: scaleX(1);
   }
 
@@ -232,9 +234,8 @@
     }
     html.js .reveal { opacity: 1 !important; }
     html.js .reveal.is-visible { animation: none !important; }
-    html.js .staff {
+    html.js .staff-line {
       transition: none !important;
-      opacity: 1 !important;
       transform: none !important;
     }
   }
@@ -557,7 +558,13 @@
     </div>
   </section>
 
-  <div class="staff" role="presentation"></div>
+  <div class="staff" role="presentation">
+    <span class="staff-line"></span>
+    <span class="staff-line"></span>
+    <span class="staff-line"></span>
+    <span class="staff-line"></span>
+    <span class="staff-line"></span>
+  </div>
 
   <section class="about" id="about">
     <div class="wrap">
@@ -584,7 +591,13 @@
     </div>
   </section>
 
-  <div class="staff" role="presentation"></div>
+  <div class="staff" role="presentation">
+    <span class="staff-line"></span>
+    <span class="staff-line"></span>
+    <span class="staff-line"></span>
+    <span class="staff-line"></span>
+    <span class="staff-line"></span>
+  </div>
 
   <section class="choir" id="choir">
     <div class="wrap">
@@ -613,12 +626,22 @@
     </div>
   </section>
 
-  <div class="staff" role="presentation"></div>
+  <div class="staff" role="presentation">
+    <span class="staff-line"></span>
+    <span class="staff-line"></span>
+    <span class="staff-line"></span>
+    <span class="staff-line"></span>
+    <span class="staff-line"></span>
+  </div>
 
   <section class="register" id="form">
     <div class="wrap">
       <div class="form-card reveal">
-        <div class="staff tight" role="presentation"></div>
+        <div class="staff tight" role="presentation">
+          <span class="staff-line"></span>
+          <span class="staff-line"></span>
+          <span class="staff-line"></span>
+        </div>
         <div class="form-card-body">
           <h2>فرم ثبت‌نام</h2>
           <p class="section-intro">چند سؤال کوتاه — همین کافی است تا کلاس را متناسب با شما طراحی کنم.</p>
@@ -802,7 +825,11 @@
 
 <footer>
   <div class="wrap">
-    <div class="staff tight" role="presentation" style="margin-block-end: 1rem;"></div>
+    <div class="staff tight" role="presentation" style="margin-block-end: 1rem;">
+      <span class="staff-line"></span>
+      <span class="staff-line"></span>
+      <span class="staff-line"></span>
+    </div>
     <div>سلفژ با فرزاد — اوترخت، هلند</div>
     <div dir="ltr" style="text-align: end;">
       <a href="mailto:frzdomidi@gmail.com">frzdomidi@gmail.com</a>
@@ -866,7 +893,7 @@
 
   (function () {
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var targets = document.querySelectorAll(".reveal, .staff");
+    var targets = document.querySelectorAll(".reveal");
 
     if (reduceMotion || !("IntersectionObserver" in window)) {
       targets.forEach(function (el) { el.classList.add("is-visible"); });
@@ -886,6 +913,53 @@
     );
 
     targets.forEach(function (el) { observer.observe(el); });
+  })();
+
+  (function () {
+    // draws each staff line in on its own, one by one, as the divider
+    // scrolls through the viewport (rather than all five at once)
+    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var staffs = document.querySelectorAll(".staff");
+
+    if (reduceMotion) {
+      document.querySelectorAll(".staff-line").forEach(function (line) {
+        line.classList.add("is-visible");
+      });
+      return;
+    }
+
+    var ticking = false;
+
+    function revealStaffLines() {
+      var vh = window.innerHeight;
+      var startY = vh; // divider's top at the bottom edge of the viewport: progress 0
+      var endY = vh * 0.35; // divider's top near mid-viewport: progress 1
+
+      staffs.forEach(function (staff) {
+        if (staff.dataset.drawn === "1") return;
+        var lines = staff.querySelectorAll(".staff-line");
+        var rect = staff.getBoundingClientRect();
+        var progress = (startY - rect.top) / (startY - endY);
+        progress = Math.max(0, Math.min(1, progress));
+        var revealCount = Math.round(progress * lines.length);
+        for (var i = 0; i < revealCount; i++) {
+          lines[i].classList.add("is-visible");
+        }
+        if (progress >= 1) staff.dataset.drawn = "1";
+      });
+      ticking = false;
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        requestAnimationFrame(revealStaffLines);
+        ticking = true;
+      }
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    revealStaffLines();
   })();
 </script>
 
