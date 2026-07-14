@@ -6,6 +6,7 @@
 <title>سلفژ با فرزاد — ثبت‌نام کلاس تئوری موسیقی، سلفژ و کر</title>
 <meta name="description" content="کلاس‌های تئوری موسیقی، سلفژ و راهنمایی برای آواز گروهی (کر) — برای فارسی‌زبانان مقیم هلند. حضوری در آمستردام یا آنلاین. همین حالا ثبت‌نام کنید." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f5e64'/%3E%3Cline x1='11' y1='23' x2='11' y2='8' stroke='%23f4ecd8' stroke-width='1.4'/%3E%3Cellipse cx='9.3' cy='23' rx='3.6' ry='2.6' fill='%23c68f3a' transform='rotate(-18 9.3 23)'/%3E%3Cpath d='M11 8c3 .3 5 1.8 5 4' stroke='%23c68f3a' stroke-width='1.4' fill='none'/%3E%3C/svg%3E" />
+<script>document.documentElement.classList.add("js");</script>
 <style>
   @font-face {
     font-family: "Vazirmatn";
@@ -171,8 +172,72 @@
     );
     background-repeat: no-repeat;
     margin-block: 0.5rem;
+    transform-origin: right center;
   }
   .staff.tight { height: 19px; }
+
+  /* ---------- motion: hero entrance ---------- */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero .eyebrow,
+  .hero h1,
+  .hero .hero-en,
+  .hero .lead,
+  .hero .bio,
+  .hero .cta-row {
+    animation: fadeUp 0.7s ease both;
+  }
+  .hero .eyebrow { animation-delay: 0s; }
+  .hero h1 { animation-delay: 0.08s; }
+  .hero .hero-en { animation-delay: 0.18s; }
+  .hero .lead { animation-delay: 0.28s; }
+  .hero .bio { animation-delay: 0.38s; }
+  .hero .cta-row { animation-delay: 0.48s; }
+
+  /* ---------- motion: scroll reveal ---------- */
+  @keyframes revealUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  html.js .reveal { opacity: 0; }
+  html.js .reveal.is-visible { animation: revealUp 0.7s ease both; }
+
+  /* per-item stagger inside a list; kept as animation-delay so it never
+     touches the hover transition below (which must react instantly) */
+  html.js ul.features li:nth-child(1).is-visible { animation-delay: 0s; }
+  html.js ul.features li:nth-child(2).is-visible { animation-delay: 0.08s; }
+  html.js ul.features li:nth-child(3).is-visible { animation-delay: 0.16s; }
+  html.js ul.features li:nth-child(4).is-visible { animation-delay: 0.24s; }
+
+  html.js .staff {
+    opacity: 0;
+    transform: scaleX(0);
+    transition: opacity 0.5s ease, transform 0.9s ease;
+  }
+  html.js .staff.is-visible {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero .eyebrow,
+    .hero h1,
+    .hero .hero-en,
+    .hero .lead,
+    .hero .bio,
+    .hero .cta-row {
+      animation: none;
+    }
+    html.js .reveal { opacity: 1 !important; }
+    html.js .reveal.is-visible { animation: none !important; }
+    html.js .staff {
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
 
   /* ---------- hero ---------- */
   .hero { padding-block: 1rem 2.5rem; }
@@ -267,6 +332,11 @@
     padding: 0.9rem 1rem;
     background: var(--paper-raised);
     border-radius: 6px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  ul.features li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
   }
   .sol-tag {
     flex: none;
@@ -279,6 +349,20 @@
     color: var(--paper);
     font-weight: 700;
     font-size: 0.95rem;
+    transition: transform 0.2s ease;
+  }
+  ul.features li:hover .sol-tag { transform: scale(1.08); }
+
+  @media (prefers-reduced-motion: reduce) {
+    ul.features li,
+    .sol-tag {
+      transition: none !important;
+    }
+    ul.features li:hover {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    ul.features li:hover .sol-tag { transform: none !important; }
   }
   .feature-text { padding-block-start: 0.15rem; }
 
@@ -480,19 +564,19 @@
       <h2>این کلاس‌ها برای چه کسانی است؟</h2>
       <p class="section-intro">چه تازه شروع کرده باشید، چه سال‌هاست سازی می‌نوازید:</p>
       <ul class="features">
-        <li>
+        <li class="reveal">
           <span class="sol-tag" aria-hidden="true">دو</span>
           <span class="feature-text">تئوری موسیقی، از مبانی تا سطح پیشرفته</span>
         </li>
-        <li>
+        <li class="reveal">
           <span class="sol-tag" aria-hidden="true">ر</span>
           <span class="feature-text">سلفژ و تقویت گوش موسیقایی — خواندن و نوشتن نت</span>
         </li>
-        <li>
+        <li class="reveal">
           <span class="sol-tag" aria-hidden="true">می</span>
           <span class="feature-text">آماده‌سازی برای آزمون کنکور هنر یا کنسرواتوریوم</span>
         </li>
-        <li>
+        <li class="reveal">
           <span class="sol-tag" aria-hidden="true">فا</span>
           <span class="feature-text">کلاس خصوصی یا گروه کوچک — آنلاین یا حضوری در آمستردام</span>
         </li>
@@ -507,20 +591,20 @@
       <h2>چرا آواز گروهی (کر)، مخصوصاً برای یک مهاجر؟</h2>
       <p class="section-intro">خواندن فقط یک مهارت موسیقایی نیست؛ برای خیلی از ما که غریبِ یک کشور تازه‌ایم، می‌تواند یک‌جور خانه هم باشد:</p>
       <ul class="features">
-        <li>
+        <li class="reveal">
           <span class="sol-tag" aria-hidden="true">سل</span>
           <span class="feature-text">حس تعلق — هم‌صدا شدن با آدم‌های دیگر، آن هم به زبان خودتان</span>
         </li>
-        <li>
+        <li class="reveal">
           <span class="sol-tag" aria-hidden="true">لا</span>
           <span class="feature-text">کم شدن تنهایی دوران مهاجرت، با یک قرار ثابت هفتگی و جمعی که منتظرتان است</span>
         </li>
-        <li>
+        <li class="reveal">
           <span class="sol-tag" aria-hidden="true">سی</span>
           <span class="feature-text">تمرین گوش دادن و هماهنگ شدن با دیگران — مهارتی که به زندگی روزمره در کشور تازه هم کمک می‌کند</span>
         </li>
       </ul>
-      <div class="choir-note">
+      <div class="choir-note reveal">
         <p>
           خودم سال‌هاست هم به‌عنوان خواننده و هم رهبر کر (کورال) فعالیت کرده‌ام و می‌دانم رسیدن به آن لحظه‌ای که صدای چند نفر با هم یکی می‌شود چه حسی دارد.
           اگر دوست دارید یک روز عضو یک گروه کر باشید، از همین حالا و از پایه‌ای‌ترین قدم‌ها می‌توانم همراه‌تان باشم.
@@ -533,7 +617,7 @@
 
   <section class="register" id="form">
     <div class="wrap">
-      <div class="form-card">
+      <div class="form-card reveal">
         <div class="staff tight" role="presentation"></div>
         <div class="form-card-body">
           <h2>فرم ثبت‌نام</h2>
@@ -759,6 +843,30 @@
           submitButton.disabled = false;
         });
     });
+  })();
+
+  (function () {
+    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var targets = document.querySelectorAll(".reveal, .staff");
+
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      targets.forEach(function (el) { el.classList.add("is-visible"); });
+      return;
+    }
+
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+    );
+
+    targets.forEach(function (el) { observer.observe(el); });
   })();
 </script>
 
