@@ -316,6 +316,7 @@
     padding: 0.8rem 1.5rem;
     transition: transform 120ms ease, background 120ms ease;
   }
+  .btn[hidden] { display: none; }
   .btn-primary {
     background: var(--gold);
     color: #241c0d;
@@ -393,6 +394,85 @@
     ul.features li:hover .sol-tag { transform: none !important; }
   }
   .feature-text { padding-block-start: 0.15rem; }
+
+  /* ---------- section: game ---------- */
+  section.game { padding-block: 1rem 2.5rem; }
+
+  .game-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1.6rem 1.4rem;
+  }
+  .game-noscript p,
+  .game-noaudio p {
+    margin: 0 0 1rem;
+    color: var(--ink-muted);
+  }
+
+  .game-status {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--fs-small);
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    margin-block-end: 1rem;
+  }
+
+  .game-play { margin-block-end: 1.4rem; }
+
+  .game-answers {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-block-end: 1.2rem;
+  }
+  .sol-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 5px;
+    padding: 0;
+    background: var(--teal);
+    color: var(--paper);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.95rem;
+    appearance: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 150ms ease;
+  }
+  .sol-btn:hover:not(:disabled) { transform: scale(1.08); }
+  .sol-btn:disabled { cursor: default; }
+  .sol-btn:disabled:not(.is-correct):not(.is-wrong) { opacity: 0.5; }
+  .sol-btn.is-correct { background: var(--teal-deep); }
+  .sol-btn.is-wrong { background: var(--danger); }
+  .sol-mark { margin-inline-start: 0.15rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sol-btn { transition: none !important; }
+    .sol-btn:hover:not(:disabled) { transform: none !important; }
+  }
+
+  .game-feedback {
+    min-height: 1.5em;
+    font-weight: 700;
+    margin: 0 0 1.2rem;
+  }
+
+  .game-results-score {
+    font-weight: 700;
+    font-size: var(--fs-h2);
+    color: var(--teal-deep);
+    margin: 0 0 0.5rem;
+  }
+  .game-results-msg {
+    color: var(--ink-muted);
+    margin: 0 0 1.4rem;
+  }
 
   /* ---------- section: choir ---------- */
   section.choir {
@@ -638,6 +718,64 @@
           <span class="feature-text">کلاس خصوصی یا گروه کوچک — آنلاین یا حضوری در اوترخت</span>
         </li>
       </ul>
+    </div>
+  </section>
+
+  <section class="game" id="game">
+    <div class="wrap">
+      <h2 class="reveal">یک بازی کوچک: این نت را می‌شناسید؟</h2>
+      <p class="section-intro reveal">قبل از ثبت‌نام، گوش موسیقایی‌تان را امتحان کنید — نیازی به هیچ دانش قبلی نیست.</p>
+
+      <div class="game-card reveal">
+        <div class="game-noscript" id="game-noscript">
+          <p>این بازی نیاز به جاوااسکریپت دارد. جای نگرانی نیست — می‌توانید مستقیم به فرم ثبت‌نام بروید.</p>
+          <a class="btn btn-primary" href="#form">ثبت‌نام در کلاس</a>
+        </div>
+
+        <div class="game-noaudio" id="game-noaudio" hidden>
+          <p>مرورگر شما امکان پخش صدا برای این بازی را ندارد — اما جای نگرانی نیست، همین حالا می‌توانید ثبت‌نام کنید و در جلسه‌ی اول با هم روی گوش موسیقایی‌تان کار کنیم.</p>
+          <a class="btn btn-primary" href="#form">ثبت‌نام در کلاس</a>
+        </div>
+
+        <div class="game-ui" id="game-ui" hidden>
+          <div class="game-status">
+            <span id="game-round" aria-hidden="true">دور ۱ از ۷</span>
+            <span id="game-score" aria-hidden="true">امتیاز: ۰</span>
+          </div>
+
+          <button type="button" class="btn btn-ghost game-play" id="game-play">
+            <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" focusable="false">
+              <path d="M5 12h5l8-6v20l-8-6H5z" fill="var(--teal)" />
+              <path d="M22 11a6 6 0 0 1 0 10" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" />
+              <path d="M19.3 14a2.6 2.6 0 0 1 0 4" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            پخش نت
+          </button>
+
+          <div class="game-answers" id="game-answers">
+            <button type="button" class="sol-btn" data-key="do" aria-label="گزینه: دو">دو</button>
+            <button type="button" class="sol-btn" data-key="re" aria-label="گزینه: ر">ر</button>
+            <button type="button" class="sol-btn" data-key="mi" aria-label="گزینه: می">می</button>
+            <button type="button" class="sol-btn" data-key="fa" aria-label="گزینه: فا">فا</button>
+            <button type="button" class="sol-btn" data-key="sol" aria-label="گزینه: سل">سل</button>
+            <button type="button" class="sol-btn" data-key="la" aria-label="گزینه: لا">لا</button>
+            <button type="button" class="sol-btn" data-key="si" aria-label="گزینه: سی">سی</button>
+          </div>
+
+          <p class="game-feedback" id="game-feedback" aria-live="polite">برای شروع، دکمه‌ی پخش نت را بزنید.</p>
+
+          <button type="button" class="btn btn-ghost game-next" id="game-next" hidden>دور بعد</button>
+        </div>
+
+        <div class="game-results" id="game-results" hidden aria-live="polite">
+          <p class="game-results-score" id="game-results-score"></p>
+          <p class="game-results-msg" id="game-results-msg"></p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#form">ثبت‌نام در کلاس</a>
+            <button type="button" class="btn btn-ghost" id="game-replay">دوباره بازی کن</button>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1032,6 +1170,224 @@
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     revealStaffLines();
+  })();
+
+  (function () {
+    var HasAudio = !!(window.AudioContext || window.webkitAudioContext);
+    var noscriptEl = document.getElementById("game-noscript");
+    var noaudioEl = document.getElementById("game-noaudio");
+    var uiEl = document.getElementById("game-ui");
+
+    if (noscriptEl) noscriptEl.hidden = true;
+
+    if (!HasAudio) {
+      if (noaudioEl) noaudioEl.hidden = false;
+      return;
+    }
+
+    var NOTES = [
+      { key: "do", label: "دو", freq: 523.25 },
+      { key: "re", label: "ر", freq: 587.33 },
+      { key: "mi", label: "می", freq: 659.25 },
+      { key: "fa", label: "فا", freq: 698.46 },
+      { key: "sol", label: "سل", freq: 783.99 },
+      { key: "la", label: "لا", freq: 880.0 },
+      { key: "si", label: "سی", freq: 987.77 },
+    ];
+
+    var PERSIAN_DIGITS = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
+    function toPersianDigits(n) {
+      return String(n).replace(/[0-9]/g, function (d) {
+        return PERSIAN_DIGITS[+d];
+      });
+    }
+
+    var playBtn = document.getElementById("game-play");
+    var nextBtn = document.getElementById("game-next");
+    var replayBtn = document.getElementById("game-replay");
+    var answersEl = document.getElementById("game-answers");
+    var answerButtons = answersEl
+      ? Array.prototype.slice.call(answersEl.querySelectorAll(".sol-btn"))
+      : [];
+    var feedbackEl = document.getElementById("game-feedback");
+    var roundEl = document.getElementById("game-round");
+    var scoreEl = document.getElementById("game-score");
+    var resultsEl = document.getElementById("game-results");
+    var resultsScoreEl = document.getElementById("game-results-score");
+    var resultsMsgEl = document.getElementById("game-results-msg");
+
+    var audioCtx = null;
+    var toneBusy = false;
+
+    function ensureCtx() {
+      if (!audioCtx) {
+        var Ctx = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new Ctx();
+      }
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playTone(freq) {
+      if (toneBusy) return;
+      toneBusy = true;
+      playBtn.disabled = true;
+      var ctx = ensureCtx();
+      var now = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.32, now + 0.01);
+      gain.gain.setValueAtTime(0.32, now + 0.34);
+      gain.gain.linearRampToValueAtTime(0, now + 0.34 + 0.18);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.34 + 0.2);
+      window.setTimeout(function () {
+        toneBusy = false;
+        playBtn.disabled = false;
+      }, 560);
+    }
+
+    var order = [];
+    var roundIndex = 0;
+    var score = 0;
+    var answered = false;
+
+    function shuffle(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i];
+        a[i] = a[j];
+        a[j] = tmp;
+      }
+      return a;
+    }
+
+    function clearAnswerStates() {
+      answerButtons.forEach(function (btn) {
+        btn.disabled = false;
+        btn.classList.remove("is-correct", "is-wrong");
+        var mark = btn.querySelector(".sol-mark");
+        if (mark) mark.remove();
+      });
+    }
+
+    function updateStatus() {
+      if (roundEl) {
+        roundEl.textContent =
+          "دور " + toPersianDigits(roundIndex + 1) + " از " + toPersianDigits(order.length);
+      }
+      if (scoreEl) scoreEl.textContent = "امتیاز: " + toPersianDigits(score);
+    }
+
+    function currentNote() {
+      return order[roundIndex];
+    }
+
+    function startRound(shouldFocusPlay) {
+      answered = false;
+      nextBtn.hidden = true;
+      clearAnswerStates();
+      updateStatus();
+      if (feedbackEl) feedbackEl.textContent = "برای شروع، دکمه‌ی پخش نت را بزنید.";
+      if (shouldFocusPlay && playBtn) playBtn.focus();
+    }
+
+    function onAnswer(key) {
+      if (answered) return;
+      answered = true;
+      var target = currentNote();
+      var correct = key === target.key;
+      if (correct) score += 1;
+
+      answerButtons.forEach(function (btn) {
+        btn.disabled = true;
+        if (btn.dataset.key === target.key) {
+          btn.classList.add("is-correct");
+          btn.insertAdjacentHTML(
+            "beforeend",
+            ' <span class="sol-mark" aria-hidden="true">✓</span>'
+          );
+        } else if (btn.dataset.key === key) {
+          btn.classList.add("is-wrong");
+          btn.insertAdjacentHTML(
+            "beforeend",
+            ' <span class="sol-mark" aria-hidden="true">✕</span>'
+          );
+        }
+      });
+
+      if (feedbackEl) {
+        feedbackEl.textContent = correct
+          ? "درست بود! این نت «" + target.label + "» بود."
+          : "اشتباه بود — نت درست «" + target.label + "» بود.";
+      }
+      updateStatus();
+      nextBtn.hidden = false;
+      nextBtn.focus();
+    }
+
+    function showResults() {
+      uiEl.hidden = true;
+      resultsEl.hidden = false;
+      var msg;
+      if (score >= 6) {
+        msg = "گوش بسیار خوبی دارید! با همین پایه، در کلاس خیلی سریع‌تر پیش می‌رویم.";
+      } else if (score >= 3) {
+        msg =
+          "شروع خوبی بود! دقیقاً همین مهارت شنیداری در کلاس‌های سلفژ قدم‌به‌قدم تقویت می‌شود.";
+      } else {
+        msg =
+          "جای نگرانی نیست — این دقیقاً همان مهارتی است که در کلاس با تمرین به‌دست می‌آید، نه چیزی که از قبل باید بلد باشید.";
+      }
+      resultsScoreEl.textContent =
+        "امتیاز شما: " + toPersianDigits(score) + " از " + toPersianDigits(order.length);
+      resultsMsgEl.textContent = msg;
+    }
+
+    function startGame(shouldFocusPlay) {
+      order = shuffle(NOTES);
+      roundIndex = 0;
+      score = 0;
+      uiEl.hidden = false;
+      resultsEl.hidden = true;
+      startRound(shouldFocusPlay);
+    }
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        playTone(currentNote().freq);
+      });
+    }
+
+    answerButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        onAnswer(btn.dataset.key);
+      });
+    });
+
+    if (nextBtn) {
+      nextBtn.addEventListener("click", function () {
+        roundIndex += 1;
+        if (roundIndex >= order.length) {
+          showResults();
+        } else {
+          startRound(true);
+        }
+      });
+    }
+
+    if (replayBtn) {
+      replayBtn.addEventListener("click", function () {
+        startGame(true);
+      });
+    }
+
+    startGame(false);
   })();
 </script>
 
