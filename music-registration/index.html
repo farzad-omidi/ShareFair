@@ -3,10 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>سلفژ با فرزاد — ثبت‌نام کلاس تئوری موسیقی، سلفژ و کر</title>
-<meta name="description" content="کلاس‌های تئوری موسیقی، سلفژ و راهنمایی برای آواز گروهی (کر) — برای فارسی‌زبانان مقیم هلند. حضوری در اوترخت یا آنلاین. همین حالا ثبت‌نام کنید." />
+<title data-i18n="title">سلفژ با فرزاد — ثبت‌نام کلاس تئوری موسیقی، سلفژ و کر</title>
+<meta name="description" data-i18n-content="meta_description" content="کلاس‌های تئوری موسیقی، سلفژ و راهنمایی برای آواز گروهی (کر) — برای فارسی‌زبانان مقیم هلند. حضوری در اوترخت یا آنلاین. همین حالا ثبت‌نام کنید." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f5e64'/%3E%3Cline x1='11' y1='23' x2='11' y2='8' stroke='%23f4ecd8' stroke-width='1.4'/%3E%3Cellipse cx='9.3' cy='23' rx='3.6' ry='2.6' fill='%23c68f3a' transform='rotate(-18 9.3 23)'/%3E%3Cpath d='M11 8c3 .3 5 1.8 5 4' stroke='%23c68f3a' stroke-width='1.4' fill='none'/%3E%3C/svg%3E" />
-<script>document.documentElement.classList.add("js");</script>
+<script>
+  document.documentElement.classList.add("js");
+  try {
+    if (localStorage.getItem("siteLang") === "en") {
+      document.documentElement.lang = "en";
+      document.documentElement.dir = "ltr";
+    }
+  } catch (e) {}
+</script>
 <style>
   @font-face {
     font-family: "Vazirmatn";
@@ -173,6 +181,11 @@
     text-decoration: none;
     letter-spacing: 0.01em;
   }
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
   .nav-cta {
     font-weight: 700;
     font-size: var(--fs-small);
@@ -184,6 +197,25 @@
     white-space: nowrap;
   }
   .nav-cta:hover { border-color: var(--gold); color: var(--gold-bright); }
+
+  .lang-toggle {
+    font-family: inherit;
+    font-size: var(--fs-small);
+    color: var(--ink);
+    background: transparent;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    padding: 0.4rem 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .lang-toggle:hover { border-color: var(--gold); }
+  .lang-toggle [data-lang-option] { color: var(--ink-muted); }
+  .lang-toggle[data-active="fa"] [data-lang-option="fa"],
+  .lang-toggle[data-active="en"] [data-lang-option="en"] {
+    color: var(--teal-deep);
+    font-weight: 700;
+  }
 
   /* ---------- staff-line divider ---------- */
   .staff {
@@ -199,8 +231,9 @@
     height: 1px;
     width: 100%;
     background: var(--line);
-    transform-origin: right center;
   }
+  html[dir="rtl"] .staff-line { transform-origin: right center; }
+  html[dir="ltr"] .staff-line { transform-origin: left center; }
 
   /* ---------- motion: hero entrance ---------- */
   @keyframes fadeUp {
@@ -395,85 +428,6 @@
   }
   .feature-text { padding-block-start: 0.15rem; }
 
-  /* ---------- section: game ---------- */
-  section.game { padding-block: 1rem 2.5rem; }
-
-  .game-card {
-    background: var(--paper-raised);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 1.6rem 1.4rem;
-  }
-  .game-noscript p,
-  .game-noaudio p {
-    margin: 0 0 1rem;
-    color: var(--ink-muted);
-  }
-
-  .game-status {
-    display: flex;
-    justify-content: space-between;
-    font-size: var(--fs-small);
-    color: var(--ink-muted);
-    font-variant-numeric: tabular-nums;
-    margin-block-end: 1rem;
-  }
-
-  .game-play { margin-block-end: 1.4rem; }
-
-  .game-answers {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.6rem;
-    margin-block-end: 1.2rem;
-  }
-  .sol-btn {
-    width: 2.75rem;
-    height: 2.75rem;
-    display: grid;
-    place-items: center;
-    border: none;
-    border-radius: 5px;
-    padding: 0;
-    background: var(--teal);
-    color: var(--paper);
-    font-family: inherit;
-    font-weight: 700;
-    font-size: 0.95rem;
-    appearance: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background-color 150ms ease;
-  }
-  .sol-btn:hover:not(:disabled) { transform: scale(1.08); }
-  .sol-btn:disabled { cursor: default; }
-  .sol-btn:disabled:not(.is-correct):not(.is-wrong) { opacity: 0.5; }
-  .sol-btn.is-correct { background: var(--teal-deep); }
-  .sol-btn.is-wrong { background: var(--danger); }
-  .sol-mark { margin-inline-start: 0.15rem; }
-
-  @media (prefers-reduced-motion: reduce) {
-    .sol-btn { transition: none !important; }
-    .sol-btn:hover:not(:disabled) { transform: none !important; }
-  }
-
-  .game-feedback {
-    min-height: 1.5em;
-    font-weight: 700;
-    margin: 0 0 1.2rem;
-  }
-
-  .game-results-score {
-    font-weight: 700;
-    font-size: var(--fs-h2);
-    color: var(--teal-deep);
-    margin: 0 0 0.5rem;
-  }
-  .game-results-msg {
-    color: var(--ink-muted);
-    margin: 0 0 1.4rem;
-  }
-
   /* ---------- section: choir ---------- */
   section.choir {
     background: var(--band-tint);
@@ -560,7 +514,7 @@
   input[type="tel"]:focus {
     border-bottom-color: var(--teal);
   }
-  input[dir="ltr"] { text-align: right; }
+  html[dir="rtl"] input[dir="ltr"] { text-align: right; }
 
   textarea {
     width: 100%;
@@ -663,8 +617,13 @@
 
 <header class="site">
   <div class="wrap">
-    <a class="wordmark" href="#top">سلفژ با فرزاد</a>
-    <a class="nav-cta" href="#form">ثبت‌نام</a>
+    <a class="wordmark" href="#top" data-i18n="wordmark">سلفژ با فرزاد</a>
+    <div class="nav-actions">
+      <button type="button" id="lang-toggle" class="lang-toggle" data-active="fa" aria-label="Switch language / تغییر زبان">
+        <span data-lang-option="fa">فارسی</span><span aria-hidden="true"> / </span><span data-lang-option="en">English</span>
+      </button>
+      <a class="nav-cta" href="#form" data-i18n="nav_cta">ثبت‌نام</a>
+    </div>
   </div>
 </header>
 
@@ -673,17 +632,17 @@
   <section class="hero">
     <div class="wrap">
       <span class="eyebrow" dir="ltr">Music Theory, Solfège &amp; Choir — Utrecht</span>
-      <h1>زبان موسیقی را با هم یاد بگیریم</h1>
+      <h1 data-i18n="h1">زبان موسیقی را با هم یاد بگیریم</h1>
       <p class="hero-en" dir="ltr">Music theory, solfège &amp; choir singing for Persian speakers in the Netherlands.</p>
-      <p class="lead">کلاس‌های تئوری موسیقی و سلفژ، و در کنارش راهنمایی برای آواز گروهی (کر) — ویژه‌ی فارسی‌زبانان ساکن هلند؛ حضوری در اوترخت یا آنلاین از هر شهری.</p>
-      <p class="bio">
+      <p class="lead" data-i18n="hero_lead">کلاس‌های تئوری موسیقی و سلفژ، و در کنارش راهنمایی برای آواز گروهی (کر) — ویژه‌ی فارسی‌زبانان ساکن هلند؛ حضوری در اوترخت یا آنلاین از هر شهری.</p>
+      <p class="bio" data-i18n="hero_bio">
         من فرزاد هستم. بعد از چند سال دوری از کلاس درس، دوباره برگشتم سراغ چیزی که همیشه دوستش داشتم: یاد دادن تئوری موسیقی و سلفژ.
         در کنار این، سال‌هاست هم به‌عنوان خواننده و هم رهبر کر (کورال) فعالیت کرده‌ام.
         این‌بار می‌خواهم همه‌ی این تجربه را به فارسی‌زبان‌های ساکن هلند برسانم؛ چه تازه‌کار باشید و چه سال‌هاست سازی می‌نوازید و می‌خواهید پایه‌تان را محکم‌تر کنید.
       </p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="#form">ثبت‌نام در کلاس</a>
-        <a class="btn btn-ghost" href="#about">بیشتر بخوانید</a>
+        <a class="btn btn-primary" href="#form" data-i18n="cta_primary">ثبت‌نام در کلاس</a>
+        <a class="btn btn-ghost" href="#about" data-i18n="cta_secondary">بیشتر بخوانید</a>
       </div>
     </div>
   </section>
@@ -698,84 +657,26 @@
 
   <section class="about" id="about">
     <div class="wrap">
-      <h2>این کلاس‌ها برای چه کسانی است؟</h2>
-      <p class="section-intro">چه تازه شروع کرده باشید، چه سال‌هاست سازی می‌نوازید:</p>
+      <h2 data-i18n="about_h2">این کلاس‌ها برای چه کسانی است؟</h2>
+      <p class="section-intro" data-i18n="about_intro">چه تازه شروع کرده باشید، چه سال‌هاست سازی می‌نوازید:</p>
       <ul class="features">
         <li class="reveal">
-          <span class="sol-tag" aria-hidden="true">دو</span>
-          <span class="feature-text">تئوری موسیقی، از مبانی تا سطح پیشرفته</span>
+          <span class="sol-tag" aria-hidden="true" data-i18n="sol_do">دو</span>
+          <span class="feature-text" data-i18n="about_feature_1">تئوری موسیقی، از مبانی تا سطح پیشرفته</span>
         </li>
         <li class="reveal">
-          <span class="sol-tag" aria-hidden="true">ر</span>
-          <span class="feature-text">سلفژ و تقویت گوش موسیقایی — خواندن و نوشتن نت</span>
+          <span class="sol-tag" aria-hidden="true" data-i18n="sol_re">ر</span>
+          <span class="feature-text" data-i18n="about_feature_2">سلفژ و تقویت گوش موسیقایی — خواندن و نوشتن نت</span>
         </li>
         <li class="reveal">
-          <span class="sol-tag" aria-hidden="true">می</span>
-          <span class="feature-text">آماده‌سازی برای آزمون کنکور هنر یا کنسرواتوریوم</span>
+          <span class="sol-tag" aria-hidden="true" data-i18n="sol_mi">می</span>
+          <span class="feature-text" data-i18n="about_feature_3">آماده‌سازی برای آزمون کنکور هنر یا کنسرواتوریوم</span>
         </li>
         <li class="reveal">
-          <span class="sol-tag" aria-hidden="true">فا</span>
-          <span class="feature-text">کلاس خصوصی یا گروه کوچک — آنلاین یا حضوری در اوترخت</span>
+          <span class="sol-tag" aria-hidden="true" data-i18n="sol_fa">فا</span>
+          <span class="feature-text" data-i18n="about_feature_4">کلاس خصوصی یا گروه کوچک — آنلاین یا حضوری در اوترخت</span>
         </li>
       </ul>
-    </div>
-  </section>
-
-  <section class="game" id="game">
-    <div class="wrap">
-      <h2 class="reveal">یک بازی کوچک: این نت را می‌شناسید؟</h2>
-      <p class="section-intro reveal">قبل از ثبت‌نام، گوش موسیقایی‌تان را امتحان کنید — نیازی به هیچ دانش قبلی نیست.</p>
-
-      <div class="game-card reveal">
-        <div class="game-noscript" id="game-noscript">
-          <p>این بازی نیاز به جاوااسکریپت دارد. جای نگرانی نیست — می‌توانید مستقیم به فرم ثبت‌نام بروید.</p>
-          <a class="btn btn-primary" href="#form">ثبت‌نام در کلاس</a>
-        </div>
-
-        <div class="game-noaudio" id="game-noaudio" hidden>
-          <p>مرورگر شما امکان پخش صدا برای این بازی را ندارد — اما جای نگرانی نیست، همین حالا می‌توانید ثبت‌نام کنید و در جلسه‌ی اول با هم روی گوش موسیقایی‌تان کار کنیم.</p>
-          <a class="btn btn-primary" href="#form">ثبت‌نام در کلاس</a>
-        </div>
-
-        <div class="game-ui" id="game-ui" hidden>
-          <div class="game-status">
-            <span id="game-round" aria-hidden="true">دور ۱ از ۷</span>
-            <span id="game-score" aria-hidden="true">امتیاز: ۰</span>
-          </div>
-
-          <button type="button" class="btn btn-ghost game-play" id="game-play">
-            <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" focusable="false">
-              <path d="M5 12h5l8-6v20l-8-6H5z" fill="var(--teal)" />
-              <path d="M22 11a6 6 0 0 1 0 10" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" />
-              <path d="M19.3 14a2.6 2.6 0 0 1 0 4" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" />
-            </svg>
-            پخش نت
-          </button>
-
-          <div class="game-answers" id="game-answers">
-            <button type="button" class="sol-btn" data-key="do" aria-label="گزینه: دو">دو</button>
-            <button type="button" class="sol-btn" data-key="re" aria-label="گزینه: ر">ر</button>
-            <button type="button" class="sol-btn" data-key="mi" aria-label="گزینه: می">می</button>
-            <button type="button" class="sol-btn" data-key="fa" aria-label="گزینه: فا">فا</button>
-            <button type="button" class="sol-btn" data-key="sol" aria-label="گزینه: سل">سل</button>
-            <button type="button" class="sol-btn" data-key="la" aria-label="گزینه: لا">لا</button>
-            <button type="button" class="sol-btn" data-key="si" aria-label="گزینه: سی">سی</button>
-          </div>
-
-          <p class="game-feedback" id="game-feedback" aria-live="polite">برای شروع، دکمه‌ی پخش نت را بزنید.</p>
-
-          <button type="button" class="btn btn-ghost game-next" id="game-next" hidden>دور بعد</button>
-        </div>
-
-        <div class="game-results" id="game-results" hidden aria-live="polite">
-          <p class="game-results-score" id="game-results-score"></p>
-          <p class="game-results-msg" id="game-results-msg"></p>
-          <div class="cta-row">
-            <a class="btn btn-primary" href="#form">ثبت‌نام در کلاس</a>
-            <button type="button" class="btn btn-ghost" id="game-replay">دوباره بازی کن</button>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -789,20 +690,20 @@
 
   <section class="choir" id="choir">
     <div class="wrap">
-      <h2>چرا آواز گروهی (کر)، مخصوصاً برای یک مهاجر؟</h2>
-      <p class="section-intro">خواندن فقط یک مهارت موسیقایی نیست؛ برای خیلی از ما که غریبِ یک کشور تازه‌ایم، می‌تواند یک‌جور خانه هم باشد:</p>
+      <h2 data-i18n="choir_h2">چرا آواز گروهی (کر)، مخصوصاً برای یک مهاجر؟</h2>
+      <p class="section-intro" data-i18n="choir_intro">خواندن فقط یک مهارت موسیقایی نیست؛ برای خیلی از ما که غریبِ یک کشور تازه‌ایم، می‌تواند یک‌جور خانه هم باشد:</p>
       <ul class="features">
         <li class="reveal">
-          <span class="sol-tag" aria-hidden="true">سل</span>
-          <span class="feature-text">حس تعلق — هم‌صدا شدن با آدم‌های دیگر، آن هم به زبان خودتان</span>
+          <span class="sol-tag" aria-hidden="true" data-i18n="sol_sol">سل</span>
+          <span class="feature-text" data-i18n="choir_feature_1">حس تعلق — هم‌صدا شدن با آدم‌های دیگر، آن هم به زبان خودتان</span>
         </li>
         <li class="reveal">
-          <span class="sol-tag" aria-hidden="true">لا</span>
-          <span class="feature-text">کم شدن تنهایی دوران مهاجرت، با یک قرار ثابت هفتگی و جمعی که منتظرتان است</span>
+          <span class="sol-tag" aria-hidden="true" data-i18n="sol_la">لا</span>
+          <span class="feature-text" data-i18n="choir_feature_2">کم شدن تنهایی دوران مهاجرت، با یک قرار ثابت هفتگی و جمعی که منتظرتان است</span>
         </li>
         <li class="reveal">
-          <span class="sol-tag" aria-hidden="true">سی</span>
-          <span class="feature-text">تمرین گوش دادن و هماهنگ شدن با دیگران — مهارتی که به زندگی روزمره در کشور تازه هم کمک می‌کند</span>
+          <span class="sol-tag" aria-hidden="true" data-i18n="sol_si">سی</span>
+          <span class="feature-text" data-i18n="choir_feature_3">تمرین گوش دادن و هماهنگ شدن با دیگران — مهارتی که به زندگی روزمره در کشور تازه هم کمک می‌کند</span>
         </li>
       </ul>
       <div class="choir-note reveal">
@@ -828,7 +729,7 @@
           </svg>
           <span class="cassette-caption" dir="ltr">SIDE A</span>
         </div>
-        <p>
+        <p data-i18n="choir_note_text">
           خودم سال‌هاست هم به‌عنوان خواننده و هم رهبر کر (کورال) فعالیت کرده‌ام و می‌دانم رسیدن به آن لحظه‌ای که صدای چند نفر با هم یکی می‌شود چه حسی دارد.
           اگر دوست دارید یک روز عضو یک گروه کر باشید، از همین حالا و از پایه‌ای‌ترین قدم‌ها می‌توانم همراه‌تان باشم.
         </p>
@@ -853,118 +754,80 @@
           <span class="staff-line"></span>
         </div>
         <div class="form-card-body">
-          <h2>فرم ثبت‌نام</h2>
-          <p class="section-intro">چند سؤال کوتاه — همین کافی است تا کلاس را متناسب با شما طراحی کنم.</p>
-          <p class="required-note">فیلدهای دارای علامت <span class="req">*</span> الزامی هستند.</p>
+          <h2 data-i18n="form_h2">فرم ثبت‌نام</h2>
+          <p class="section-intro" data-i18n="form_intro">چند سؤال کوتاه — همین کافی است تا کلاس را متناسب با شما طراحی کنم.</p>
+          <p class="required-note"><span data-i18n="required_note_pre">فیلدهای دارای علامت</span> <span class="req">*</span> <span data-i18n="required_note_post">الزامی هستند.</span></p>
 
           <div id="form-status" role="status" hidden></div>
 
           <form id="registration-form" action="https://formspree.io/f/xwvgpdkk" method="POST">
 
             <div class="field">
-              <label class="main" for="name">نام و نام خانوادگی<span class="req">*</span></label>
-              <input type="text" id="name" name="نام" required autocomplete="name" />
+              <label class="main" for="name"><span data-i18n="label_name">نام و نام خانوادگی</span><span class="req">*</span></label>
+              <input type="text" id="name" name="name" required autocomplete="name" />
             </div>
 
             <div class="field">
-              <label class="main" for="email">ایمیل<span class="req">*</span></label>
-              <input type="email" id="email" name="ایمیل" dir="ltr" required autocomplete="email" />
+              <label class="main" for="email"><span data-i18n="label_email">ایمیل</span><span class="req">*</span></label>
+              <input type="email" id="email" name="email" dir="ltr" required autocomplete="email" />
             </div>
 
             <div class="field">
-              <label class="main" for="phone">شماره واتس‌اپ</label>
-              <input type="tel" id="phone" name="واتساپ" dir="ltr" autocomplete="tel" />
-              <span class="hint">اختیاری — برای هماهنگی سریع‌تر</span>
+              <label class="main" for="phone" data-i18n="label_phone">شماره واتس‌اپ</label>
+              <input type="tel" id="phone" name="whatsapp" dir="ltr" autocomplete="tel" />
+              <span class="hint" data-i18n="hint_phone">اختیاری — برای هماهنگی سریع‌تر</span>
             </div>
 
             <div class="field">
-              <label class="main" for="city">شهر محل زندگی در هلند<span class="req">*</span></label>
-              <input type="text" id="city" name="شهر" required autocomplete="address-level2" />
+              <label class="main" for="city"><span data-i18n="label_city">شهر محل زندگی در هلند</span><span class="req">*</span></label>
+              <input type="text" id="city" name="city" required autocomplete="address-level2" />
             </div>
 
             <div class="field">
               <fieldset>
-                <legend>سطح آشنایی‌تان با موسیقی<span class="req">*</span></legend>
+                <legend><span data-i18n="legend_level">سطح آشنایی‌تان با موسیقی</span><span class="req">*</span></legend>
                 <div class="choice-list">
                   <label class="choice">
-                    <input type="radio" name="سطح" value="کاملاً تازه‌کار هستم" required />
-                    کاملاً تازه‌کار هستم
+                    <input type="radio" name="level" value="beginner" required />
+                    <span data-i18n="level_beginner">کاملاً تازه‌کار هستم</span>
                   </label>
                   <label class="choice">
-                    <input type="radio" name="سطح" value="کمی بلدم ولی پایه‌ام ضعیف است" />
-                    کمی بلدم ولی پایه‌ام ضعیف است
+                    <input type="radio" name="level" value="weak_basics" />
+                    <span data-i18n="level_weak_basics">کمی بلدم ولی پایه‌ام ضعیف است</span>
                   </label>
                   <label class="choice">
-                    <input type="radio" name="سطح" value="سازی می‌نوازم ولی تئوری نخوانده‌ام" />
-                    سازی می‌نوازم ولی تئوری نخوانده‌ام
+                    <input type="radio" name="level" value="plays_no_theory" />
+                    <span data-i18n="level_plays_no_theory">سازی می‌نوازم ولی تئوری نخوانده‌ام</span>
                   </label>
                   <label class="choice">
-                    <input type="radio" name="سطح" value="تئوری خوانده‌ام و می‌خواهم پیشرفته‌تر شوم" />
-                    تئوری خوانده‌ام و می‌خواهم پیشرفته‌تر شوم
+                    <input type="radio" name="level" value="theory_advanced" />
+                    <span data-i18n="level_theory_advanced">تئوری خوانده‌ام و می‌خواهم پیشرفته‌تر شوم</span>
                   </label>
                 </div>
               </fieldset>
             </div>
 
             <div class="field">
-              <label class="main" for="instrument">کدام ساز(ها) می‌نوازید؟</label>
-              <input type="text" id="instrument" name="ساز" placeholder="مثلاً تار، پیانو، گیتار — اگر می‌نوازید" />
-              <span class="hint">اختیاری</span>
+              <label class="main" for="message" data-i18n="label_message">بیشتر از خودتان بگویید</label>
+              <textarea id="message" name="message" rows="4" data-i18n-placeholder="placeholder_message" placeholder="مثلاً چه سازی می‌نوازید (اگر می‌نوازید)، از تجربه‌ی موسیقایی‌تان، و اینکه از این کلاس‌ها چه می‌خواهید…"></textarea>
+              <span class="hint" data-i18n="hint_message">اختیاری، ولی هرچه بیشتر بگویید بهتر می‌توانم کلاس را متناسب با شما طراحی کنم</span>
             </div>
 
             <div class="field">
               <fieldset>
-                <legend>هدف شما از این کلاس‌ها چیست؟</legend>
+                <legend data-i18n="legend_format">فرمت مدنظرتان</legend>
                 <div class="choice-list">
                   <label class="choice">
-                    <input type="checkbox" name="هدف" value="یادگیری تئوری موسیقی از صفر" />
-                    یادگیری تئوری موسیقی از صفر
+                    <input type="radio" name="format" value="online" />
+                    <span data-i18n="format_online">آنلاین</span>
                   </label>
                   <label class="choice">
-                    <input type="checkbox" name="هدف" value="تقویت سلفژ و گوش‌نوازی" />
-                    تقویت سلفژ و گوش‌نوازی
+                    <input type="radio" name="format" value="in_person" />
+                    <span data-i18n="format_in_person">حضوری در اوترخت</span>
                   </label>
                   <label class="choice">
-                    <input type="checkbox" name="هدف" value="آمادگی برای آزمون یا کنکور هنر" />
-                    آمادگی برای آزمون یا کنکور هنر
-                  </label>
-                  <label class="choice">
-                    <input type="checkbox" name="هدف" value="مرور و تثبیت چیزهایی که بلدم" />
-                    مرور و تثبیت چیزهایی که بلدم
-                  </label>
-                  <label class="choice">
-                    <input type="checkbox" name="هدف" value="صرفاً علاقه شخصی و لذت بردن" />
-                    صرفاً علاقه‌ی شخصی و لذت بردن
-                  </label>
-                  <label class="choice">
-                    <input type="checkbox" name="هدف" value="علاقه به آواز گروهی (کر) در آینده" />
-                    علاقه به آواز گروهی (کر) در آینده
-                  </label>
-                </div>
-              </fieldset>
-            </div>
-
-            <div class="field">
-              <label class="main" for="goals">بیشتر برایم بگویید</label>
-              <textarea id="goals" name="توضیحات" rows="4" placeholder="از تجربه‌ی موسیقایی‌تان و انتظاری که از این کلاس‌ها دارید بنویسید…"></textarea>
-              <span class="hint">اختیاری، ولی هرچه بیشتر بگویید بهتر می‌توانم کلاس را متناسب با شما طراحی کنم</span>
-            </div>
-
-            <div class="field">
-              <fieldset>
-                <legend>فرمت مدنظرتان</legend>
-                <div class="choice-list">
-                  <label class="choice">
-                    <input type="radio" name="فرمت" value="آنلاین" />
-                    آنلاین
-                  </label>
-                  <label class="choice">
-                    <input type="radio" name="فرمت" value="حضوری در اوترخت" />
-                    حضوری در اوترخت
-                  </label>
-                  <label class="choice">
-                    <input type="radio" name="فرمت" value="هر دو خوب است" />
-                    هر دو خوب است
+                    <input type="radio" name="format" value="either" />
+                    <span data-i18n="format_either">هر دو خوب است</span>
                   </label>
                 </div>
               </fieldset>
@@ -972,53 +835,33 @@
 
             <div class="field">
               <fieldset>
-                <legend>کلاس خصوصی یا گروهی؟</legend>
+                <legend data-i18n="legend_availability">چه زمان‌هایی از هفته برایتان مناسب‌تر است؟</legend>
                 <div class="choice-list">
                   <label class="choice">
-                    <input type="radio" name="نوع_کلاس" value="خصوصی" />
-                    خصوصی
+                    <input type="checkbox" name="availability" value="mon_0930_1730" />
+                    <span data-i18n="availability_mon">دوشنبه‌ها بین ۰۹:۳۰ تا ۱۷:۳۰</span>
                   </label>
                   <label class="choice">
-                    <input type="radio" name="نوع_کلاس" value="گروهی" />
-                    گروهی
+                    <input type="checkbox" name="availability" value="tue_1330_1730" />
+                    <span data-i18n="availability_tue">سه‌شنبه‌ها ۱۳:۳۰ تا ۱۷:۳۰</span>
                   </label>
                   <label class="choice">
-                    <input type="radio" name="نوع_کلاس" value="فرقی ندارد" />
-                    فرقی ندارد
+                    <input type="checkbox" name="availability" value="wed_1430_1730" />
+                    <span data-i18n="availability_wed">چهارشنبه‌ها ۱۴:۳۰ تا ۱۷:۳۰</span>
+                  </label>
+                  <label class="choice">
+                    <input type="checkbox" name="availability" value="thu_1330_1730" />
+                    <span data-i18n="availability_thu">پنج‌شنبه‌ها ۱۳:۳۰ تا ۱۷:۳۰</span>
                   </label>
                 </div>
-              </fieldset>
-            </div>
-
-            <div class="field">
-              <fieldset>
-                <legend>چه زمان‌هایی از هفته برایتان مناسب‌تر است؟</legend>
-                <div class="choice-list">
-                  <label class="choice">
-                    <input type="checkbox" name="زمان_مناسب" value="دوشنبه‌ها بین ۰۹:۳۰ تا ۱۷:۳۰" />
-                    دوشنبه‌ها بین ۰۹:۳۰ تا ۱۷:۳۰
-                  </label>
-                  <label class="choice">
-                    <input type="checkbox" name="زمان_مناسب" value="سه‌شنبه‌ها ۱۳:۳۰ تا ۱۷:۳۰" />
-                    سه‌شنبه‌ها ۱۳:۳۰ تا ۱۷:۳۰
-                  </label>
-                  <label class="choice">
-                    <input type="checkbox" name="زمان_مناسب" value="چهارشنبه‌ها ۱۴:۳۰ تا ۱۷:۳۰" />
-                    چهارشنبه‌ها ۱۴:۳۰ تا ۱۷:۳۰
-                  </label>
-                  <label class="choice">
-                    <input type="checkbox" name="زمان_مناسب" value="پنج‌شنبه‌ها ۱۳:۳۰ تا ۱۷:۳۰" />
-                    پنج‌شنبه‌ها ۱۳:۳۰ تا ۱۷:۳۰
-                  </label>
-                </div>
-                <span class="hint">اختیاری — هر چند گزینه که برایتان مناسب است را انتخاب کنید</span>
+                <span class="hint" data-i18n="hint_availability">اختیاری — هر چند گزینه که برایتان مناسب است را انتخاب کنید</span>
               </fieldset>
             </div>
 
             <div class="submit-row">
-              <button type="submit" class="btn btn-primary">ارسال درخواست ثبت‌نام</button>
+              <button type="submit" class="btn btn-primary" data-i18n="submit_button">ارسال درخواست ثبت‌نام</button>
             </div>
-            <p class="privacy-note">اطلاعات شما فقط برای هماهنگی کلاس استفاده می‌شود و با کسی به اشتراک گذاشته نخواهد شد.</p>
+            <p class="privacy-note" data-i18n="privacy_note">اطلاعات شما فقط برای هماهنگی کلاس استفاده می‌شود و با کسی به اشتراک گذاشته نخواهد شد.</p>
           </form>
         </div>
       </div>
@@ -1034,7 +877,7 @@
       <span class="staff-line"></span>
       <span class="staff-line"></span>
     </div>
-    <div>سلفژ با فرزاد — اوترخت، هلند</div>
+    <div data-i18n="footer_line1">سلفژ با فرزاد — اوترخت، هلند</div>
     <div dir="ltr" style="text-align: end;">
       <a href="mailto:frzdomidi@gmail.com">frzdomidi@gmail.com</a>
     </div>
@@ -1053,6 +896,11 @@
       status.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
+    function statusText(key) {
+      var i18n = window.siteI18n;
+      return i18n ? i18n.dict[i18n.lang()][key] : "";
+    }
+
     form.addEventListener("submit", function (event) {
       event.preventDefault();
 
@@ -1067,19 +915,13 @@
         .then(function (response) {
           if (response.ok) {
             form.reset();
-            showStatus("ok", "ثبت‌نام شما با موفقیت ارسال شد. به‌زودی برای هماهنگی کلاس با شما تماس می‌گیرم.");
+            showStatus("ok", statusText("status_ok"));
           } else {
-            showStatus(
-              "err",
-              "مشکلی در ارسال فرم پیش آمد. لطفاً دوباره تلاش کنید یا مستقیماً به frzdomidi@gmail.com ایمیل بزنید."
-            );
+            showStatus("err", statusText("status_err_server"));
           }
         })
         .catch(function () {
-          showStatus(
-            "err",
-            "مشکلی در ارتباط پیش آمد. لطفاً دوباره تلاش کنید یا مستقیماً به frzdomidi@gmail.com ایمیل بزنید."
-          );
+          showStatus("err", statusText("status_err_network"));
         })
         .finally(function () {
           submitButton.disabled = false;
@@ -1159,221 +1001,206 @@
   })();
 
   (function () {
-    var HasAudio = !!(window.AudioContext || window.webkitAudioContext);
-    var noscriptEl = document.getElementById("game-noscript");
-    var noaudioEl = document.getElementById("game-noaudio");
-    var uiEl = document.getElementById("game-ui");
+    var STORAGE_KEY = "siteLang";
 
-    if (noscriptEl) noscriptEl.hidden = true;
+    var I18N = {
+      fa: {
+        title: "سلفژ با فرزاد — ثبت‌نام کلاس تئوری موسیقی، سلفژ و کر",
+        meta_description: "کلاس‌های تئوری موسیقی، سلفژ و راهنمایی برای آواز گروهی (کر) — برای فارسی‌زبانان مقیم هلند. حضوری در اوترخت یا آنلاین. همین حالا ثبت‌نام کنید.",
+        wordmark: "سلفژ با فرزاد",
+        nav_cta: "ثبت‌نام",
+        h1: "زبان موسیقی را با هم یاد بگیریم",
+        hero_lead: "کلاس‌های تئوری موسیقی و سلفژ، و در کنارش راهنمایی برای آواز گروهی (کر) — ویژه‌ی فارسی‌زبانان ساکن هلند؛ حضوری در اوترخت یا آنلاین از هر شهری.",
+        hero_bio: "من فرزاد هستم. بعد از چند سال دوری از کلاس درس، دوباره برگشتم سراغ چیزی که همیشه دوستش داشتم: یاد دادن تئوری موسیقی و سلفژ. در کنار این، سال‌هاست هم به‌عنوان خواننده و هم رهبر کر (کورال) فعالیت کرده‌ام. این‌بار می‌خواهم همه‌ی این تجربه را به فارسی‌زبان‌های ساکن هلند برسانم؛ چه تازه‌کار باشید و چه سال‌هاست سازی می‌نوازید و می‌خواهید پایه‌تان را محکم‌تر کنید.",
+        cta_primary: "ثبت‌نام در کلاس",
+        cta_secondary: "بیشتر بخوانید",
 
-    if (!HasAudio) {
-      if (noaudioEl) noaudioEl.hidden = false;
-      return;
-    }
+        about_h2: "این کلاس‌ها برای چه کسانی است؟",
+        about_intro: "چه تازه شروع کرده باشید، چه سال‌هاست سازی می‌نوازید:",
+        about_feature_1: "تئوری موسیقی، از مبانی تا سطح پیشرفته",
+        about_feature_2: "سلفژ و تقویت گوش موسیقایی — خواندن و نوشتن نت",
+        about_feature_3: "آماده‌سازی برای آزمون کنکور هنر یا کنسرواتوریوم",
+        about_feature_4: "کلاس خصوصی یا گروه کوچک — آنلاین یا حضوری در اوترخت",
+        sol_do: "دو", sol_re: "ر", sol_mi: "می", sol_fa: "فا",
+        sol_sol: "سل", sol_la: "لا", sol_si: "سی",
 
-    var NOTES = [
-      { key: "do", label: "دو", freq: 523.25 },
-      { key: "re", label: "ر", freq: 587.33 },
-      { key: "mi", label: "می", freq: 659.25 },
-      { key: "fa", label: "فا", freq: 698.46 },
-      { key: "sol", label: "سل", freq: 783.99 },
-      { key: "la", label: "لا", freq: 880.0 },
-      { key: "si", label: "سی", freq: 987.77 },
-    ];
+        choir_h2: "چرا آواز گروهی (کر)، مخصوصاً برای یک مهاجر؟",
+        choir_intro: "خواندن فقط یک مهارت موسیقایی نیست؛ برای خیلی از ما که غریبِ یک کشور تازه‌ایم، می‌تواند یک‌جور خانه هم باشد:",
+        choir_feature_1: "حس تعلق — هم‌صدا شدن با آدم‌های دیگر، آن هم به زبان خودتان",
+        choir_feature_2: "کم شدن تنهایی دوران مهاجرت، با یک قرار ثابت هفتگی و جمعی که منتظرتان است",
+        choir_feature_3: "تمرین گوش دادن و هماهنگ شدن با دیگران — مهارتی که به زندگی روزمره در کشور تازه هم کمک می‌کند",
+        choir_note_text: "خودم سال‌هاست هم به‌عنوان خواننده و هم رهبر کر (کورال) فعالیت کرده‌ام و می‌دانم رسیدن به آن لحظه‌ای که صدای چند نفر با هم یکی می‌شود چه حسی دارد. اگر دوست دارید یک روز عضو یک گروه کر باشید، از همین حالا و از پایه‌ای‌ترین قدم‌ها می‌توانم همراه‌تان باشم.",
 
-    var PERSIAN_DIGITS = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
-    function toPersianDigits(n) {
-      return String(n).replace(/[0-9]/g, function (d) {
-        return PERSIAN_DIGITS[+d];
-      });
-    }
+        form_h2: "فرم ثبت‌نام",
+        form_intro: "چند سؤال کوتاه — همین کافی است تا کلاس را متناسب با شما طراحی کنم.",
+        required_note_pre: "فیلدهای دارای علامت",
+        required_note_post: "الزامی هستند.",
 
-    var playBtn = document.getElementById("game-play");
-    var nextBtn = document.getElementById("game-next");
-    var replayBtn = document.getElementById("game-replay");
-    var answersEl = document.getElementById("game-answers");
-    var answerButtons = answersEl
-      ? Array.prototype.slice.call(answersEl.querySelectorAll(".sol-btn"))
-      : [];
-    var feedbackEl = document.getElementById("game-feedback");
-    var roundEl = document.getElementById("game-round");
-    var scoreEl = document.getElementById("game-score");
-    var resultsEl = document.getElementById("game-results");
-    var resultsScoreEl = document.getElementById("game-results-score");
-    var resultsMsgEl = document.getElementById("game-results-msg");
+        label_name: "نام و نام خانوادگی",
+        label_email: "ایمیل",
+        label_phone: "شماره واتس‌اپ",
+        hint_phone: "اختیاری — برای هماهنگی سریع‌تر",
+        label_city: "شهر محل زندگی در هلند",
 
-    var audioCtx = null;
-    var toneBusy = false;
+        legend_level: "سطح آشنایی‌تان با موسیقی",
+        level_beginner: "کاملاً تازه‌کار هستم",
+        level_weak_basics: "کمی بلدم ولی پایه‌ام ضعیف است",
+        level_plays_no_theory: "سازی می‌نوازم ولی تئوری نخوانده‌ام",
+        level_theory_advanced: "تئوری خوانده‌ام و می‌خواهم پیشرفته‌تر شوم",
 
-    function ensureCtx() {
-      if (!audioCtx) {
-        var Ctx = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new Ctx();
+        label_message: "بیشتر از خودتان بگویید",
+        placeholder_message: "مثلاً چه سازی می‌نوازید (اگر می‌نوازید)، از تجربه‌ی موسیقایی‌تان، و اینکه از این کلاس‌ها چه می‌خواهید…",
+        hint_message: "اختیاری، ولی هرچه بیشتر بگویید بهتر می‌توانم کلاس را متناسب با شما طراحی کنم",
+
+        legend_format: "فرمت مدنظرتان",
+        format_online: "آنلاین",
+        format_in_person: "حضوری در اوترخت",
+        format_either: "هر دو خوب است",
+
+        legend_availability: "چه زمان‌هایی از هفته برایتان مناسب‌تر است؟",
+        availability_mon: "دوشنبه‌ها بین ۰۹:۳۰ تا ۱۷:۳۰",
+        availability_tue: "سه‌شنبه‌ها ۱۳:۳۰ تا ۱۷:۳۰",
+        availability_wed: "چهارشنبه‌ها ۱۴:۳۰ تا ۱۷:۳۰",
+        availability_thu: "پنج‌شنبه‌ها ۱۳:۳۰ تا ۱۷:۳۰",
+        hint_availability: "اختیاری — هر چند گزینه که برایتان مناسب است را انتخاب کنید",
+
+        submit_button: "ارسال درخواست ثبت‌نام",
+        privacy_note: "اطلاعات شما فقط برای هماهنگی کلاس استفاده می‌شود و با کسی به اشتراک گذاشته نخواهد شد.",
+
+        status_ok: "ثبت‌نام شما با موفقیت ارسال شد. به‌زودی برای هماهنگی کلاس با شما تماس می‌گیرم.",
+        status_err_server: "مشکلی در ارسال فرم پیش آمد. لطفاً دوباره تلاش کنید یا مستقیماً به frzdomidi@gmail.com ایمیل بزنید.",
+        status_err_network: "مشکلی در ارتباط پیش آمد. لطفاً دوباره تلاش کنید یا مستقیماً به frzdomidi@gmail.com ایمیل بزنید.",
+
+        footer_line1: "سلفژ با فرزاد — اوترخت، هلند"
+      },
+      en: {
+        title: "Solfège with Farzad — Register for Music Theory, Solfège & Choir Classes",
+        meta_description: "Music theory, solfège and choir singing guidance for Persian speakers in the Netherlands. In-person in Utrecht or online. Register now.",
+        wordmark: "Solfège with Farzad",
+        nav_cta: "Register",
+        h1: "Let's learn the language of music together",
+        hero_lead: "Music theory and solfège classes, alongside guidance for choir singing — for Persian speakers living in the Netherlands; in person in Utrecht, or online from anywhere.",
+        hero_bio: "I'm Farzad. After a few years away from teaching, I've come back to something I've always loved: teaching music theory and solfège. Alongside this, I've spent years working both as a singer and as a choir conductor. This time, I want to bring all of that experience to Persian speakers living in the Netherlands — whether you're a complete beginner or you've played an instrument for years and want to strengthen your foundation.",
+        cta_primary: "Register for a class",
+        cta_secondary: "Learn more",
+
+        about_h2: "Who are these classes for?",
+        about_intro: "Whether you're just starting out or you've played an instrument for years:",
+        about_feature_1: "Music theory, from the basics to an advanced level",
+        about_feature_2: "Solfège and ear training — reading and writing notes",
+        about_feature_3: "Preparation for art-school or conservatory entrance exams",
+        about_feature_4: "Private or small-group classes — online or in person in Utrecht",
+        sol_do: "Do", sol_re: "Re", sol_mi: "Mi", sol_fa: "Fa",
+        sol_sol: "Sol", sol_la: "La", sol_si: "Ti",
+
+        choir_h2: "Why choir singing — especially for a migrant?",
+        choir_intro: "Singing isn't just a musical skill; for many of us who are strangers in a new country, it can also feel like a kind of home:",
+        choir_feature_1: "A sense of belonging — raising your voice together with others, in your own language",
+        choir_feature_2: "Less of the loneliness of migration, with a steady weekly appointment and a group waiting for you",
+        choir_feature_3: "Practice in listening and staying in tune with others — a skill that also helps with everyday life in a new country",
+        choir_note_text: "I've spent years working both as a singer and as a choir conductor myself, and I know what it feels like to reach that moment when several voices become one. If you'd like to be part of a choir one day, I can be with you from right now, starting from the most basic steps.",
+
+        form_h2: "Registration form",
+        form_intro: "A few short questions — that's all I need to design the class around you.",
+        required_note_pre: "Fields marked",
+        required_note_post: "are required.",
+
+        label_name: "Full name",
+        label_email: "Email",
+        label_phone: "WhatsApp number",
+        hint_phone: "Optional — for faster coordination",
+        label_city: "City where you live in the Netherlands",
+
+        legend_level: "Your level of familiarity with music",
+        level_beginner: "I'm a complete beginner",
+        level_weak_basics: "I know a little, but my foundation is weak",
+        level_plays_no_theory: "I play an instrument but haven't studied theory",
+        level_theory_advanced: "I've studied theory and want to advance further",
+
+        label_message: "Tell me more about yourself",
+        placeholder_message: "For example, which instrument you play (if any), your musical background, and what you're hoping to get from these classes…",
+        hint_message: "Optional, but the more you share, the better I can tailor the class to you",
+
+        legend_format: "Your preferred format",
+        format_online: "Online",
+        format_in_person: "In person in Utrecht",
+        format_either: "Either is fine",
+
+        legend_availability: "Which times of the week suit you best?",
+        availability_mon: "Mondays between 09:30–17:30",
+        availability_tue: "Tuesdays 13:30–17:30",
+        availability_wed: "Wednesdays 14:30–17:30",
+        availability_thu: "Thursdays 13:30–17:30",
+        hint_availability: "Optional — select as many options as suit you",
+
+        submit_button: "Send registration request",
+        privacy_note: "Your information is only used to coordinate the class and will not be shared with anyone.",
+
+        status_ok: "Your registration was sent successfully. I'll be in touch soon to arrange the class.",
+        status_err_server: "Something went wrong sending the form. Please try again, or email frzdomidi@gmail.com directly.",
+        status_err_network: "There was a connection problem. Please try again, or email frzdomidi@gmail.com directly.",
+
+        footer_line1: "Solfège with Farzad — Utrecht, the Netherlands"
       }
-      if (audioCtx.state === "suspended") audioCtx.resume();
-      return audioCtx;
+    };
+
+    function setLanguage(lang) {
+      var dict = I18N[lang];
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === "fa" ? "rtl" : "ltr";
+
+      document.querySelectorAll("[data-i18n]").forEach(function (el) {
+        var key = el.getAttribute("data-i18n");
+        if (dict[key] != null) el.textContent = dict[key];
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+        var key = el.getAttribute("data-i18n-placeholder");
+        if (dict[key] != null) el.placeholder = dict[key];
+      });
+      document.querySelectorAll("[data-i18n-aria-label]").forEach(function (el) {
+        var key = el.getAttribute("data-i18n-aria-label");
+        if (dict[key] != null) el.setAttribute("aria-label", dict[key]);
+      });
+      document.querySelectorAll("[data-i18n-content]").forEach(function (el) {
+        var key = el.getAttribute("data-i18n-content");
+        if (dict[key] != null) el.setAttribute("content", dict[key]);
+      });
+
+      var heroEn = document.querySelector(".hero-en");
+      if (heroEn) heroEn.hidden = lang === "en";
+
+      var toggle = document.getElementById("lang-toggle");
+      if (toggle) toggle.setAttribute("data-active", lang);
+
+      try {
+        localStorage.setItem(STORAGE_KEY, lang);
+      } catch (e) {}
     }
 
-    function playTone(freq) {
-      if (toneBusy) return;
-      toneBusy = true;
-      playBtn.disabled = true;
-      var ctx = ensureCtx();
-      var now = ctx.currentTime;
-      var osc = ctx.createOscillator();
-      var gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.32, now + 0.01);
-      gain.gain.setValueAtTime(0.32, now + 0.34);
-      gain.gain.linearRampToValueAtTime(0, now + 0.34 + 0.18);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.34 + 0.2);
-      window.setTimeout(function () {
-        toneBusy = false;
-        playBtn.disabled = false;
-      }, 560);
-    }
-
-    var order = [];
-    var roundIndex = 0;
-    var score = 0;
-    var answered = false;
-
-    function shuffle(arr) {
-      var a = arr.slice();
-      for (var i = a.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var tmp = a[i];
-        a[i] = a[j];
-        a[j] = tmp;
+    function storedLang() {
+      try {
+        return localStorage.getItem(STORAGE_KEY) === "en" ? "en" : "fa";
+      } catch (e) {
+        return "fa";
       }
-      return a;
     }
 
-    function clearAnswerStates() {
-      answerButtons.forEach(function (btn) {
-        btn.disabled = false;
-        btn.classList.remove("is-correct", "is-wrong");
-        var mark = btn.querySelector(".sol-mark");
-        if (mark) mark.remove();
+    var toggleBtn = document.getElementById("lang-toggle");
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", function () {
+        var current = document.documentElement.lang === "en" ? "en" : "fa";
+        setLanguage(current === "fa" ? "en" : "fa");
       });
     }
 
-    function updateStatus() {
-      if (roundEl) {
-        roundEl.textContent =
-          "دور " + toPersianDigits(roundIndex + 1) + " از " + toPersianDigits(order.length);
+    window.siteI18n = {
+      dict: I18N,
+      lang: function () {
+        return document.documentElement.lang === "en" ? "en" : "fa";
       }
-      if (scoreEl) scoreEl.textContent = "امتیاز: " + toPersianDigits(score);
-    }
+    };
 
-    function currentNote() {
-      return order[roundIndex];
-    }
-
-    function startRound(shouldFocusPlay) {
-      answered = false;
-      nextBtn.hidden = true;
-      clearAnswerStates();
-      updateStatus();
-      if (feedbackEl) feedbackEl.textContent = "برای شروع، دکمه‌ی پخش نت را بزنید.";
-      if (shouldFocusPlay && playBtn) playBtn.focus();
-    }
-
-    function onAnswer(key) {
-      if (answered) return;
-      answered = true;
-      var target = currentNote();
-      var correct = key === target.key;
-      if (correct) score += 1;
-
-      answerButtons.forEach(function (btn) {
-        btn.disabled = true;
-        if (btn.dataset.key === target.key) {
-          btn.classList.add("is-correct");
-          btn.insertAdjacentHTML(
-            "beforeend",
-            ' <span class="sol-mark" aria-hidden="true">✓</span>'
-          );
-        } else if (btn.dataset.key === key) {
-          btn.classList.add("is-wrong");
-          btn.insertAdjacentHTML(
-            "beforeend",
-            ' <span class="sol-mark" aria-hidden="true">✕</span>'
-          );
-        }
-      });
-
-      if (feedbackEl) {
-        feedbackEl.textContent = correct
-          ? "درست بود! این نت «" + target.label + "» بود."
-          : "اشتباه بود — نت درست «" + target.label + "» بود.";
-      }
-      updateStatus();
-      nextBtn.hidden = false;
-      nextBtn.focus();
-    }
-
-    function showResults() {
-      uiEl.hidden = true;
-      resultsEl.hidden = false;
-      var msg;
-      if (score >= 6) {
-        msg = "گوش بسیار خوبی دارید! با همین پایه، در کلاس خیلی سریع‌تر پیش می‌رویم.";
-      } else if (score >= 3) {
-        msg =
-          "شروع خوبی بود! دقیقاً همین مهارت شنیداری در کلاس‌های سلفژ قدم‌به‌قدم تقویت می‌شود.";
-      } else {
-        msg =
-          "جای نگرانی نیست — این دقیقاً همان مهارتی است که در کلاس با تمرین به‌دست می‌آید، نه چیزی که از قبل باید بلد باشید.";
-      }
-      resultsScoreEl.textContent =
-        "امتیاز شما: " + toPersianDigits(score) + " از " + toPersianDigits(order.length);
-      resultsMsgEl.textContent = msg;
-    }
-
-    function startGame(shouldFocusPlay) {
-      order = shuffle(NOTES);
-      roundIndex = 0;
-      score = 0;
-      uiEl.hidden = false;
-      resultsEl.hidden = true;
-      startRound(shouldFocusPlay);
-    }
-
-    if (playBtn) {
-      playBtn.addEventListener("click", function () {
-        playTone(currentNote().freq);
-      });
-    }
-
-    answerButtons.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        onAnswer(btn.dataset.key);
-      });
-    });
-
-    if (nextBtn) {
-      nextBtn.addEventListener("click", function () {
-        roundIndex += 1;
-        if (roundIndex >= order.length) {
-          showResults();
-        } else {
-          startRound(true);
-        }
-      });
-    }
-
-    if (replayBtn) {
-      replayBtn.addEventListener("click", function () {
-        startGame(true);
-      });
-    }
-
-    startGame(false);
+    setLanguage(storedLang());
   })();
 </script>
 
