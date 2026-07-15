@@ -859,13 +859,7 @@
 
           <div id="form-status" role="status" hidden></div>
 
-          <form id="registration-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
-            <!--
-              این فرم برای ارسال به Formspree تنظیم شده است:
-              ۱) در formspree.io یک فرم رایگان بسازید.
-              ۲) مقدار YOUR_FORM_ID را با شناسه‌ی فرم خودتان جایگزین کنید.
-              جایگزین بدون ثبت‌نام: web3forms.com (نیازی به ساخت اکانت ندارد).
-            -->
+          <form id="registration-form" action="https://formspree.io/f/xwvgpdkk" method="POST">
 
             <div class="field">
               <label class="main" for="name">نام و نام خانوادگی<span class="req">*</span></label>
@@ -1061,14 +1055,6 @@
 
     form.addEventListener("submit", function (event) {
       event.preventDefault();
-
-      if (form.action.indexOf("YOUR_FORM_ID") !== -1) {
-        showStatus(
-          "err",
-          "فرم هنوز به یک سرویس ارسال وصل نشده است. لطفاً مستقیماً به frzdomidi@gmail.com ایمیل بزنید، یا آدرس Formspree را در کد صفحه تنظیم کنید."
-        );
-        return;
-      }
 
       var submitButton = form.querySelector("button[type=submit]");
       submitButton.disabled = true;
