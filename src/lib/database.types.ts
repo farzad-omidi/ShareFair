@@ -167,18 +167,21 @@ export type Database = {
           display_name: string
           id: string
           palette: number
+          unlocked: boolean
         }
         Insert: {
           created_at?: string
           display_name: string
           id: string
           palette?: number
+          unlocked?: boolean
         }
         Update: {
           created_at?: string
           display_name?: string
           id?: string
           palette?: number
+          unlocked?: boolean
         }
         Relationships: []
       }
@@ -386,6 +389,7 @@ export type Database = {
         Args: { p_accept: boolean; p_invitation_id: string }
         Returns: undefined
       }
+      unlock_account: { Args: Record<PropertyKey, never>; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

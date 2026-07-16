@@ -49,7 +49,7 @@ const UNLOCK_PRICE = 1;
 // unlock moment (and the thank-you that follows it) looks and feels before
 // deciding whether/how to build it for real.
 function UnlockModal({ onClose }: { onClose: () => void }) {
-  const { activeSpace } = useSpace();
+  const { activeSpace, unlockAccount } = useSpace();
   const { t } = useLanguage();
   const [tip, setTip] = useState(0);
   const [stage, setStage] = useState<"offer" | "thanks">("offer");
@@ -144,8 +144,12 @@ function UnlockModal({ onClose }: { onClose: () => void }) {
         <button
           className="primary green"
           onClick={() => {
+            // Instant feedback, matching the rest of the app's "peak-end moment"
+            // pattern (e.g. SettleView's settle animation) -- the actual write
+            // happens in the background rather than delaying the celebration.
             setConfettiPieces(makeConfettiPieces());
             setStage("thanks");
+            void unlockAccount();
           }}
         >
           {t("unlock_cta_button", { amount: money(total, currency) })}
@@ -394,7 +398,8 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
 }
 
 function NewSpaceModal({ onClose }: { onClose: () => void }) {
-  const { createSpace, getPastCollaborators, sendSpaceInvitation } = useSpace();
+  const { createSpace, getPastCollaborators, sendSpaceInvitation, spaces, profile } = useSpace();
+  const { openModal } = useUI();
   const { t } = useLanguage();
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("EUR");
@@ -449,6 +454,31 @@ function NewSpaceModal({ onClose }: { onClose: () => void }) {
       return next;
     });
     setInvitedIds((prev) => new Set(prev).add(p.user_id));
+  }
+
+  // Free tier: one owned space per account (joining someone else's space is
+  // always unrestricted, so this never blocks the invite-your-friends loop --
+  // only how many spaces you can personally create). Checked client-side here
+  // so the limit surfaces as a clear next step rather than a failed submit;
+  // create_space's own server-side check is what actually enforces it.
+  const ownsAnySpace = spaces.some((s) => s.created_by === profile?.id);
+  const atFreeLimit = ownsAnySpace && !profile?.unlocked;
+
+  if (atFreeLimit) {
+    return (
+      <ModalSheet onClose={onClose}>
+        <h3>{t("newspace_limit_title")}</h3>
+        <p className="sub">{t("newspace_limit_body")}</p>
+        <div className="modal-actions">
+          <button className="ghost" onClick={onClose}>
+            {t("action_close")}
+          </button>
+          <button className="primary green" onClick={() => openModal({ type: "unlock" })}>
+            {t("newspace_limit_cta")}
+          </button>
+        </div>
+      </ModalSheet>
+    );
   }
 
   if (stage === "invite") {

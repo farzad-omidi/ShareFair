@@ -7,6 +7,7 @@ import { useLanguage } from "@/lib/i18n/context";
 import { monthName } from "@/lib/domain";
 import { Onboarding } from "@/components/Onboarding";
 import { Splash } from "@/components/Splash";
+import { Confetti } from "@/components/Confetti";
 import { BottomNav } from "@/components/BottomNav";
 import { Toast } from "@/components/Toast";
 import { ModalHost } from "@/components/ModalHost";
@@ -27,7 +28,7 @@ export function AppShell({ userId, userEmail }: { userId: string; userEmail: str
 }
 
 function AppShellInner() {
-  const { loading, activeSpace, spaces, members, selectedMonth, realtimeStatus, profile } = useSpace();
+  const { loading, activeSpace, spaces, members, selectedMonth, realtimeStatus, profile, celebration } = useSpace();
   const { view, openModal } = useUI();
   const { t } = useLanguage();
 
@@ -56,6 +57,7 @@ function AppShellInner() {
     <>
       <div className="glow" />
       <main className="app-shell">
+        {celebration.length > 0 && <Confetti pieces={celebration} />}
         <header className="app-header">
           <div>
             <div className="eyebrow">{t("header_eyebrow", { count: members.length, currency: activeSpace.currency })}</div>
