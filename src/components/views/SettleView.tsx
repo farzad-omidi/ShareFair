@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { useSpace } from "@/lib/store";
-import { useUI } from "@/lib/ui";
 import { useLanguage } from "@/lib/i18n/context";
 import { calcThrough, simplify, monthName } from "@/lib/domain";
 import { MemberAvatar } from "@/components/Avatar";
@@ -38,7 +37,6 @@ export function SettleView() {
     cancelRequest,
     showToast,
   } = useSpace();
-  const { openModal } = useUI();
   const { t } = useLanguage();
   const [settlingKey, setSettlingKey] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -83,12 +81,10 @@ export function SettleView() {
 
   async function handleConfirm(id: string) {
     setBusyId(id);
+    // The confetti celebration itself is triggered centrally from confirmSettlement
+    // in store.tsx, so it fires the same way regardless of which surface confirmed.
     await confirmSettlement(id);
     setBusyId(null);
-    // Confirming is the actual payoff moment -- the debt is really gone, not just
-    // claimed. Trial-and-buy timing isn't decided yet; this just previews how
-    // showing the unlock screen right here would feel.
-    openModal({ type: "unlock" });
   }
 
   async function handleDecline(id: string) {

@@ -13,6 +13,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { currentMonth, today, monthKey, calcThrough } from "@/lib/domain";
 import { useLanguage } from "@/lib/i18n/context";
+import { makeConfettiPieces, type ConfettiPiece } from "@/components/Confetti";
 import type { Category, EntryRow, MyInvitation, Profile, Space, SpaceMember, SplitType } from "@/lib/types";
 import type { TablesInsert, TablesUpdate } from "@/lib/database.types";
 
@@ -64,6 +65,7 @@ type SpaceContextValue = {
   setSelectedMonth: (m: string) => void;
   toast: string | null;
   showToast: (msg: string) => void;
+  celebration: ConfettiPiece[];
   realtimeStatus: "connecting" | "live" | "offline";
 
   switchSpace: (id: string) => void;
@@ -140,6 +142,11 @@ export function SpaceProvider({
   const [selectedMonth, setSelectedMonth] = useState(currentMonth());
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // A brief confetti burst whenever a settlement gets confirmed, regardless of
+  // which surface (SettleView's inline button, EditEntryModal's Confirm button)
+  // triggered it -- centralized here rather than duplicated per-caller.
+  const [celebration, setCelebration] = useState<ConfettiPiece[]>([]);
+  const celebrationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [realtimeStatus, setRealtimeStatus] = useState<"connecting" | "live" | "offline">("connecting");
   // Bumped on every loadSpaceData call; a response only gets applied if it's still the
   // most recent one requested, so a slow, stale fetch (e.g. from a space the user has
@@ -220,14 +227,16 @@ export function SpaceProvider({
     let cancelled = false;
     (async () => {
       setLoading(true);
-      await loadProfile();
-      const list = await loadSpaces();
+      // loadProfile and loadMyInvitations only need `userId`, not each other's
+      // results, so they run alongside loadSpaces instead of waiting behind it --
+      // only loadSpaceData genuinely depends on loadSpaces' result (which space to
+      // load). Turns four sequential round-trips into two, cutting splash time.
+      const [, list] = await Promise.all([loadProfile(), loadSpaces(), loadMyInvitations()]);
       if (cancelled) return;
       const stored = typeof window !== "undefined" ? localStorage.getItem(ACTIVE_SPACE_STORAGE_KEY) : null;
       const initial = list.find((s) => s.id === stored)?.id ?? list[0]?.id ?? null;
       setActiveSpaceId(initial);
       if (initial) await loadSpaceData(initial);
-      await loadMyInvitations();
       setLoading(false);
     })();
     return () => {
@@ -526,6 +535,9 @@ export function SpaceProvider({
       }
       showToast(t("toast_settlement_confirmed"));
       if (activeSpaceId) loadSpaceData(activeSpaceId);
+      setCelebration(makeConfettiPieces());
+      if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
+      celebrationTimer.current = setTimeout(() => setCelebration([]), 2000);
     },
     [supabase, activeSpaceId, loadSpaceData, showToast, t]
   );
@@ -811,6 +823,7 @@ export function SpaceProvider({
     setSelectedMonth,
     toast,
     showToast,
+    celebration,
     realtimeStatus,
     switchSpace,
     createSpace,

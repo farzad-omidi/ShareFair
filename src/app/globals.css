@@ -179,24 +179,6 @@ button {
   /* lets the RTL left->right repositioning below glide instead of snap */
   transition: left 0.8s ease, right 0.8s ease;
 }
-.glow::after {
-  content: "";
-  position: absolute;
-  top: -10px;
-  left: 90px;
-  width: 170px;
-  height: 170px;
-  border-radius: 50%;
-  background-image: radial-gradient(var(--ink) 1.6px, transparent 1.8px);
-  background-size: 11px 11px;
-  opacity: 0.16;
-  animation: drift 12s ease-in-out infinite;
-}
-@media (prefers-color-scheme: dark) {
-  .glow::after {
-    opacity: 0.22;
-  }
-}
 @keyframes breathe {
   0%,
   100% {
@@ -204,15 +186,6 @@ button {
   }
   50% {
     transform: scale(1.035);
-  }
-}
-@keyframes drift {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(-6px, 5px);
   }
 }
 
@@ -811,6 +784,9 @@ button {
   overflow: hidden;
   pointer-events: none;
   border-radius: inherit;
+  /* needs to sit above the app header (which sets its own z-index: 1) when
+     celebrating a settlement confirmation right on the main app shell */
+  z-index: 2;
 }
 .confetti-piece {
   position: absolute;
