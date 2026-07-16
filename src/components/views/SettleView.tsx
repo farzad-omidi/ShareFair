@@ -107,24 +107,29 @@ export function SettleView() {
   }
 
   const myBalance = profile ? balances[profile.id] || 0 : 0;
+  const balanceIsZero = Math.abs(myBalance) < EPSILON;
+  const balanceIsNegative = myBalance < -EPSILON;
+  const balanceSign = balanceIsNegative ? "negative" : "positive";
 
   return (
     <>
       {profile && (
-        <div className="card" style={{ textAlign: "center" }}>
-          <div className="balance-halo">
-            <div className="balance-circle">
-              <div className="hero-label">{t("balance_card_title")}</div>
-              <div
-                className={`big-money${Math.abs(myBalance) < EPSILON ? " zero" : ""}`}
-                style={balanceColor(myBalance) ? { color: balanceColor(myBalance) } : undefined}
-              >
-                {hideBalance ? "••••" : <AnimatedMoney value={myBalance} currency={activeSpace?.currency} />}
-              </div>
-              <button className="link" onClick={() => setHideBalance((h) => !h)}>
-                {hideBalance ? t("category_action_show") : t("category_action_hide")}
-              </button>
+        <div className={`card balance-card ${balanceSign}`}>
+          <div className="balance-glow" />
+          <div className="balance-content">
+            <div className="hero-label">{t("balance_card_title")}</div>
+            <div
+              className={`big-money${balanceIsZero ? " zero" : ""}`}
+              style={balanceColor(myBalance) ? { color: balanceColor(myBalance) } : undefined}
+            >
+              {hideBalance ? "••••" : <AnimatedMoney value={myBalance} currency={activeSpace?.currency} />}
             </div>
+            <div className={`balance-status ${balanceSign}`}>
+              {balanceIsZero ? t("balance_all_square") : balanceIsNegative ? t("balance_status_negative") : t("balance_status_positive")}
+            </div>
+            <button className="link" onClick={() => setHideBalance((h) => !h)}>
+              {hideBalance ? t("category_action_show") : t("category_action_hide")}
+            </button>
           </div>
         </div>
       )}
