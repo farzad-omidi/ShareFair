@@ -38,6 +38,40 @@ export function isHousing(e: EntryRow, categoriesById: Map<string, Category>): b
   return c?.grp === "housing";
 }
 
+// ---- Date-range helpers for the Rhythm chart's period navigation ----
+
+function toDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export function addDays(dateStr: string, n: number): string {
+  const d = new Date(`${dateStr}T00:00:00`);
+  d.setDate(d.getDate() + n);
+  return toDateStr(d);
+}
+
+export function addMonths(dateStr: string, n: number): string {
+  const d = new Date(`${dateStr}T00:00:00`);
+  d.setMonth(d.getMonth() + n);
+  return toDateStr(d);
+}
+
+export function addYears(dateStr: string, n: number): string {
+  const d = new Date(`${dateStr}T00:00:00`);
+  d.setFullYear(d.getFullYear() + n);
+  return toDateStr(d);
+}
+
+/** The Monday of the calendar week containing `dateStr` -- also doubles as a
+ * stable, sortable per-week key (its own date), so bucketing entries by week
+ * doesn't need ISO week-number math or year-boundary edge cases. */
+export function weekStart(dateStr: string): string {
+  const d = new Date(`${dateStr}T00:00:00`);
+  const day = d.getDay(); // 0 = Sunday
+  d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
+  return toDateStr(d);
+}
+
 /**
  * Distributes the signed amount of an entry across its participants according to its split
  * configuration. Returns a map of member user_id -> signed share.
@@ -189,6 +223,37 @@ export function calcMonth(
     });
 
   return { total: round(total), paid, balances: bal, byCat };
+}
+
+export type PeriodTotal = { total: number; housing: number; other: number };
+
+/** Buckets expense/credit totals by an arbitrary period key (day/week/month/
+ * year, whatever `periodOf` extracts), split into housing vs. everything else
+ * -- the two-tone stack the Rhythm chart draws for every bar, regardless of
+ * granularity. Settlements/requests never count toward spending, same as
+ * calcMonth. */
+export function calcByPeriod(
+  entries: EntryRow[],
+  categoriesById: Map<string, Category>,
+  periodOf: (e: EntryRow) => string
+): Record<string, PeriodTotal> {
+  const out: Record<string, PeriodTotal> = {};
+  entries
+    .filter((e) => e.kind !== "settlement" && e.kind !== "request")
+    .forEach((e) => {
+      const key = periodOf(e);
+      if (!out[key]) out[key] = { total: 0, housing: 0, other: 0 };
+      const amount = signed(e);
+      out[key].total += amount;
+      if (isHousing(e, categoriesById)) out[key].housing += amount;
+      else out[key].other += amount;
+    });
+  Object.values(out).forEach((v) => {
+    v.total = round(v.total);
+    v.housing = round(v.housing);
+    v.other = round(v.other);
+  });
+  return out;
 }
 
 export type Debt = { fromId: string; toId: string; amount: number };

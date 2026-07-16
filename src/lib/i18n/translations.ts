@@ -358,6 +358,13 @@ const en = {
   toast_update_space_error: "Couldn't update this space. Please try again.",
   toast_space_updated: "Space updated",
   member_modal_subtitle_owner_editing: "As the space owner, you can update {name}'s name and color.",
+  // Rhythm chart granularity tabs / period navigation
+  rhythm_tab_day: "Day",
+  rhythm_tab_week: "Week",
+  rhythm_tab_month: "Month",
+  rhythm_tab_year: "Year",
+  rhythm_nav_prev: "Previous period",
+  rhythm_nav_next: "Next period",
 };
 
 const es: Partial<Record<TranslationKey, string>> = {
@@ -683,6 +690,12 @@ const es: Partial<Record<TranslationKey, string>> = {
   toast_update_space_error: "No se pudo actualizar este espacio. Inténtalo de nuevo.",
   toast_space_updated: "Espacio actualizado",
   member_modal_subtitle_owner_editing: "Como propietario del espacio, puedes actualizar el nombre y el color de {name}.",
+  rhythm_tab_day: "Día",
+  rhythm_tab_week: "Semana",
+  rhythm_tab_month: "Mes",
+  rhythm_tab_year: "Año",
+  rhythm_nav_prev: "Período anterior",
+  rhythm_nav_next: "Período siguiente",
 };
 
 const fr: Partial<Record<TranslationKey, string>> = {
@@ -1008,6 +1021,12 @@ const fr: Partial<Record<TranslationKey, string>> = {
   toast_update_space_error: "Impossible de mettre à jour cet espace. Réessaie.",
   toast_space_updated: "Espace mis à jour",
   member_modal_subtitle_owner_editing: "En tant que propriétaire de l'espace, tu peux modifier le nom et la couleur de {name}.",
+  rhythm_tab_day: "Jour",
+  rhythm_tab_week: "Semaine",
+  rhythm_tab_month: "Mois",
+  rhythm_tab_year: "Année",
+  rhythm_nav_prev: "Période précédente",
+  rhythm_nav_next: "Période suivante",
 };
 
 const de: Partial<Record<TranslationKey, string>> = {
@@ -1333,6 +1352,12 @@ const de: Partial<Record<TranslationKey, string>> = {
   toast_update_space_error: "Der Bereich konnte nicht aktualisiert werden. Bitte versuche es erneut.",
   toast_space_updated: "Bereich aktualisiert",
   member_modal_subtitle_owner_editing: "Als Besitzer dieses Bereichs kannst du den Namen und die Farbe von {name} ändern.",
+  rhythm_tab_day: "Tag",
+  rhythm_tab_week: "Woche",
+  rhythm_tab_month: "Monat",
+  rhythm_tab_year: "Jahr",
+  rhythm_nav_prev: "Vorheriger Zeitraum",
+  rhythm_nav_next: "Nächster Zeitraum",
 };
 
 const pt: Partial<Record<TranslationKey, string>> = {
@@ -1658,6 +1683,12 @@ const pt: Partial<Record<TranslationKey, string>> = {
   toast_update_space_error: "Não foi possível atualizar este espaço. Tente novamente.",
   toast_space_updated: "Espaço atualizado",
   member_modal_subtitle_owner_editing: "Como dono do espaço, você pode atualizar o nome e a cor de {name}.",
+  rhythm_tab_day: "Dia",
+  rhythm_tab_week: "Semana",
+  rhythm_tab_month: "Mês",
+  rhythm_tab_year: "Ano",
+  rhythm_nav_prev: "Período anterior",
+  rhythm_nav_next: "Próximo período",
 };
 
 const ru: Partial<Record<TranslationKey, string>> = {
@@ -1983,6 +2014,12 @@ const ru: Partial<Record<TranslationKey, string>> = {
   toast_update_space_error: "Не удалось обновить это пространство. Попробуйте ещё раз.",
   toast_space_updated: "Пространство обновлено",
   member_modal_subtitle_owner_editing: "Как владелец пространства вы можете изменить имя и цвет участника {name}.",
+  rhythm_tab_day: "День",
+  rhythm_tab_week: "Неделя",
+  rhythm_tab_month: "Месяц",
+  rhythm_tab_year: "Год",
+  rhythm_nav_prev: "Предыдущий период",
+  rhythm_nav_next: "Следующий период",
 };
 
 const zh: Partial<Record<TranslationKey, string>> = {
@@ -2308,6 +2345,12 @@ const zh: Partial<Record<TranslationKey, string>> = {
   toast_update_space_error: "无法更新该空间，请重试。",
   toast_space_updated: "空间已更新",
   member_modal_subtitle_owner_editing: "作为空间所有者，你可以修改 {name} 的名称和颜色。",
+  rhythm_tab_day: "日",
+  rhythm_tab_week: "周",
+  rhythm_tab_month: "月",
+  rhythm_tab_year: "年",
+  rhythm_nav_prev: "上一个时段",
+  rhythm_nav_next: "下一个时段",
 };
 
 const hi: Partial<Record<TranslationKey, string>> = {
@@ -2633,6 +2676,12 @@ const hi: Partial<Record<TranslationKey, string>> = {
   toast_update_space_error: "यह स्पेस अपडेट नहीं हो सका। कृपया फिर कोशिश करें।",
   toast_space_updated: "स्पेस अपडेट हो गया",
   member_modal_subtitle_owner_editing: "स्पेस के मालिक के तौर पर, आप {name} का नाम और रंग बदल सकते हैं।",
+  rhythm_tab_day: "दिन",
+  rhythm_tab_week: "सप्ताह",
+  rhythm_tab_month: "महीना",
+  rhythm_tab_year: "साल",
+  rhythm_nav_prev: "पिछली अवधि",
+  rhythm_nav_next: "अगली अवधि",
 };
 
 const ar: Partial<Record<TranslationKey, string>> = {
@@ -2958,6 +3007,12 @@ const ar: Partial<Record<TranslationKey, string>> = {
   toast_update_space_error: "تعذّر تحديث هذه المساحة. حاول مرة أخرى.",
   toast_space_updated: "تم تحديث المساحة",
   member_modal_subtitle_owner_editing: "بصفتك مالك المساحة، يمكنك تعديل اسم {name} ولونه.",
+  rhythm_tab_day: "يوم",
+  rhythm_tab_week: "أسبوع",
+  rhythm_tab_month: "شهر",
+  rhythm_tab_year: "سنة",
+  rhythm_nav_prev: "الفترة السابقة",
+  rhythm_nav_next: "الفترة التالية",
 };
 
 const fa: Partial<Record<TranslationKey, string>> = {
@@ -3283,6 +3338,12 @@ const fa: Partial<Record<TranslationKey, string>> = {
   toast_update_space_error: "به‌روزرسانی این فضا ممکن نشد. دوباره امتحان کن.",
   toast_space_updated: "فضا به‌روزرسانی شد",
   member_modal_subtitle_owner_editing: "به‌عنوان مالک فضا، می‌توانی نام و رنگ {name} را تغییر دهی.",
+  rhythm_tab_day: "روز",
+  rhythm_tab_week: "هفته",
+  rhythm_tab_month: "ماه",
+  rhythm_tab_year: "سال",
+  rhythm_nav_prev: "بازه قبلی",
+  rhythm_nav_next: "بازه بعدی",
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Partial<Record<TranslationKey, string>>> = {
