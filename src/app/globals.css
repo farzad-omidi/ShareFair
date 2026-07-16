@@ -275,6 +275,41 @@ button {
   font-size: 13px;
   line-height: 1.4;
 }
+
+.accordion-toggle {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  margin-bottom: 0;
+}
+.accordion-chevron {
+  flex-shrink: 0;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--muted);
+  margin-top: 3px;
+  transition: transform 0.2s ease;
+}
+.accordion-toggle[aria-expanded="true"] .accordion-chevron {
+  transform: rotate(180deg);
+}
+.accordion-body-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+.accordion-body-wrap.open {
+  grid-template-rows: 1fr;
+}
+.accordion-body {
+  overflow: hidden;
+}
+.accordion-body-wrap.open .accordion-body {
+  padding-top: 11px;
+}
 .link {
   font-weight: 800;
   color: var(--accent);

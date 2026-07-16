@@ -342,6 +342,16 @@ const en = {
   settle_amount_copied_toast: "Amount copied",
   metric_months_count: "{count} months",
   bycategory_entries_note: "{count} entries · average per month",
+  // Space deletion / month clearing / transaction search
+  toast_delete_space_error: "Couldn't delete that space. Please try again.",
+  toast_space_deleted: "Space deleted",
+  toast_clear_month_error: "Couldn't clear this month's transactions. Please try again.",
+  toast_month_cleared: "This month's transactions were cleared",
+  spaces_confirm_delete: "Delete \"{name}\"? This removes it for everyone and can't be undone.",
+  month_clear_btn: "Clear month",
+  month_confirm_clear: "Clear all transactions for {month}? This can't be undone.",
+  entries_search_placeholder: "Search transactions…",
+  entries_search_empty: "No transactions match your search.",
 };
 
 const es: Partial<Record<TranslationKey, string>> = {
@@ -653,6 +663,15 @@ const es: Partial<Record<TranslationKey, string>> = {
   settle_amount_copied_toast: "Importe copiado",
   metric_months_count: "{count} meses",
   bycategory_entries_note: "{count} movimientos · promedio por mes",
+  toast_delete_space_error: "No se pudo eliminar ese espacio. Inténtalo de nuevo.",
+  toast_space_deleted: "Espacio eliminado",
+  toast_clear_month_error: "No se pudieron borrar los movimientos de este mes. Inténtalo de nuevo.",
+  toast_month_cleared: "Se borraron los movimientos de este mes",
+  spaces_confirm_delete: "¿Eliminar \"{name}\"? Esto lo quita para todos y no se puede deshacer.",
+  month_clear_btn: "Borrar mes",
+  month_confirm_clear: "¿Borrar todos los movimientos de {month}? No se puede deshacer.",
+  entries_search_placeholder: "Buscar movimientos…",
+  entries_search_empty: "Ningún movimiento coincide con tu búsqueda.",
 };
 
 const fr: Partial<Record<TranslationKey, string>> = {
@@ -964,6 +983,15 @@ const fr: Partial<Record<TranslationKey, string>> = {
   settle_amount_copied_toast: "Montant copié",
   metric_months_count: "{count} mois",
   bycategory_entries_note: "{count} entrées · moyenne par mois",
+  toast_delete_space_error: "Impossible de supprimer cet espace. Réessaie.",
+  toast_space_deleted: "Espace supprimé",
+  toast_clear_month_error: "Impossible d'effacer les mouvements de ce mois. Réessaie.",
+  toast_month_cleared: "Les mouvements de ce mois ont été effacés",
+  spaces_confirm_delete: "Supprimer « {name} » ? Cela le retire pour tout le monde et c'est irréversible.",
+  month_clear_btn: "Effacer le mois",
+  month_confirm_clear: "Effacer tous les mouvements de {month} ? Cette action est irréversible.",
+  entries_search_placeholder: "Rechercher un mouvement…",
+  entries_search_empty: "Aucun mouvement ne correspond à ta recherche.",
 };
 
 const de: Partial<Record<TranslationKey, string>> = {
@@ -1275,6 +1303,15 @@ const de: Partial<Record<TranslationKey, string>> = {
   settle_amount_copied_toast: "Betrag kopiert",
   metric_months_count: "{count} Monate",
   bycategory_entries_note: "{count} Einträge · Durchschnitt pro Monat",
+  toast_delete_space_error: "Der Bereich konnte nicht gelöscht werden. Bitte versuche es erneut.",
+  toast_space_deleted: "Bereich gelöscht",
+  toast_clear_month_error: "Die Buchungen dieses Monats konnten nicht gelöscht werden. Bitte versuche es erneut.",
+  toast_month_cleared: "Die Buchungen dieses Monats wurden gelöscht",
+  spaces_confirm_delete: "„{name}“ löschen? Das entfernt ihn für alle und kann nicht rückgängig gemacht werden.",
+  month_clear_btn: "Monat leeren",
+  month_confirm_clear: "Alle Buchungen für {month} löschen? Das kann nicht rückgängig gemacht werden.",
+  entries_search_placeholder: "Buchungen durchsuchen…",
+  entries_search_empty: "Keine Buchungen passen zu deiner Suche.",
 };
 
 const pt: Partial<Record<TranslationKey, string>> = {
@@ -1586,6 +1623,15 @@ const pt: Partial<Record<TranslationKey, string>> = {
   settle_amount_copied_toast: "Valor copiado",
   metric_months_count: "{count} meses",
   bycategory_entries_note: "{count} lançamentos · média mensal",
+  toast_delete_space_error: "Não foi possível excluir esse espaço. Tente novamente.",
+  toast_space_deleted: "Espaço excluído",
+  toast_clear_month_error: "Não foi possível limpar os lançamentos deste mês. Tente novamente.",
+  toast_month_cleared: "Os lançamentos deste mês foram apagados",
+  spaces_confirm_delete: "Excluir \"{name}\"? Isso o remove para todos e não pode ser desfeito.",
+  month_clear_btn: "Limpar mês",
+  month_confirm_clear: "Apagar todos os lançamentos de {month}? Isso não pode ser desfeito.",
+  entries_search_placeholder: "Buscar lançamentos…",
+  entries_search_empty: "Nenhum lançamento corresponde à sua busca.",
 };
 
 const ru: Partial<Record<TranslationKey, string>> = {
@@ -1897,6 +1943,15 @@ const ru: Partial<Record<TranslationKey, string>> = {
   settle_amount_copied_toast: "Сумма скопирована",
   metric_months_count: "{count} месяцев",
   bycategory_entries_note: "{count} записей · в среднем за месяц",
+  toast_delete_space_error: "Не удалось удалить это пространство. Попробуйте ещё раз.",
+  toast_space_deleted: "Пространство удалено",
+  toast_clear_month_error: "Не удалось очистить операции за этот месяц. Попробуйте ещё раз.",
+  toast_month_cleared: "Операции за этот месяц удалены",
+  spaces_confirm_delete: "Удалить «{name}»? Это уберёт его у всех участников, и отменить будет нельзя.",
+  month_clear_btn: "Очистить месяц",
+  month_confirm_clear: "Удалить все операции за {month}? Это действие нельзя отменить.",
+  entries_search_placeholder: "Поиск операций…",
+  entries_search_empty: "Ничего не найдено по вашему запросу.",
 };
 
 const zh: Partial<Record<TranslationKey, string>> = {
@@ -2208,6 +2263,15 @@ const zh: Partial<Record<TranslationKey, string>> = {
   settle_amount_copied_toast: "金额已复制",
   metric_months_count: "{count} 个月",
   bycategory_entries_note: "{count} 条记录 · 月均",
+  toast_delete_space_error: "无法删除该空间，请重试。",
+  toast_space_deleted: "空间已删除",
+  toast_clear_month_error: "无法清空本月的交易记录，请重试。",
+  toast_month_cleared: "本月的交易记录已清空",
+  spaces_confirm_delete: "删除「{name}」？此操作会为所有人移除该空间，且无法撤销。",
+  month_clear_btn: "清空本月",
+  month_confirm_clear: "清空 {month} 的所有交易记录？此操作无法撤销。",
+  entries_search_placeholder: "搜索交易…",
+  entries_search_empty: "没有符合搜索条件的交易。",
 };
 
 const hi: Partial<Record<TranslationKey, string>> = {
@@ -2519,6 +2583,15 @@ const hi: Partial<Record<TranslationKey, string>> = {
   settle_amount_copied_toast: "राशि कॉपी की गई",
   metric_months_count: "{count} महीने",
   bycategory_entries_note: "{count} प्रविष्टियाँ · मासिक औसत",
+  toast_delete_space_error: "वह स्पेस डिलीट नहीं हो सका। कृपया फिर कोशिश करें।",
+  toast_space_deleted: "स्पेस डिलीट हो गया",
+  toast_clear_month_error: "इस महीने के लेन-देन साफ़ नहीं हो सके। कृपया फिर कोशिश करें।",
+  toast_month_cleared: "इस महीने के लेन-देन साफ़ कर दिए गए",
+  spaces_confirm_delete: "\"{name}\" डिलीट करें? इससे यह सभी के लिए हट जाएगा और इसे वापस नहीं लाया जा सकता।",
+  month_clear_btn: "महीना साफ़ करें",
+  month_confirm_clear: "{month} के सभी लेन-देन साफ़ करें? इसे वापस नहीं लाया जा सकता।",
+  entries_search_placeholder: "लेन-देन खोजें…",
+  entries_search_empty: "आपकी खोज से मेल खाने वाला कोई लेन-देन नहीं मिला।",
 };
 
 const ar: Partial<Record<TranslationKey, string>> = {
@@ -2830,6 +2903,15 @@ const ar: Partial<Record<TranslationKey, string>> = {
   settle_amount_copied_toast: "تم نسخ المبلغ",
   metric_months_count: "{count} أشهر",
   bycategory_entries_note: "{count} سجلات · متوسط شهري",
+  toast_delete_space_error: "تعذّر حذف هذه المساحة. حاول مرة أخرى.",
+  toast_space_deleted: "تم حذف المساحة",
+  toast_clear_month_error: "تعذّر مسح معاملات هذا الشهر. حاول مرة أخرى.",
+  toast_month_cleared: "تم مسح معاملات هذا الشهر",
+  spaces_confirm_delete: "حذف \"{name}\"؟ سيؤدي هذا إلى إزالتها للجميع ولا يمكن التراجع عنه.",
+  month_clear_btn: "مسح الشهر",
+  month_confirm_clear: "مسح كل معاملات {month}؟ لا يمكن التراجع عن هذا.",
+  entries_search_placeholder: "ابحث في المعاملات…",
+  entries_search_empty: "لا توجد معاملات مطابقة لبحثك.",
 };
 
 const fa: Partial<Record<TranslationKey, string>> = {
@@ -3141,6 +3223,15 @@ const fa: Partial<Record<TranslationKey, string>> = {
   settle_amount_copied_toast: "مبلغ کپی شد",
   metric_months_count: "{count} ماه",
   bycategory_entries_note: "{count} تراکنش · میانگین ماهانه",
+  toast_delete_space_error: "حذف این فضا ممکن نشد. دوباره امتحان کن.",
+  toast_space_deleted: "فضا حذف شد",
+  toast_clear_month_error: "پاک کردن تراکنش‌های این ماه ممکن نشد. دوباره امتحان کن.",
+  toast_month_cleared: "تراکنش‌های این ماه پاک شدند",
+  spaces_confirm_delete: "«{name}» حذف شود؟ این کار آن را برای همه حذف می‌کند و قابل بازگشت نیست.",
+  month_clear_btn: "پاک کردن ماه",
+  month_confirm_clear: "همه تراکنش‌های {month} پاک شوند؟ این کار قابل بازگشت نیست.",
+  entries_search_placeholder: "جستجوی تراکنش‌ها…",
+  entries_search_empty: "تراکنشی مطابق جستجوی شما پیدا نشد.",
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Partial<Record<TranslationKey, string>>> = {

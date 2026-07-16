@@ -15,8 +15,8 @@ export const CURRENCIES: CurrencyOption[] = [
   { code: "JPY", symbol: "¥", label: "Japanese Yen" },
   { code: "CNY", symbol: "¥", label: "Chinese Yuan" },
   { code: "INR", symbol: "₹", label: "Indian Rupee" },
-  { code: "AUD", symbol: "A$", label: "Australian Dollar" },
-  { code: "CAD", symbol: "C$", label: "Canadian Dollar" },
+  { code: "AUD", symbol: "$", label: "Australian Dollar" },
+  { code: "CAD", symbol: "$", label: "Canadian Dollar" },
   { code: "CHF", symbol: "Fr", label: "Swiss Franc" },
   { code: "IRT", symbol: "تومان", label: "Iranian Toman" },
 ];

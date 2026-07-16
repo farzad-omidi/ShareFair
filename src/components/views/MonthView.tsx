@@ -13,10 +13,11 @@ import type { EntryRow } from "@/lib/types";
 import { IconSwap, IconUndo, IconReceipt, IconClock } from "@/components/icons";
 
 export function MonthView() {
-  const { entries, members, categories, selectedMonth, activeSpace } = useSpace();
+  const { entries, members, categories, selectedMonth, activeSpace, clearMonth } = useSpace();
   const { openModal } = useUI();
   const { t } = useLanguage();
   const [filterHousing, setFilterHousing] = useState(false);
+  const [search, setSearch] = useState("");
 
   const catsById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
   const memberIds = useMemo(() => members.map((m) => m.user_id), [members]);
@@ -35,6 +36,28 @@ export function MonthView() {
         .sort((a, b) => b.entry_date.localeCompare(a.entry_date) || b.created_at.localeCompare(a.created_at)),
     [entries, selectedMonth]
   );
+
+  const filteredList = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((e) => {
+      if (e.kind === "settlement") {
+        const from = members.find((m) => m.user_id === e.from_id)?.display_name ?? "";
+        const to = members.find((m) => m.user_id === e.to_id)?.display_name ?? "";
+        return `${from} ${to}`.toLowerCase().includes(q);
+      }
+      const payer = members.find((m) => m.user_id === e.payer_id)?.display_name ?? "";
+      const cat = categories.find((c) => c.id === e.category_id)?.name ?? "";
+      const note = e.note ?? "";
+      return `${payer} ${cat} ${note}`.toLowerCase().includes(q);
+    });
+  }, [list, search, members, categories]);
+
+  function handleClearMonth() {
+    if (window.confirm(t("month_confirm_clear", { month: monthName(selectedMonth) }))) {
+      clearMonth(selectedMonth);
+    }
+  }
 
   return (
     <>
@@ -77,12 +100,29 @@ export function MonthView() {
             <h2>{t("entries_card_title")}</h2>
             <p>{t("entries_card_subtitle")}</p>
           </div>
+          {list.length > 0 && (
+            <button className="link" onClick={handleClearMonth}>
+              {t("month_clear_btn")}
+            </button>
+          )}
         </div>
+        {list.length > 0 && (
+          <input
+            className="input"
+            style={{ marginBottom: 11 }}
+            type="search"
+            placeholder={t("entries_search_placeholder")}
+            value={search}
+            onChange={(ev) => setSearch(ev.target.value)}
+          />
+        )}
         <div className="entry-list">
           {list.length === 0 ? (
             <div className="empty">{t("entries_empty", { month: monthName(selectedMonth) })}</div>
+          ) : filteredList.length === 0 ? (
+            <div className="empty">{t("entries_search_empty")}</div>
           ) : (
-            list.map((e) => (
+            filteredList.map((e) => (
               <EntryItem
                 key={e.id}
                 entry={e}
@@ -112,8 +152,8 @@ function EntryItem({ entry: e, onClick }: { entry: EntryRow; onClick: () => void
         <span>
           <strong>
             {t(pending ? "entry_settling" : "entry_settled", {
-              from: from?.display_name ?? "Someone",
-              to: to?.display_name ?? "someone",
+              from: from?.display_name ?? t("fallback_someone"),
+              to: to?.display_name ?? t("fallback_someone"),
             })}
           </strong>
           <small>

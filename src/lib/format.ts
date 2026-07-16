@@ -12,7 +12,14 @@ export function money(v: number, currency = "EUR"): string {
   }
   if (!fmtCache[currency]) {
     try {
-      fmtCache[currency] = new Intl.NumberFormat(undefined, { style: "currency", currency });
+      // "narrowSymbol" collapses locale-disambiguating prefixes (A$, CA$) down to
+      // the plain symbol everyone actually types/reads day to day -- one "$" for
+      // every dollar-denominated currency, same spirit as the currency picker.
+      fmtCache[currency] = new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency,
+        currencyDisplay: "narrowSymbol",
+      });
     } catch {
       fmtCache[currency] = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
     }
