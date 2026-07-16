@@ -3,10 +3,10 @@
 -- Applied to the Supabase project as migrations (sharefair_initial_schema,
 -- harden_function_permissions, settlement_confirmation_flow, payment_requests,
 -- payer_can_edit_own_entries, member_active_since, space_invitations,
--- space_invitations_visible_space_name, space_invitations_hardening). This file
--- is the reproducible, combined source of truth — apply it to a fresh Supabase
--- project's SQL editor (or via `supabase db push` / the `apply_migration` MCP
--- tool) to stand the app back up.
+-- space_invitations_visible_space_name, space_invitations_hardening,
+-- free_tier_space_limit). This file is the reproducible, combined source of
+-- truth — apply it to a fresh Supabase project's SQL editor (or via
+-- `supabase db push` / the `apply_migration` MCP tool) to stand the app back up.
 
 -- ============ profiles ============
 -- Supabase provisions an "extensions" schema in every project; pin pgcrypto there
@@ -18,7 +18,11 @@ create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   display_name text not null,
   palette int not null default 0,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  -- Lifts the free tier's one-owned-space limit (see create_space()). Still no
+  -- real payment processor behind this -- set by the tryout unlock_account() RPC,
+  -- same "preview" spirit as the rest of the unlock flow.
+  unlocked boolean not null default false
 );
 
 alter table public.profiles enable row level security;
@@ -223,7 +227,19 @@ as $$
 declare
   v_space_id uuid;
   v_display_name text;
+  v_owns_a_space boolean;
+  v_unlocked boolean;
 begin
+  -- Free tier: one owned space per account. Doesn't limit how many spaces you can
+  -- be a MEMBER of (joining someone else's space is always unrestricted, so the
+  -- core invite-your-friends loop never requires anyone to pay), only how many you
+  -- can personally create. `unlocked` lifts this once set (see unlock_account()).
+  select exists(select 1 from public.spaces where created_by = auth.uid()) into v_owns_a_space;
+  select coalesce(unlocked, false) into v_unlocked from public.profiles where id = auth.uid();
+  if v_owns_a_space and not v_unlocked then
+    raise exception 'free_space_limit';
+  end if;
+
   insert into public.spaces (name, currency, created_by) values (p_name, p_currency, auth.uid()) returning id into v_space_id;
 
   select display_name into v_display_name from public.profiles where id = auth.uid();
@@ -317,6 +333,22 @@ begin
   update public.space_invites set uses = uses + 1 where id = v_invite.id;
 
   return v_invite.space_id;
+end;
+$$;
+
+-- ============ RPC: unlock_account ============
+-- Lifts the free tier's one-owned-space limit for the caller. No real payment
+-- processor exists yet -- this is the same "tryout" preview as the rest of the
+-- unlock flow, just now backed by a real, persisted, enforced state instead of
+-- being purely cosmetic.
+create or replace function public.unlock_account()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.profiles set unlocked = true where id = auth.uid();
 end;
 $$;
 
@@ -686,16 +718,18 @@ alter publication supabase_realtime add table public.space_invitations;
 --     not be callable by anon.
 --   * handle_new_user is only ever invoked by the on_auth_user_created trigger, never
 --     called directly by a client role, so no role needs a direct EXECUTE grant on it.
---   * create_space / create_invite / redeem_invite are the app's own user-facing
---     RPCs and must stay callable by authenticated; anon must not be able to call
---     them. (respond_to_space_invitation is the same kind of RPC but isn't in this
---     from-public batch -- see the note by its own revoke statement below.)
+--   * create_space / create_invite / redeem_invite / unlock_account are the app's
+--     own user-facing RPCs and must stay callable by authenticated; anon must not
+--     be able to call them. (respond_to_space_invitation is the same kind of RPC
+--     but isn't in this from-public batch -- see the note by its own revoke
+--     statement below.)
 revoke execute on function public.is_space_member(uuid) from public;
 revoke execute on function public.is_space_owner(uuid) from public;
 revoke execute on function public.handle_new_user() from public;
 revoke execute on function public.create_space(text, text) from public;
 revoke execute on function public.create_invite(uuid, int, int) from public;
 revoke execute on function public.redeem_invite(text) from public;
+revoke execute on function public.unlock_account() from public;
 -- NOTE: this one is intentionally still "from anon" rather than "from public" like the
 -- others above -- it reflects what's ACTUALLY live right now (applied by an earlier,
 -- separate migration before the public-vs-anon distinction above was understood), not an
@@ -710,4 +744,5 @@ grant execute on function public.is_space_owner(uuid) to authenticated;
 grant execute on function public.create_space(text, text) to authenticated;
 grant execute on function public.create_invite(uuid, int, int) to authenticated;
 grant execute on function public.redeem_invite(text) to authenticated;
+grant execute on function public.unlock_account() to authenticated;
 grant execute on function public.respond_to_space_invitation(uuid, boolean) to authenticated;

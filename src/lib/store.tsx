@@ -106,6 +106,7 @@ type SpaceContextValue = {
   updateMyProfile: (displayName: string, palette: number) => Promise<void>;
   setMyActiveSince: (date: string) => Promise<void>;
   removeMember: (memberId: string) => Promise<void>;
+  unlockAccount: () => Promise<void>;
 
   signOut: () => Promise<void>;
 };
@@ -311,7 +312,11 @@ export function SpaceProvider({
     async (name: string, currency: string) => {
       const { data, error } = await supabase.rpc("create_space", { p_name: name, p_currency: currency });
       if (error || !data) {
-        showToast(t("toast_create_space_error"));
+        // NewSpaceModal already pre-checks the free-tier limit client-side before
+        // ever calling this, so a real user shouldn't normally hit this path --
+        // this is defense-in-depth (e.g. a race, or a future caller that skips
+        // the pre-check) rather than the primary way the limit gets surfaced.
+        showToast(error?.message === "free_space_limit" ? t("newspace_limit_toast") : t("toast_create_space_error"));
         return null;
       }
       await loadSpaces();
@@ -770,6 +775,15 @@ export function SpaceProvider({
     [supabase, userId, loadProfile]
   );
 
+  // Lifts the free tier's one-owned-space limit (see createSpace). No real payment
+  // processor exists yet -- this is the same tryout-preview spirit as the rest of
+  // the unlock flow, just now backed by a real, persisted, enforced flag.
+  const unlockAccount = useCallback(async () => {
+    const { error } = await supabase.rpc("unlock_account");
+    if (error) return;
+    await loadProfile();
+  }, [supabase, loadProfile]);
+
   const removeMember = useCallback(
     async (memberId: string) => {
       const target = members.find((m) => m.id === memberId);
@@ -848,6 +862,7 @@ export function SpaceProvider({
     updateMyProfile,
     setMyActiveSince,
     removeMember,
+    unlockAccount,
     signOut,
   };
 
