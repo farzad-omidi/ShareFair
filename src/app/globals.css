@@ -1,66 +1,95 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #f2e9db;
-  --bg2: #eaded0;
-  --ink: #201c17;
-  --muted: #8c8074;
-  --line: rgba(32, 28, 23, 0.12);
+  --bg: #b7ecd8;
+  --bg2: #a6e3cb;
+  --ink: #0f1d17;
+  --muted: #5c6e67;
+  --line: rgba(15, 29, 23, 0.12);
 
-  --paper: #f8f3e9;
+  --paper: #eaf9f1;
   --solid: #ffffff;
 
-  --surface: #221f19;
-  --surface2: #2b271f;
-  --on-surface: #f5efe3;
-  --on-surface-muted: #b3a898;
-  --on-accent: #fff8f2;
+  --surface: #0e1613;
+  --surface2: #182420;
+  --on-surface: #f4fcf8;
+  --on-surface-muted: rgba(244, 252, 248, 0.62);
+  /* text painted over a member-accent or decorative-glow fill, both of which
+     stay medium/dark-toned regardless of the mint chrome, so this stays light
+     rather than following --accent's own light/dark swing (see .primary and
+     .bottom-nav button.active, which use --on-surface/--ink instead, since
+     their fills genuinely are the light mint accent). */
+  --on-accent: #ffffff;
 
-  /* a warmer, less stark dark tone for selected chip/segment pills — --surface
-     itself stays reserved for the bottom nav and toast (kept as-is per
-     feedback), so a small selection pill doesn't read as jarring near-black
-     against the light page. */
-  --surface-soft: #4f4338;
+  /* a dark selection tone for chip/segment pills, distinct from --surface so
+     a small pill doesn't read as jarring near-black against the mint page */
+  --surface-soft: #22302a;
 
-  /* translucent + blurred bottom nav — same hue as --surface, softened */
-  --nav-bg: rgba(34, 31, 25, 0.82);
+  /* translucent + blurred bottom nav — now a white pill in light mode,
+     matching the reference's floating white chrome (was a dark pill) */
+  --nav-bg: rgba(255, 255, 255, 0.86);
+  --nav-fg: #0f1d17;
+  --nav-fg-muted: rgba(15, 29, 23, 0.52);
 
-  /* soft neumorphic "module" surface — the large content cards (entries, hero,
-     stats, debts). Distinguished from the page background by shadow, not by
-     switching to a dark fill, so big card-heavy screens don't read as dark. */
-  --module: #eee6d5;
-  --module2: #f6f1e6;
-  --module-shadow: 8px 8px 18px rgba(168, 138, 88, 0.22), -8px -8px 16px rgba(255, 255, 255, 0.75);
-  --module-shadow-inset: inset 5px 5px 12px rgba(168, 138, 88, 0.18),
-    inset -5px -5px 12px rgba(255, 255, 255, 0.7);
-  --placeholder-tint: rgba(32, 28, 23, 0.22);
-  --module-ghost-bg: rgba(32, 28, 23, 0.05);
-  --module-ghost-border: rgba(32, 28, 23, 0.12);
+  /* flat "module" surface — the large content cards (entries, hero, stats,
+     debts). A plain white panel + soft drop shadow, not a neumorphic dent. */
+  --module: #ffffff;
+  --module2: #eaf9f1;
+  --module-shadow: 0 10px 24px rgba(13, 43, 33, 0.1);
+  --module-shadow-inset: none;
+  --placeholder-tint: rgba(15, 29, 23, 0.28);
+  --module-ghost-bg: rgba(15, 29, 23, 0.05);
+  --module-ghost-border: rgba(15, 29, 23, 0.12);
 
-  --accent: #de5330;
-  --accent-dark: #b8401f;
-  --accent-soft: rgba(222, 83, 48, 0.12);
-  --accent-ring: rgba(222, 83, 48, 0.22);
+  --accent: #17c793;
+  --accent-dark: #0a7657;
+  --accent-soft: rgba(23, 199, 147, 0.14);
+  --accent-ring: rgba(23, 199, 147, 0.3);
+  /* --accent itself is too light for AA text contrast on a white card (it's
+     tuned to be a fill color, e.g. the bottom nav's active pill) -- flat text
+     (links, "add" affordances) uses this instead, which stays readable in
+     both modes since it flips light/dark opposite of --accent itself */
+  --accent-text: var(--accent-dark);
 
-  --green: #6f8f5c;
-  --green-dark: #56704a;
-  --green-bg: #e7ecdd;
-  --red: #b8402b;
-  --red-bg: #f5e4de;
-  --amber: #c98a3a;
+  /* secondary accent — used sparingly for a second quick-action/segment color
+     so not everything reads as mint-on-mint */
+  --accent2: #8b7cf6;
+  --accent2-dark: #6857d6;
+  --accent2-soft: rgba(139, 124, 246, 0.14);
+  --on-accent2: #ffffff;
 
-  /* "wet-on-wet" blends — Vrijschool/Waldorf watercolor painting lays color on
-     wet paper so hues bleed into one another rather than sitting as flat fill.
-     Used only on decorative/identity surfaces (never on money text, which stays
-     flat and legible). */
-  --wet-accent: radial-gradient(circle at 32% 28%, var(--accent) 0%, var(--accent-dark) 72%, var(--amber) 100%);
+  /* darkened from a brighter mint-green so money text (and white-on-green
+     buttons) clears 4.5:1 against white -- the pure-brand mint reads fine as
+     a fill/highlight but is too light to use as body-sized text color */
+  --green: #0f7d57;
+  --green-dark: #0b5f42;
+  --green-bg: #ddf6ec;
+  /* text painted on a --green fill (e.g. .primary.green) -- white here, but
+     dark mode's much brighter --green needs dark text instead, same reason
+     --primary-fg swaps */
+  --green-fg: #fff;
+  --red: #b03024;
+  --red-bg: #fbe4e2;
+  --amber: #e0a23b;
+
+  /* soft glows on decorative/identity surfaces only (never on money text,
+     which stays flat and legible) — purple for "needs attention", green for
+     "all settled", so the two hero states stay visually distinct */
+  --wet-accent: radial-gradient(circle at 32% 28%, var(--accent2) 0%, var(--accent2-dark) 100%);
   --wet-green: radial-gradient(circle at 32% 28%, var(--green) 0%, var(--green-dark) 100%);
 
-  --shadow: 0 10px 28px rgba(32, 24, 14, 0.08);
-  --shadow2: 0 6px 16px rgba(32, 24, 14, 0.06);
-  --r-lg: 24px;
-  --r-md: 16px;
-  --r-sm: 12px;
+  /* black pill CTA fill/text — kept as its own token pair (rather than hardcoded
+     inside .primary) so dark mode can swap it to a mint fill instead of a
+     near-black-on-near-black inversion, following the same pattern --accent
+     already uses to vary by mode without touching component rules */
+  --primary-bg: var(--surface);
+  --primary-fg: var(--on-surface);
+
+  --shadow: 0 20px 40px rgba(13, 43, 33, 0.14);
+  --shadow2: 0 10px 22px rgba(13, 43, 33, 0.09);
+  --r-lg: 28px;
+  --r-md: 18px;
+  --r-sm: 14px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-top: env(safe-area-inset-top, 0px);
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
@@ -75,42 +104,59 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #171310;
-    --bg2: #1e1a15;
-    --ink: #f1e9db;
-    --muted: #9c9080;
-    --line: rgba(241, 233, 219, 0.1);
+    --bg: #0a1613;
+    --bg2: #0f211b;
+    --ink: #eafbf3;
+    --muted: #8fa89d;
+    --line: rgba(234, 251, 243, 0.1);
 
-    --paper: #211d17;
-    --solid: #26221b;
+    --paper: #132420;
+    --solid: #16261f;
 
-    --surface: #100d0a;
-    --surface2: #1a1611;
-    --on-surface: #f1e9db;
-    --on-surface-muted: #93887a;
-    /* dark mode already reads dark everywhere, so no need to soften — keep
-       selection pills matching the bottom nav's tone */
-    --surface-soft: #100d0a;
-    --nav-bg: rgba(16, 13, 10, 0.82);
+    --surface: #060b09;
+    --surface2: #101a16;
+    --on-surface: #eafbf3;
+    --on-surface-muted: rgba(234, 251, 243, 0.6);
+    --surface-soft: #1c2b25;
+    --nav-bg: rgba(6, 11, 9, 0.82);
+    --nav-fg: #eafbf3;
+    --nav-fg-muted: rgba(234, 251, 243, 0.55);
 
-    --module: #1c1812;
-    --module2: #241f18;
-    --module-shadow: 8px 8px 18px rgba(0, 0, 0, 0.45), -6px -6px 14px rgba(255, 255, 255, 0.03);
-    --module-shadow-inset: inset 5px 5px 12px rgba(0, 0, 0, 0.5),
-      inset -5px -5px 10px rgba(255, 255, 255, 0.025);
-    --placeholder-tint: rgba(245, 239, 227, 0.24);
-    --module-ghost-bg: rgba(245, 239, 227, 0.1);
-    --module-ghost-border: rgba(245, 239, 227, 0.16);
+    --module: #142420;
+    --module2: #17281f;
+    --module-shadow: 0 12px 26px rgba(0, 0, 0, 0.45);
+    --module-shadow-inset: none;
+    --placeholder-tint: rgba(234, 251, 243, 0.24);
+    --module-ghost-bg: rgba(234, 251, 243, 0.08);
+    --module-ghost-border: rgba(234, 251, 243, 0.16);
 
-    --accent: #ec6540;
-    --accent-dark: #f3835f;
-    --accent-soft: rgba(236, 101, 64, 0.16);
-    --accent-ring: rgba(236, 101, 64, 0.28);
+    --accent: #2fe3ac;
+    --accent-dark: #1fb98a;
+    --accent-soft: rgba(47, 227, 172, 0.18);
+    --accent-ring: rgba(47, 227, 172, 0.32);
 
-    --green-bg: rgba(111, 143, 92, 0.16);
-    --red-bg: rgba(184, 64, 43, 0.18);
-    --shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
-    --shadow2: 0 8px 20px rgba(0, 0, 0, 0.32);
+    --accent2: #a296ff;
+    --accent2-dark: #8172e8;
+    --accent2-soft: rgba(162, 150, 255, 0.18);
+    --on-accent2: #0d0b1f;
+
+    /* the light-mode darkened green/red read as muddy/low-contrast against a
+       near-black card, so dark mode brightens them instead of reusing the
+       light-mode value (mirrors how --accent itself already brightens) */
+    --green: #2fe3ac;
+    --green-dark: #1fb98a;
+    --green-bg: rgba(47, 227, 172, 0.16);
+    --green-fg: var(--surface);
+    --red: #f0685f;
+    --red-bg: rgba(240, 104, 95, 0.18);
+    --accent-text: var(--accent);
+    --shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+    --shadow2: 0 10px 22px rgba(0, 0, 0, 0.4);
+
+    /* the black CTA pill has no pop against an already-near-black page, so
+       it swaps to a mint fill in dark mode instead of a straight inversion */
+    --primary-bg: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    --primary-fg: var(--surface);
   }
 }
 
@@ -170,9 +216,7 @@ button {
   right: auto;
   width: 320px;
   height: 320px;
-  /* an organic, slightly irregular blob rather than a perfect circle —
-     Vrijschool "form drawing" favors flowing, hand-drawn shapes over rulers */
-  border-radius: 58% 42% 63% 37% / 41% 55% 45% 59%;
+  border-radius: 50%;
   background: var(--wet-accent);
   animation: breathe 9s ease-in-out infinite;
   transform-origin: center;
@@ -239,16 +283,20 @@ button {
 }
 
 .card {
-  background: var(--paper);
+  background: var(--solid);
   border: 1px solid var(--line);
-  /* a touch of hand-drawn asymmetry instead of a perfectly ruled rectangle */
-  border-radius: 27px 23px 26px 22px;
+  border-radius: var(--r-lg);
   box-shadow: var(--shadow2);
   padding: 15px;
   margin: 11px 0;
   overflow: hidden;
   position: relative;
   z-index: 1;
+}
+/* a thin accent-colored outline for cards that compare two periods/values
+   side by side (e.g. this-month vs last-month spend) */
+.card.outline-accent {
+  border: 1.5px solid var(--accent-soft);
 }
 .card-title {
   display: flex;
@@ -312,7 +360,7 @@ button {
 }
 .link {
   font-weight: 800;
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 13px;
   padding: 5px;
   white-space: nowrap;
@@ -412,7 +460,7 @@ button {
   display: grid;
   place-content: center;
   text-align: center;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 .initial-circle {
   display: inline-flex;
@@ -523,7 +571,7 @@ button {
   transform: scale(1.04);
 }
 .chip.add {
-  color: var(--accent);
+  color: var(--accent-text);
   background: var(--accent-soft);
   border-color: transparent;
 }
@@ -584,16 +632,15 @@ button {
   gap: 8px;
   align-items: center;
   padding: 14px 16px;
-  border-radius: 28px 24px 26px 22px;
+  border-radius: var(--r-lg);
   background: var(--module2);
-  box-shadow: var(--module-shadow-inset);
-  border: 0;
+  border: 1.5px solid var(--line);
   margin-top: 13px;
 }
 .currency {
   font-size: 24px;
   font-weight: 800;
-  color: var(--member-accent, var(--accent));
+  color: var(--member-accent, var(--accent-text));
 }
 .amount {
   width: 100%;
@@ -612,15 +659,15 @@ button {
   color: var(--placeholder-tint);
 }
 .amount.credit {
-  color: #9bc27f;
+  color: var(--green);
 }
 
 .primary {
   width: 100%;
   padding: 12px 16px;
-  border-radius: var(--r-md);
-  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  color: var(--on-accent);
+  border-radius: 999px;
+  background: var(--primary-bg);
+  color: var(--primary-fg);
   font-size: 14.5px;
   font-weight: 800;
   transition: 0.15s;
@@ -637,6 +684,7 @@ button {
 }
 .primary.green {
   background: linear-gradient(135deg, var(--green), var(--green-dark));
+  color: var(--green-fg);
 }
 .ghost {
   padding: 10px 14px;
@@ -645,6 +693,40 @@ button {
   border: 1.5px solid var(--line);
   font-weight: 700;
   font-size: 13.5px;
+}
+
+/* colorful quick-action pills (icon + label), a few fill variants */
+.pill-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 800;
+  transition: transform 0.15s;
+}
+.pill-action:active {
+  transform: scale(0.95);
+}
+.pill-action.mint {
+  /* --surface is a near-black tone in both light and dark mode (see .primary),
+     which keeps this readable even as --accent itself brightens in dark mode */
+  background: var(--accent);
+  color: var(--surface);
+}
+.pill-action.pale {
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+}
+.pill-action.purple {
+  background: var(--accent2-soft);
+  color: var(--accent2-dark);
+}
+.pill-action.black {
+  background: var(--surface);
+  color: var(--on-surface);
 }
 /* A toggle needs to look pressed when it's on, not just say so in its label --
    text alone reads the same as any other idle button. */
@@ -719,7 +801,7 @@ button {
 .hero {
   position: relative;
   padding: 17px;
-  border-radius: 26px 30px 22px 28px;
+  border-radius: var(--r-lg);
   background: var(--module);
   color: var(--ink);
   box-shadow: var(--module-shadow);
@@ -732,7 +814,7 @@ button {
   bottom: -90px;
   width: 210px;
   height: 210px;
-  border-radius: 63% 37% 41% 59% / 55% 45% 63% 37%;
+  border-radius: 50%;
   background: var(--wet-accent);
   opacity: 0.22;
 }
@@ -758,7 +840,7 @@ button {
   flex-wrap: wrap;
 }
 .flow .arrow {
-  color: var(--member-accent, var(--accent));
+  color: var(--member-accent, var(--accent-text));
 }
 .big-money {
   font-family: var(--sans);
@@ -766,17 +848,46 @@ button {
   font-weight: 800;
   letter-spacing: -0.03em;
   margin: 8px 0 4px;
-  color: var(--member-accent, var(--accent));
+  color: var(--member-accent, var(--accent-text));
   font-variant-numeric: tabular-nums;
 }
 .big-money.zero {
-  color: #9bc27f;
+  color: var(--green);
 }
 .hero-text {
   font-size: 13px;
   line-height: 1.5;
   color: var(--muted);
   margin-bottom: 14px;
+}
+
+/* a single headline balance inside a soft glowing halo -- the "hero number"
+   moment for a settled/personal balance, distinct from the flat .hero card
+   used for a specific two-party flow */
+.balance-halo {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 4px;
+  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+}
+.balance-circle {
+  width: 172px;
+  height: 172px;
+  border-radius: 999px;
+  background: var(--solid);
+  box-shadow: var(--module-shadow);
+  display: grid;
+  place-items: center;
+  justify-items: center;
+  text-align: center;
+  padding: 14px;
+}
+.balance-circle .hero-label {
+  margin-bottom: 6px;
+}
+.balance-circle .big-money {
+  margin: 2px 0;
+  font-size: clamp(24px, 7.5vw, 32px);
 }
 
 .unlock-benefits {
@@ -945,7 +1056,7 @@ button {
 .entry-ico {
   width: 32px;
   height: 32px;
-  border-radius: 10px;
+  border-radius: 999px;
   display: grid;
   place-items: center;
   background: radial-gradient(circle at 32% 28%, var(--member-accent, var(--accent)) 0%, var(--member-dark, var(--accent-dark)) 100%);
@@ -976,7 +1087,7 @@ button {
   font-variant-numeric: tabular-nums;
 }
 .entry-amount.credit {
-  color: #9bc27f;
+  color: var(--green);
 }
 .entry-amount.settle {
   color: var(--muted);
@@ -1118,6 +1229,7 @@ button {
   gap: 8px;
   height: 150px;
   padding: 8px 2px 0;
+  background-image: repeating-linear-gradient(to top, var(--line) 0, var(--line) 1px, transparent 1px, transparent 28px);
 }
 .chart-col {
   flex: 1;
@@ -1140,9 +1252,17 @@ button {
   border-radius: 8px 8px 3px 3px;
   background: var(--line);
   transition: 0.4s;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column-reverse;
 }
 .chart-col.current .bar {
   background: var(--accent);
+}
+/* stacked category-color segments inside the current month's bar */
+.bar-segment {
+  width: 100%;
+  min-height: 2px;
 }
 .chart-col small {
   font-size: 10px;
@@ -1154,6 +1274,13 @@ button {
   font-weight: 800;
   color: var(--ink);
   opacity: 0.75;
+}
+.chart-col.current .val {
+  background: var(--surface);
+  color: var(--on-surface);
+  border-radius: 999px;
+  padding: 2px 8px;
+  opacity: 1;
 }
 
 .bottom-nav {
@@ -1179,7 +1306,7 @@ button {
   gap: 3px;
   padding: 9px 3px;
   border-radius: 999px;
-  color: var(--on-surface-muted);
+  color: var(--nav-fg-muted);
   font-size: 10.5px;
   font-weight: 700;
   transition:
@@ -1200,7 +1327,9 @@ button {
 }
 .bottom-nav button.active {
   background: var(--accent);
-  color: var(--on-accent);
+  /* dark text since --accent is a light mint fill, not the near-black chrome
+     .on-accent is normally paired with */
+  color: var(--surface);
   transform: scale(1.06);
 }
 /* A subtle bounce on the icon itself when its tab becomes active, distinct
@@ -1238,7 +1367,7 @@ button {
 .modal-bg {
   position: fixed;
   inset: 0;
-  background: rgba(20, 15, 10, 0.4);
+  background: rgba(6, 15, 12, 0.45);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -1247,9 +1376,9 @@ button {
 }
 .modal {
   width: min(100%, 500px);
-  background: var(--paper);
+  background: var(--solid);
   border: 1px solid var(--line);
-  border-radius: 28px 24px 24px 24px;
+  border-radius: var(--r-lg);
   padding: 16px 16px calc(16px + var(--safe-bottom));
   box-shadow: var(--shadow);
   max-height: 89vh;
@@ -1601,7 +1730,6 @@ button {
 @media (max-width: 370px) {
   .card {
     padding: 14px;
-    border-radius: 25px 21px 24px 20px;
   }
   .metric-grid,
   .grid2,

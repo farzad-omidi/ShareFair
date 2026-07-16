@@ -319,12 +319,20 @@ export function AddView() {
           </div>
         </div>
         {debts.length === 0 ? (
-          <div className="hero balanced">
-            <div className="hero-label">{t("balance_settle_label")}</div>
-            <div className="flow">{t("balance_all_square")}</div>
-            <div className="big-money zero">{money(0, activeSpace?.currency)}</div>
-            <div className="hero-text">{t("balance_settled_text", { month: monthName(selectedMonth) })}</div>
-          </div>
+          <>
+            <div className="balance-halo">
+              <div className="balance-circle">
+                <div className="hero-label">{t("balance_settle_label")}</div>
+                <div className="big-money zero">{money(0, activeSpace?.currency)}</div>
+              </div>
+            </div>
+            <div className="flow" style={{ justifyContent: "center", marginTop: 10 }}>
+              {t("balance_all_square")}
+            </div>
+            <p className="hero-text" style={{ textAlign: "center", marginTop: 4 }}>
+              {t("balance_settled_text", { month: monthName(selectedMonth) })}
+            </p>
+          </>
         ) : (
           <div className="hero">
             <div className="hero-label">{t("balance_settle_label")}</div>
@@ -341,7 +349,7 @@ export function AddView() {
                 profile?.id === debts[0].toId
                   ? { color: "var(--green)" }
                   : profile?.id === debts[0].fromId
-                    ? { color: "var(--accent-dark)" }
+                    ? { color: "var(--red)" }
                     : undefined
               }
             >

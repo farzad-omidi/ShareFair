@@ -1,6 +1,6 @@
 // Drawn from the app's own palette instead of generic rainbow confetti, so a
 // celebratory moment still looks like it belongs to ShareFair.
-const COLORS = ["#de5330", "#6f8f5c", "#d6a15e", "#6f95b8", "#9b7aa6", "#67a9a4", "#c98263"];
+const COLORS = ["#17c793", "#8b7cf6", "#17a673", "#e0a23b", "#6f95b8", "#67a9a4", "#d8483f"];
 
 export type ConfettiPiece = {
   id: number;

@@ -5,6 +5,7 @@ import { useSpace } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n/context";
 import { calcMonth, isHousing, monthName, round, signed } from "@/lib/domain";
 import { AnimatedMoney } from "@/components/AnimatedMoney";
+import { categoryPaletteFor } from "@/lib/palettes";
 
 export function InsightsView() {
   const { entries, members, categories, selectedMonth, activeSpace } = useSpace();
@@ -50,6 +51,16 @@ export function InsightsView() {
 
   const catEntries = Object.entries(byCat).sort((a, b) => Math.abs(b[1].total) - Math.abs(a[1].total));
 
+  // The current month's bar gets a category-colored breakdown instead of a flat
+  // fill, so its shape previews the same split shown in the by-category list below.
+  const currentMonthByCat = useMemo(
+    () => calcMonth(entries, memberIds, catsById, selectedMonth, { excludeHousing }).byCat,
+    [entries, memberIds, catsById, selectedMonth, excludeHousing]
+  );
+  const currentMonthSegments = Object.entries(currentMonthByCat)
+    .filter(([, d]) => Math.abs(d.total) > 0.005)
+    .sort((a, b) => Math.abs(b[1].total) - Math.abs(a[1].total));
+
   return (
     <>
       <div className="card">
@@ -72,15 +83,30 @@ export function InsightsView() {
             <div className="empty">{t("rhythm_empty")}</div>
           ) : (
             <div className="chart-bars">
-              {recent.map((x) => (
-                <div className={`chart-col${x.m === selectedMonth ? " current" : ""}`} key={x.m}>
-                  <span className="val">{Math.round(x.total)}</span>
-                  <div className="chart-track">
-                    <div className="bar" style={{ height: `${Math.max(3, (Math.abs(x.total) / max) * 100)}%` }}></div>
+              {recent.map((x) => {
+                const isCurrent = x.m === selectedMonth;
+                return (
+                  <div className={`chart-col${isCurrent ? " current" : ""}`} key={x.m}>
+                    <span className="val">{Math.round(x.total)}</span>
+                    <div className="chart-track">
+                      <div className="bar" style={{ height: `${Math.max(3, (Math.abs(x.total) / max) * 100)}%` }}>
+                        {isCurrent &&
+                          currentMonthSegments.map(([name, d]) => (
+                            <div
+                              key={name}
+                              className="bar-segment"
+                              style={{
+                                flexGrow: Math.abs(d.total),
+                                background: categoryPaletteFor(name).accent,
+                              }}
+                            />
+                          ))}
+                      </div>
+                    </div>
+                    <small>{monthName(x.m, true)}</small>
                   </div>
-                  <small>{monthName(x.m, true)}</small>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -127,9 +153,21 @@ export function InsightsView() {
         ) : (
           catEntries.map(([name, d]) => (
             <div className="row" key={name}>
-              <div>
-                <strong>{name}</strong>
-                <small>{t("bycategory_entries_note", { count: d.count })}</small>
+              <div className="member-name-line" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: 9,
+                    height: 9,
+                    borderRadius: 999,
+                    background: categoryPaletteFor(name).accent,
+                    flex: "none",
+                  }}
+                />
+                <div>
+                  <strong>{name}</strong>
+                  <small>{t("bycategory_entries_note", { count: d.count })}</small>
+                </div>
               </div>
               <strong>
                 <AnimatedMoney value={d.total / count} currency={activeSpace?.currency} />

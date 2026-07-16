@@ -61,7 +61,7 @@ export function MonthView() {
 
   return (
     <>
-      <div className="card">
+      <div className="card outline-accent">
         <div className="card-title">
           <div>
             <h2>{t("month_card_title")}</h2>
