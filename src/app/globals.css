@@ -1,69 +1,69 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #b7ecd8;
-  --bg2: #a6e3cb;
-  --ink: #0f1d17;
-  --muted: #5c6e67;
-  --line: rgba(15, 29, 23, 0.12);
+  --bg: #bfcaa8;
+  --bg2: #d9e1c9;
+  --ink: #1c1f1a;
+  --muted: #5e6857;
+  --line: rgba(28, 31, 26, 0.12);
 
-  --paper: #eaf9f1;
+  --paper: #e8ebdf;
   --solid: #ffffff;
 
-  --surface: #0e1613;
-  --surface2: #182420;
-  --on-surface: #f4fcf8;
-  --on-surface-muted: rgba(244, 252, 248, 0.62);
+  --surface: #131612;
+  --surface2: #1e2419;
+  --on-surface: #f3f5ef;
+  --on-surface-muted: rgba(243, 245, 239, 0.62);
   /* text painted over a member-accent or decorative-glow fill, both of which
-     stay medium/dark-toned regardless of the mint chrome, so this stays light
+     stay medium/dark-toned regardless of the sage chrome, so this stays light
      rather than following --accent's own light/dark swing (see .primary and
      .bottom-nav button.active, which use --on-surface/--ink instead, since
-     their fills genuinely are the light mint accent). */
+     their fills genuinely are the light sage accent). */
   --on-accent: #ffffff;
 
   /* a dark selection tone for chip/segment pills, distinct from --surface so
-     a small pill doesn't read as jarring near-black against the mint page */
-  --surface-soft: #22302a;
+     a small pill doesn't read as jarring near-black against the sage page */
+  --surface-soft: #23291f;
 
-  /* translucent + blurred bottom nav — now a white pill in light mode,
-     matching the reference's floating white chrome (was a dark pill) */
+  /* translucent + blurred bottom nav — a white pill in light mode, matching
+     the reference's floating white chrome (was a dark pill) */
   --nav-bg: rgba(255, 255, 255, 0.86);
-  --nav-fg: #0f1d17;
-  --nav-fg-muted: rgba(15, 29, 23, 0.52);
+  --nav-fg: #1c1f1a;
+  --nav-fg-muted: rgba(28, 31, 26, 0.52);
 
   /* flat "module" surface — the large content cards (entries, hero, stats,
      debts). A plain white panel + soft drop shadow, not a neumorphic dent. */
   --module: #ffffff;
-  --module2: #eaf9f1;
-  --module-shadow: 0 10px 24px rgba(13, 43, 33, 0.1);
+  --module2: #e8ebdf;
+  --module-shadow: 0 10px 24px rgba(20, 24, 18, 0.1);
   --module-shadow-inset: none;
-  --placeholder-tint: rgba(15, 29, 23, 0.28);
-  --module-ghost-bg: rgba(15, 29, 23, 0.05);
-  --module-ghost-border: rgba(15, 29, 23, 0.12);
+  --placeholder-tint: rgba(28, 31, 26, 0.28);
+  --module-ghost-bg: rgba(28, 31, 26, 0.05);
+  --module-ghost-border: rgba(28, 31, 26, 0.12);
 
-  --accent: #17c793;
-  --accent-dark: #0a7657;
-  --accent-soft: rgba(23, 199, 147, 0.14);
-  --accent-ring: rgba(23, 199, 147, 0.3);
+  --accent: #74af8f;
+  --accent-dark: #55766b;
+  --accent-soft: rgba(116, 175, 143, 0.14);
+  --accent-ring: rgba(116, 175, 143, 0.3);
   /* --accent itself is too light for AA text contrast on a white card (it's
      tuned to be a fill color, e.g. the bottom nav's active pill) -- flat text
      (links, "add" affordances) uses this instead, which stays readable in
      both modes since it flips light/dark opposite of --accent itself */
   --accent-text: var(--accent-dark);
 
-  /* secondary accent — used sparingly for a second quick-action/segment color
-     so not everything reads as mint-on-mint */
-  --accent2: #8b7cf6;
-  --accent2-dark: #6857d6;
-  --accent2-soft: rgba(139, 124, 246, 0.14);
+  /* secondary accent — a cooler, lighter teal from the same reference palette,
+     used sparingly for a second quick-action/segment color */
+  --accent2: #a6ccbd;
+  --accent2-dark: #4c7560;
+  --accent2-soft: rgba(166, 204, 189, 0.14);
   --on-accent2: #ffffff;
 
-  /* darkened from a brighter mint-green so money text (and white-on-green
-     buttons) clears 4.5:1 against white -- the pure-brand mint reads fine as
-     a fill/highlight but is too light to use as body-sized text color */
-  --green: #0f7d57;
-  --green-dark: #0b5f42;
-  --green-bg: #ddf6ec;
+  /* darkened from the reference palette's mid-tone teal so money text (and
+     white-on-green buttons) clears 4.5:1 against white -- the lighter swatch
+     reads fine as a fill/highlight but is too light for body-sized text */
+  --green: #527e68;
+  --green-dark: #416353;
+  --green-bg: #e1ede6;
   /* text painted on a --green fill (e.g. .primary.green) -- white here, but
      dark mode's much brighter --green needs dark text instead, same reason
      --primary-fg swaps */
@@ -85,8 +85,8 @@
   --primary-bg: var(--surface);
   --primary-fg: var(--on-surface);
 
-  --shadow: 0 20px 40px rgba(13, 43, 33, 0.14);
-  --shadow2: 0 10px 22px rgba(13, 43, 33, 0.09);
+  --shadow: 0 20px 40px rgba(20, 24, 18, 0.14);
+  --shadow2: 0 10px 22px rgba(20, 24, 18, 0.09);
   --r-lg: 28px;
   --r-md: 18px;
   --r-sm: 14px;
@@ -104,48 +104,48 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0a1613;
-    --bg2: #0f211b;
-    --ink: #eafbf3;
-    --muted: #8fa89d;
-    --line: rgba(234, 251, 243, 0.1);
+    --bg: #0d120e;
+    --bg2: #111710;
+    --ink: #eff3ec;
+    --muted: #9db0a2;
+    --line: rgba(239, 243, 236, 0.1);
 
-    --paper: #132420;
-    --solid: #16261f;
+    --paper: #17201a;
+    --solid: #1b241d;
 
-    --surface: #060b09;
-    --surface2: #101a16;
-    --on-surface: #eafbf3;
-    --on-surface-muted: rgba(234, 251, 243, 0.6);
-    --surface-soft: #1c2b25;
-    --nav-bg: rgba(6, 11, 9, 0.82);
-    --nav-fg: #eafbf3;
-    --nav-fg-muted: rgba(234, 251, 243, 0.55);
+    --surface: #0a0d09;
+    --surface2: #12160f;
+    --on-surface: #eff3ec;
+    --on-surface-muted: rgba(239, 243, 236, 0.6);
+    --surface-soft: #202b21;
+    --nav-bg: rgba(10, 13, 9, 0.82);
+    --nav-fg: #eff3ec;
+    --nav-fg-muted: rgba(239, 243, 236, 0.55);
 
-    --module: #142420;
-    --module2: #17281f;
+    --module: #17201a;
+    --module2: #1e281f;
     --module-shadow: 0 12px 26px rgba(0, 0, 0, 0.45);
     --module-shadow-inset: none;
-    --placeholder-tint: rgba(234, 251, 243, 0.24);
-    --module-ghost-bg: rgba(234, 251, 243, 0.08);
-    --module-ghost-border: rgba(234, 251, 243, 0.16);
+    --placeholder-tint: rgba(239, 243, 236, 0.24);
+    --module-ghost-bg: rgba(239, 243, 236, 0.08);
+    --module-ghost-border: rgba(239, 243, 236, 0.16);
 
-    --accent: #2fe3ac;
-    --accent-dark: #1fb98a;
-    --accent-soft: rgba(47, 227, 172, 0.18);
-    --accent-ring: rgba(47, 227, 172, 0.32);
+    --accent: #8cd2ad;
+    --accent-dark: #74af8f;
+    --accent-soft: rgba(140, 210, 173, 0.18);
+    --accent-ring: rgba(140, 210, 173, 0.32);
 
-    --accent2: #a296ff;
-    --accent2-dark: #8172e8;
-    --accent2-soft: rgba(162, 150, 255, 0.18);
-    --on-accent2: #0d0b1f;
+    --accent2: #a6ccbd;
+    --accent2-dark: #7ea195;
+    --accent2-soft: rgba(166, 204, 189, 0.18);
+    --on-accent2: #0d120e;
 
     /* the light-mode darkened green/red read as muddy/low-contrast against a
        near-black card, so dark mode brightens them instead of reusing the
        light-mode value (mirrors how --accent itself already brightens) */
-    --green: #2fe3ac;
-    --green-dark: #1fb98a;
-    --green-bg: rgba(47, 227, 172, 0.16);
+    --green: #8cd2ad;
+    --green-dark: #74af8f;
+    --green-bg: rgba(140, 210, 173, 0.16);
     --green-fg: var(--surface);
     --red: #f0685f;
     --red-bg: rgba(240, 104, 95, 0.18);
@@ -154,7 +154,8 @@
     --shadow2: 0 10px 22px rgba(0, 0, 0, 0.4);
 
     /* the black CTA pill has no pop against an already-near-black page, so
-       it swaps to a mint fill in dark mode instead of a straight inversion */
+       it swaps to a bright sage fill in dark mode instead of a straight
+       inversion */
     --primary-bg: linear-gradient(135deg, var(--accent), var(--accent-dark));
     --primary-fg: var(--surface);
   }
