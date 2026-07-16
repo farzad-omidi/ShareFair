@@ -53,3 +53,93 @@ export function memberVars(paletteIndex: number | null | undefined): CSSProperti
     ["--member-shadow" as string]: p.shadow,
   };
 }
+
+// ---- WCAG contrast helpers, used to keep a personalized accent legible no
+// matter which of the 8 member palettes someone picks (see personalAccentVars
+// below) ----
+
+function hexToRgb(hex: string): [number, number, number] {
+  const h = hex.replace("#", "");
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+
+function relativeLuminance(hex: string): number {
+  const channels = hexToRgb(hex).map((v) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+}
+
+function contrastRatio(hexA: string, hexB: string): number {
+  const a = relativeLuminance(hexA);
+  const b = relativeLuminance(hexB);
+  const hi = Math.max(a, b);
+  const lo = Math.min(a, b);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+function scale(hex: string, factor: number): string {
+  const clamp = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
+  const mix = (c: number) => (factor <= 1 ? c * factor : c + (255 - c) * (factor - 1));
+  return (
+    "#" +
+    hexToRgb(hex)
+      .map((c) => clamp(mix(c)).toString(16).padStart(2, "0"))
+      .join("")
+  );
+}
+
+// Nudges `hex` toward black (factor < 1) or white (factor > 1), a small step
+// at a time, until it clears `minRatio` against `against` -- same technique
+// used to hand-tune the sage palette's own text colors in globals.css, just
+// automated here since it has to work for whichever of the 8 palettes.
+function adjustForContrast(hex: string, against: string, minRatio: number, direction: "darken" | "lighten"): string {
+  let cur = hex;
+  let factor = 1;
+  for (let i = 0; i < 14 && contrastRatio(cur, against) < minRatio; i++) {
+    factor += direction === "darken" ? -0.08 : 0.12;
+    cur = scale(hex, direction === "darken" ? Math.max(factor, 0.08) : Math.min(factor, 2.6));
+  }
+  return cur;
+}
+
+function toRgba(hex: string, alpha: number): string {
+  const [r, g, b] = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// Approximate light/dark-mode --solid values from globals.css -- personal
+// accent text needs to clear contrast against the actual card surface it
+// sits on, and this runs outside CSS so it can't read the custom property
+// directly. Keep in sync by hand if globals.css's --solid ever changes.
+const CARD_BG_LIGHT = "#ffffff";
+const CARD_BG_DARK = "#1b241d";
+const DARK_TEXT = "#131612";
+const LIGHT_TEXT = "#f3f5ef";
+
+// Overrides the app-wide brand accent with whichever palette color the
+// current user picked as their own member color, so every accent-tied
+// button/link/highlight throughout the app matches their identity color --
+// while still guaranteeing WCAG-safe contrast, since the 8 palettes weren't
+// designed with this dual "fill vs. flat text" role in mind.
+export function personalAccentVars(paletteIndex: number | null | undefined, isDark: boolean): CSSProperties {
+  const p = paletteFor(paletteIndex);
+  const base = p.accent;
+  const cardBg = isDark ? CARD_BG_DARK : CARD_BG_LIGHT;
+  const accentText = adjustForContrast(p.dark, cardBg, 4.5, isDark ? "lighten" : "darken");
+  // whichever of dark-ink / near-white text reads better painted directly on
+  // the raw accent fill (bottom-nav active icon, quick-action pills, the
+  // primary CTA) -- independent of color-scheme, since --surface/--on-surface
+  // are themselves already dark/light in both modes (see .primary).
+  const fillFg = contrastRatio(base, DARK_TEXT) >= contrastRatio(base, LIGHT_TEXT) ? "var(--surface)" : "var(--on-surface)";
+  return {
+    ["--accent" as string]: base,
+    ["--accent-dark" as string]: accentText,
+    ["--accent-soft" as string]: toRgba(base, isDark ? 0.18 : 0.14),
+    ["--accent-ring" as string]: toRgba(base, isDark ? 0.32 : 0.3),
+    ["--accent-text" as string]: accentText,
+    ["--primary-bg" as string]: base,
+    ["--primary-fg" as string]: fillFg,
+  };
+}

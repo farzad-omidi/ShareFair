@@ -4,9 +4,10 @@
 -- harden_function_permissions, settlement_confirmation_flow, payment_requests,
 -- payer_can_edit_own_entries, member_active_since, space_invitations,
 -- space_invitations_visible_space_name, space_invitations_hardening,
--- free_tier_space_limit). This file is the reproducible, combined source of
--- truth — apply it to a fresh Supabase project's SQL editor (or via
--- `supabase db push` / the `apply_migration` MCP tool) to stand the app back up.
+-- free_tier_space_limit, space_owner_edit_permissions). This file is the
+-- reproducible, combined source of truth — apply it to a fresh Supabase
+-- project's SQL editor (or via `supabase db push` / the `apply_migration`
+-- MCP tool) to stand the app back up.
 
 -- ============ profiles ============
 -- Supabase provisions an "extensions" schema in every project; pin pgcrypto there
@@ -442,8 +443,10 @@ create policy spaces_select_invited on public.spaces for select
     )
   );
 
+-- owner-only: space-level settings (name, currency) are the owner's call,
+-- matching spaces_delete's existing scope
 create policy spaces_update on public.spaces for update
-  using (public.is_space_member(id));
+  using (public.is_space_owner(id));
 
 create policy spaces_delete on public.spaces for delete
   using (public.is_space_owner(id));
@@ -454,6 +457,12 @@ create policy space_members_select on public.space_members for select
 
 create policy space_members_update_self on public.space_members for update
   using (user_id = (select auth.uid()));
+
+-- lets the space owner edit another member's display_name/palette too (not
+-- just their own row) -- role/space_id/user_id stay immutable regardless of
+-- who updates, via the protect_space_membership_columns trigger below
+create policy space_members_update_owner on public.space_members for update
+  using (public.is_space_owner(space_id));
 
 create policy space_members_delete on public.space_members for delete
   using (user_id = (select auth.uid()) or public.is_space_owner(space_id));

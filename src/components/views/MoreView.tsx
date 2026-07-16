@@ -204,19 +204,24 @@ export function MoreView() {
                   <strong>{sp.name}</strong>
                   <small>{sp.currency}</small>
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
                   <button className="ghost" onClick={() => switchSpace(sp.id)}>
                     {sp.id === activeSpaceId ? t("spaces_active_btn") : t("spaces_open_btn")}
                   </button>
                   {sp.created_by === profile?.id && (
-                    <button
-                      className="ghost"
-                      onClick={() => {
-                        if (window.confirm(t("spaces_confirm_delete", { name: sp.name }))) deleteSpace(sp.id);
-                      }}
-                    >
-                      {t("action_delete")}
-                    </button>
+                    <>
+                      <button className="ghost" onClick={() => openModal({ type: "editSpace", spaceId: sp.id })}>
+                        {t("action_edit")}
+                      </button>
+                      <button
+                        className="ghost"
+                        onClick={() => {
+                          if (window.confirm(t("spaces_confirm_delete", { name: sp.name }))) deleteSpace(sp.id);
+                        }}
+                      >
+                        {t("action_delete")}
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
@@ -265,14 +270,19 @@ export function MoreView() {
                   </button>
                 ) : (
                   isOwner && (
-                    <button
-                      className="ghost"
-                      onClick={() => {
-                        if (window.confirm(t("more_confirm_remove_member", { name: m.display_name }))) removeMember(m.id);
-                      }}
-                    >
-                      {t("action_delete")}
-                    </button>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button className="ghost" onClick={() => openModal({ type: "editMember", memberId: m.id })}>
+                        {t("action_edit")}
+                      </button>
+                      <button
+                        className="ghost"
+                        onClick={() => {
+                          if (window.confirm(t("more_confirm_remove_member", { name: m.display_name }))) removeMember(m.id);
+                        }}
+                      >
+                        {t("action_delete")}
+                      </button>
+                    </div>
                   )
                 )}
               </div>

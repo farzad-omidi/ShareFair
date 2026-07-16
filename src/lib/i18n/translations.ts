@@ -352,6 +352,12 @@ const en = {
   month_confirm_clear: "Clear all transactions for {month}? This can't be undone.",
   entries_search_placeholder: "Search transactions…",
   entries_search_empty: "No transactions match your search.",
+  // Space editing / owner member-editing
+  editspace_title: "Edit space",
+  editspace_subtitle: "Update this space's name or currency.",
+  toast_update_space_error: "Couldn't update this space. Please try again.",
+  toast_space_updated: "Space updated",
+  member_modal_subtitle_owner_editing: "As the space owner, you can update {name}'s name and color.",
 };
 
 const es: Partial<Record<TranslationKey, string>> = {
@@ -672,6 +678,11 @@ const es: Partial<Record<TranslationKey, string>> = {
   month_confirm_clear: "¿Borrar todos los movimientos de {month}? No se puede deshacer.",
   entries_search_placeholder: "Buscar movimientos…",
   entries_search_empty: "Ningún movimiento coincide con tu búsqueda.",
+  editspace_title: "Editar espacio",
+  editspace_subtitle: "Actualiza el nombre o la moneda de este espacio.",
+  toast_update_space_error: "No se pudo actualizar este espacio. Inténtalo de nuevo.",
+  toast_space_updated: "Espacio actualizado",
+  member_modal_subtitle_owner_editing: "Como propietario del espacio, puedes actualizar el nombre y el color de {name}.",
 };
 
 const fr: Partial<Record<TranslationKey, string>> = {
@@ -992,6 +1003,11 @@ const fr: Partial<Record<TranslationKey, string>> = {
   month_confirm_clear: "Effacer tous les mouvements de {month} ? Cette action est irréversible.",
   entries_search_placeholder: "Rechercher un mouvement…",
   entries_search_empty: "Aucun mouvement ne correspond à ta recherche.",
+  editspace_title: "Modifier l'espace",
+  editspace_subtitle: "Mets à jour le nom ou la devise de cet espace.",
+  toast_update_space_error: "Impossible de mettre à jour cet espace. Réessaie.",
+  toast_space_updated: "Espace mis à jour",
+  member_modal_subtitle_owner_editing: "En tant que propriétaire de l'espace, tu peux modifier le nom et la couleur de {name}.",
 };
 
 const de: Partial<Record<TranslationKey, string>> = {
@@ -1312,6 +1328,11 @@ const de: Partial<Record<TranslationKey, string>> = {
   month_confirm_clear: "Alle Buchungen für {month} löschen? Das kann nicht rückgängig gemacht werden.",
   entries_search_placeholder: "Buchungen durchsuchen…",
   entries_search_empty: "Keine Buchungen passen zu deiner Suche.",
+  editspace_title: "Bereich bearbeiten",
+  editspace_subtitle: "Name oder Währung dieses Bereichs aktualisieren.",
+  toast_update_space_error: "Der Bereich konnte nicht aktualisiert werden. Bitte versuche es erneut.",
+  toast_space_updated: "Bereich aktualisiert",
+  member_modal_subtitle_owner_editing: "Als Besitzer dieses Bereichs kannst du den Namen und die Farbe von {name} ändern.",
 };
 
 const pt: Partial<Record<TranslationKey, string>> = {
@@ -1632,6 +1653,11 @@ const pt: Partial<Record<TranslationKey, string>> = {
   month_confirm_clear: "Apagar todos os lançamentos de {month}? Isso não pode ser desfeito.",
   entries_search_placeholder: "Buscar lançamentos…",
   entries_search_empty: "Nenhum lançamento corresponde à sua busca.",
+  editspace_title: "Editar espaço",
+  editspace_subtitle: "Atualize o nome ou a moeda deste espaço.",
+  toast_update_space_error: "Não foi possível atualizar este espaço. Tente novamente.",
+  toast_space_updated: "Espaço atualizado",
+  member_modal_subtitle_owner_editing: "Como dono do espaço, você pode atualizar o nome e a cor de {name}.",
 };
 
 const ru: Partial<Record<TranslationKey, string>> = {
@@ -1952,6 +1978,11 @@ const ru: Partial<Record<TranslationKey, string>> = {
   month_confirm_clear: "Удалить все операции за {month}? Это действие нельзя отменить.",
   entries_search_placeholder: "Поиск операций…",
   entries_search_empty: "Ничего не найдено по вашему запросу.",
+  editspace_title: "Изменить пространство",
+  editspace_subtitle: "Обновите название или валюту этого пространства.",
+  toast_update_space_error: "Не удалось обновить это пространство. Попробуйте ещё раз.",
+  toast_space_updated: "Пространство обновлено",
+  member_modal_subtitle_owner_editing: "Как владелец пространства вы можете изменить имя и цвет участника {name}.",
 };
 
 const zh: Partial<Record<TranslationKey, string>> = {
@@ -2272,6 +2303,11 @@ const zh: Partial<Record<TranslationKey, string>> = {
   month_confirm_clear: "清空 {month} 的所有交易记录？此操作无法撤销。",
   entries_search_placeholder: "搜索交易…",
   entries_search_empty: "没有符合搜索条件的交易。",
+  editspace_title: "编辑空间",
+  editspace_subtitle: "更新此空间的名称或货币。",
+  toast_update_space_error: "无法更新该空间，请重试。",
+  toast_space_updated: "空间已更新",
+  member_modal_subtitle_owner_editing: "作为空间所有者，你可以修改 {name} 的名称和颜色。",
 };
 
 const hi: Partial<Record<TranslationKey, string>> = {
@@ -2592,6 +2628,11 @@ const hi: Partial<Record<TranslationKey, string>> = {
   month_confirm_clear: "{month} के सभी लेन-देन साफ़ करें? इसे वापस नहीं लाया जा सकता।",
   entries_search_placeholder: "लेन-देन खोजें…",
   entries_search_empty: "आपकी खोज से मेल खाने वाला कोई लेन-देन नहीं मिला।",
+  editspace_title: "स्पेस संपादित करें",
+  editspace_subtitle: "इस स्पेस का नाम या मुद्रा अपडेट करें।",
+  toast_update_space_error: "यह स्पेस अपडेट नहीं हो सका। कृपया फिर कोशिश करें।",
+  toast_space_updated: "स्पेस अपडेट हो गया",
+  member_modal_subtitle_owner_editing: "स्पेस के मालिक के तौर पर, आप {name} का नाम और रंग बदल सकते हैं।",
 };
 
 const ar: Partial<Record<TranslationKey, string>> = {
@@ -2912,6 +2953,11 @@ const ar: Partial<Record<TranslationKey, string>> = {
   month_confirm_clear: "مسح كل معاملات {month}؟ لا يمكن التراجع عن هذا.",
   entries_search_placeholder: "ابحث في المعاملات…",
   entries_search_empty: "لا توجد معاملات مطابقة لبحثك.",
+  editspace_title: "تعديل المساحة",
+  editspace_subtitle: "حدّث اسم هذه المساحة أو عملتها.",
+  toast_update_space_error: "تعذّر تحديث هذه المساحة. حاول مرة أخرى.",
+  toast_space_updated: "تم تحديث المساحة",
+  member_modal_subtitle_owner_editing: "بصفتك مالك المساحة، يمكنك تعديل اسم {name} ولونه.",
 };
 
 const fa: Partial<Record<TranslationKey, string>> = {
@@ -3232,6 +3278,11 @@ const fa: Partial<Record<TranslationKey, string>> = {
   month_confirm_clear: "همه تراکنش‌های {month} پاک شوند؟ این کار قابل بازگشت نیست.",
   entries_search_placeholder: "جستجوی تراکنش‌ها…",
   entries_search_empty: "تراکنشی مطابق جستجوی شما پیدا نشد.",
+  editspace_title: "ویرایش فضا",
+  editspace_subtitle: "نام یا واحد پول این فضا را به‌روزرسانی کن.",
+  toast_update_space_error: "به‌روزرسانی این فضا ممکن نشد. دوباره امتحان کن.",
+  toast_space_updated: "فضا به‌روزرسانی شد",
+  member_modal_subtitle_owner_editing: "به‌عنوان مالک فضا، می‌توانی نام و رنگ {name} را تغییر دهی.",
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Partial<Record<TranslationKey, string>>> = {
