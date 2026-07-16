@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useSpace, type ImportRow } from "@/lib/store";
 import { useUI } from "@/lib/ui";
 import { useLanguage } from "@/lib/i18n/context";
@@ -41,12 +41,18 @@ export function MoreView() {
     signOut,
     myInvitations,
     respondToInvitation,
+    deleteSpace,
   } = useSpace();
   const { openModal } = useUI();
   const { t, language, setLanguage } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const myMember = members.find((m) => m.user_id === profile?.id);
   const isOwner = myMember?.role === "owner";
+  const [openSection, setOpenSection] = useState<"spaces" | "members" | "language" | null>("spaces");
+
+  function toggleSection(section: "spaces" | "members" | "language") {
+    setOpenSection((current) => (current === section ? null : section));
+  }
 
   function exportCsv() {
     const memberName = (id: string | null) => members.find((m) => m.user_id === id)?.display_name ?? "";
@@ -175,91 +181,133 @@ export function MoreView() {
       )}
 
       <div className="card">
-        <div className="card-title">
+        <button
+          type="button"
+          className="accordion-toggle card-title"
+          aria-expanded={openSection === "spaces"}
+          onClick={() => toggleSection("spaces")}
+        >
           <div>
             <h2>{t("spaces_card_title")}</h2>
             <p>{t("spaces_card_subtitle")}</p>
           </div>
-          <button className="link" onClick={() => openModal({ type: "newSpace" })}>
-            {t("spaces_new_btn")}
-          </button>
-        </div>
-        {spaces.map((sp) => (
-          <div className="row" key={sp.id}>
-            <div>
-              <strong>{sp.name}</strong>
-              <small>{sp.currency}</small>
-            </div>
-            <button className="ghost" onClick={() => switchSpace(sp.id)}>
-              {sp.id === activeSpaceId ? t("spaces_active_btn") : t("spaces_open_btn")}
+          <span className="accordion-chevron">⌄</span>
+        </button>
+        <div className={`accordion-body-wrap${openSection === "spaces" ? " open" : ""}`}>
+          <div className="accordion-body">
+            <button className="link" style={{ marginBottom: 12 }} onClick={() => openModal({ type: "newSpace" })}>
+              {t("spaces_new_btn")}
+            </button>
+            {spaces.map((sp) => (
+              <div className="row" key={sp.id}>
+                <div>
+                  <strong>{sp.name}</strong>
+                  <small>{sp.currency}</small>
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button className="ghost" onClick={() => switchSpace(sp.id)}>
+                    {sp.id === activeSpaceId ? t("spaces_active_btn") : t("spaces_open_btn")}
+                  </button>
+                  {sp.created_by === profile?.id && (
+                    <button
+                      className="ghost"
+                      onClick={() => {
+                        if (window.confirm(t("spaces_confirm_delete", { name: sp.name }))) deleteSpace(sp.id);
+                      }}
+                    >
+                      {t("action_delete")}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+            <button className="ghost" style={{ width: "100%", marginTop: 12 }} onClick={() => openModal({ type: "joinSpace" })}>
+              {t("spaces_join_code_btn")}
             </button>
           </div>
-        ))}
-        <button className="ghost" style={{ width: "100%", marginTop: 12 }} onClick={() => openModal({ type: "joinSpace" })}>
-          {t("spaces_join_code_btn")}
-        </button>
+        </div>
       </div>
 
       <div className="card">
-        <div className="card-title">
+        <button
+          type="button"
+          className="accordion-toggle card-title"
+          aria-expanded={openSection === "members"}
+          onClick={() => toggleSection("members")}
+        >
           <div>
             <h2>{t("members_card_title")}</h2>
             <p>{t("members_card_subtitle")}</p>
           </div>
-          <button className="link" onClick={() => openModal({ type: "invite" })}>
-            {t("members_invite_btn")}
-          </button>
-        </div>
-        {members.map((m) => (
-          <div className="row" key={m.id}>
-            <div className="member-name-line" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <MemberAvatar member={m} size={26} />
-              <div>
-                <strong>{m.display_name}</strong>
-                <small>
-                  {t("more_palette_suffix", { palette: paletteFor(m.palette).name })}
-                  {m.user_id === profile?.id ? t("more_you_suffix") : ""}
-                  {m.role === "owner" ? t("more_owner_suffix") : ""}
-                </small>
+          <span className="accordion-chevron">⌄</span>
+        </button>
+        <div className={`accordion-body-wrap${openSection === "members" ? " open" : ""}`}>
+          <div className="accordion-body">
+            <button className="link" style={{ marginBottom: 12 }} onClick={() => openModal({ type: "invite" })}>
+              {t("members_invite_btn")}
+            </button>
+            {members.map((m) => (
+              <div className="row" key={m.id}>
+                <div className="member-name-line" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <MemberAvatar member={m} size={26} />
+                  <div>
+                    <strong>{m.display_name}</strong>
+                    <small>
+                      {t("more_palette_suffix", { palette: paletteFor(m.palette).name })}
+                      {m.user_id === profile?.id ? t("more_you_suffix") : ""}
+                      {m.role === "owner" ? t("more_owner_suffix") : ""}
+                    </small>
+                  </div>
+                </div>
+                {m.user_id === profile?.id ? (
+                  <button className="ghost" onClick={() => openModal({ type: "editMember", memberId: m.id })}>
+                    {t("action_edit")}
+                  </button>
+                ) : (
+                  isOwner && (
+                    <button
+                      className="ghost"
+                      onClick={() => {
+                        if (window.confirm(t("more_confirm_remove_member", { name: m.display_name }))) removeMember(m.id);
+                      }}
+                    >
+                      {t("action_delete")}
+                    </button>
+                  )
+                )}
               </div>
-            </div>
-            {m.user_id === profile?.id ? (
-              <button className="ghost" onClick={() => openModal({ type: "editMember", memberId: m.id })}>
-                {t("action_edit")}
-              </button>
-            ) : (
-              isOwner && (
-                <button
-                  className="ghost"
-                  onClick={() => {
-                    if (window.confirm(t("more_confirm_remove_member", { name: m.display_name }))) removeMember(m.id);
-                  }}
-                >
-                  {t("action_delete")}
-                </button>
-              )
-            )}
+            ))}
           </div>
-        ))}
+        </div>
       </div>
 
       <div className="card">
-        <div className="card-title">
+        <button
+          type="button"
+          className="accordion-toggle card-title"
+          aria-expanded={openSection === "language"}
+          onClick={() => toggleSection("language")}
+        >
           <div>
             <h2>{t("language_card_title")}</h2>
             <p>{t("language_card_subtitle")}</p>
           </div>
-        </div>
-        <div className="chips">
-          {LANGUAGES.map((l) => (
-            <button
-              key={l.code}
-              className={`chip${language === l.code ? " active" : ""}`}
-              onClick={() => setLanguage(l.code)}
-            >
-              {l.label}
-            </button>
-          ))}
+          <span className="accordion-chevron">⌄</span>
+        </button>
+        <div className={`accordion-body-wrap${openSection === "language" ? " open" : ""}`}>
+          <div className="accordion-body">
+            <div className="chips">
+              {LANGUAGES.map((l) => (
+                <button
+                  key={l.code}
+                  className={`chip${language === l.code ? " active" : ""}`}
+                  onClick={() => setLanguage(l.code)}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

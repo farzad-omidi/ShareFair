@@ -69,6 +69,7 @@ type SpaceContextValue = {
   realtimeStatus: "connecting" | "live" | "offline";
 
   switchSpace: (id: string) => void;
+  deleteSpace: (spaceId: string) => Promise<void>;
   createSpace: (name: string, currency: string) => Promise<string | null>;
   joinSpaceByCode: (code: string) => Promise<{ ok: boolean; error?: string }>;
   createInvite: () => Promise<string | null>;
@@ -92,6 +93,7 @@ type SpaceContextValue = {
     }
   ) => Promise<void>;
   deleteEntry: (id: string) => Promise<void>;
+  clearMonth: (month: string) => Promise<void>;
   settle: (fromId: string, toId: string, amount: number) => Promise<void>;
   confirmSettlement: (id: string) => Promise<void>;
   declineSettlement: (id: string) => Promise<void>;
@@ -274,6 +276,34 @@ export function SpaceProvider({
       loadSpaceData(id);
     },
     [loadSpaceData]
+  );
+
+  // Permanently deletes a space and everything in it (members, categories,
+  // entries, invites) -- RLS restricts this to the space's owner, and every
+  // space_id foreign key cascades, so this one delete is enough server-side.
+  const deleteSpace = useCallback(
+    async (spaceId: string) => {
+      const { error } = await supabase.from("spaces").delete().eq("id", spaceId);
+      if (error) {
+        showToast(t("toast_delete_space_error"));
+        return;
+      }
+      const list = await loadSpaces();
+      if (spaceId === activeSpaceId) {
+        const next = list[0]?.id ?? null;
+        if (next) {
+          switchSpace(next);
+        } else {
+          setActiveSpaceId(null);
+          setMembers([]);
+          setCategories([]);
+          setEntries([]);
+          if (typeof window !== "undefined") localStorage.removeItem(ACTIVE_SPACE_STORAGE_KEY);
+        }
+      }
+      showToast(t("toast_space_deleted"));
+    },
+    [supabase, activeSpaceId, loadSpaces, switchSpace, showToast, t]
   );
 
   // realtime subscription for the active space
@@ -497,6 +527,25 @@ export function SpaceProvider({
         return;
       }
       if (activeSpaceId) loadSpaceData(activeSpaceId);
+    },
+    [supabase, activeSpaceId, loadSpaceData, showToast, t]
+  );
+
+  // Bulk-deletes every entry in a given month at once. RLS's entries_delete
+  // policy still applies per row -- the space owner clears everyone's, a
+  // regular member's request only actually removes the ones they were already
+  // allowed to delete individually, silently leaving the rest untouched rather
+  // than erroring.
+  const clearMonth = useCallback(
+    async (month: string) => {
+      if (!activeSpaceId) return;
+      const { error } = await supabase.from("entries").delete().eq("space_id", activeSpaceId).eq("month", month);
+      if (error) {
+        showToast(t("toast_clear_month_error"));
+        return;
+      }
+      loadSpaceData(activeSpaceId);
+      showToast(t("toast_month_cleared"));
     },
     [supabase, activeSpaceId, loadSpaceData, showToast, t]
   );
@@ -840,6 +889,7 @@ export function SpaceProvider({
     celebration,
     realtimeStatus,
     switchSpace,
+    deleteSpace,
     createSpace,
     joinSpaceByCode,
     createInvite,
@@ -850,6 +900,7 @@ export function SpaceProvider({
     addEntry,
     updateEntry,
     deleteEntry,
+    clearMonth,
     settle,
     confirmSettlement,
     declineSettlement,
