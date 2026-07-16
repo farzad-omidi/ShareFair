@@ -18,7 +18,7 @@ const EPSILON = 0.005;
 // for avatars, where "who" — not "which way" — is the question.
 function balanceColor(v: number): string | undefined {
   if (v > EPSILON) return "var(--green)";
-  if (v < -EPSILON) return "var(--accent-dark)";
+  if (v < -EPSILON) return "var(--red)";
   return undefined;
 }
 
@@ -40,6 +40,7 @@ export function SettleView() {
   const { t } = useLanguage();
   const [settlingKey, setSettlingKey] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [hideBalance, setHideBalance] = useState(false);
 
   const catsById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
   const memberIds = useMemo(() => members.map((m) => m.user_id), [members]);
@@ -105,8 +106,29 @@ export function SettleView() {
     setBusyId(null);
   }
 
+  const myBalance = profile ? balances[profile.id] || 0 : 0;
+
   return (
     <>
+      {profile && (
+        <div className="card" style={{ textAlign: "center" }}>
+          <div className="balance-halo">
+            <div className="balance-circle">
+              <div className="hero-label">{t("balance_card_title")}</div>
+              <div
+                className={`big-money${Math.abs(myBalance) < EPSILON ? " zero" : ""}`}
+                style={balanceColor(myBalance) ? { color: balanceColor(myBalance) } : undefined}
+              >
+                {hideBalance ? "••••" : <AnimatedMoney value={myBalance} currency={activeSpace?.currency} />}
+              </div>
+              <button className="link" onClick={() => setHideBalance((h) => !h)}>
+                {hideBalance ? t("category_action_show") : t("category_action_hide")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="card">
         <div className="card-title">
           <div>
@@ -124,7 +146,7 @@ export function SettleView() {
             // debt — if it doesn't involve them, it stays neutral rather than
             // implying a direction that isn't theirs.
             const amtColor =
-              profile?.id === d.toId ? "var(--green)" : profile?.id === d.fromId ? "var(--accent-dark)" : undefined;
+              profile?.id === d.toId ? "var(--green)" : profile?.id === d.fromId ? "var(--red)" : undefined;
             return (
               <div className={`debt-row${settling ? " settling" : ""}`} key={key}>
                 <div className="top">
@@ -265,7 +287,7 @@ export function SettleView() {
         )}
       </div>
 
-      <div className="card">
+      <div className="card outline-accent">
         <div className="card-title">
           <div>
             <h2>{t("why_card_title")}</h2>

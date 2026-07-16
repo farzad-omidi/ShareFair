@@ -27,6 +27,20 @@ export function paletteFor(index: number | null | undefined): Palette {
   return PALETTES[((i % PALETTES.length) + PALETTES.length) % PALETTES.length];
 }
 
+// A simple deterministic string hash so the same category name always lands
+// on the same palette slot -- categories have no color field of their own, so
+// this is the visual substitute (stable across reloads/devices without a
+// migration).
+export function hashIndex(s: string, mod: number): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h % mod;
+}
+
+export function categoryPaletteFor(name: string): Palette {
+  return PALETTES[hashIndex(name, PALETTES.length)];
+}
+
 export function memberVars(paletteIndex: number | null | undefined): CSSProperties {
   const p = paletteFor(paletteIndex);
   return {
