@@ -11,6 +11,11 @@ import {
   calcThrough,
   calcMonth,
   simplify,
+  addDays,
+  addMonths,
+  addYears,
+  weekStart,
+  calcByPeriod,
 } from "./domain";
 import type { EntryRow, Category } from "@/lib/types";
 
@@ -492,5 +497,93 @@ describe("simplify", () => {
     expect(receivedBy.D).toBe(25);
     // Never more payments than the classic min-cash-flow upper bound.
     expect(debts.length).toBeLessThanOrEqual(3);
+  });
+});
+
+describe("addDays", () => {
+  it("adds and subtracts days, rolling over month/year boundaries", () => {
+    expect(addDays("2026-07-16", 5)).toBe("2026-07-21");
+    expect(addDays("2026-07-16", -20)).toBe("2026-06-26");
+    expect(addDays("2026-12-30", 5)).toBe("2027-01-04");
+  });
+});
+
+describe("addMonths", () => {
+  it("adds and subtracts whole months", () => {
+    expect(addMonths("2026-07-16", 1)).toBe("2026-08-16");
+    expect(addMonths("2026-07-16", -1)).toBe("2026-06-16");
+    expect(addMonths("2026-12-15", 1)).toBe("2027-01-15");
+  });
+
+  it("rolls over into the next month when the day doesn't exist in the target month (native Date overflow semantics)", () => {
+    expect(addMonths("2026-01-31", 1)).toBe("2026-03-03");
+  });
+});
+
+describe("addYears", () => {
+  it("adds a year", () => {
+    expect(addYears("2026-07-16", 1)).toBe("2027-07-16");
+  });
+
+  it("rolls Feb 29 over to Mar 1 in a non-leap target year", () => {
+    expect(addYears("2028-02-29", 1)).toBe("2029-03-01");
+  });
+});
+
+describe("weekStart", () => {
+  it("returns the same date when it's already a Monday", () => {
+    expect(weekStart("2026-07-13")).toBe("2026-07-13"); // a Monday
+  });
+
+  it("finds the preceding Monday for a mid-week date", () => {
+    expect(weekStart("2026-07-16")).toBe("2026-07-13"); // Thursday -> that week's Monday
+  });
+
+  it("handles Sunday correctly (belongs to the week that just ended, not the next one)", () => {
+    expect(weekStart("2026-07-19")).toBe("2026-07-13"); // Sunday -> Monday 3 days earlier, not +1
+  });
+});
+
+describe("calcByPeriod", () => {
+  const housing = makeCategory({ id: "house", name: "Rent", grp: "housing" });
+  const daily = makeCategory({ id: "food", name: "Groceries", grp: "daily" });
+  const catsById = new Map([
+    [housing.id, housing],
+    [daily.id, daily],
+  ]);
+
+  it("splits totals into housing vs. other per period key", () => {
+    const entries = [
+      makeEntry({ amount: 1000, category_id: "house", month: "2026-07" }),
+      makeEntry({ amount: 40, category_id: "food", month: "2026-07" }),
+      makeEntry({ amount: 60, category_id: "food", month: "2026-08" }),
+    ];
+    const result = calcByPeriod(entries, catsById, (e) => e.month);
+    expect(result["2026-07"]).toEqual({ total: 1040, housing: 1000, other: 40 });
+    expect(result["2026-08"]).toEqual({ total: 60, housing: 0, other: 60 });
+  });
+
+  it("credits subtract from their period's total (signed amount, not treated as housing/other-neutral)", () => {
+    const entries = [
+      makeEntry({ kind: "expense", amount: 100, category_id: "food", month: "2026-07" }),
+      makeEntry({ kind: "credit", amount: 30, category_id: "food", month: "2026-07" }),
+    ];
+    const result = calcByPeriod(entries, catsById, (e) => e.month);
+    expect(result["2026-07"]).toEqual({ total: 70, housing: 0, other: 70 });
+  });
+
+  it("excludes settlements and requests entirely", () => {
+    const entries = [
+      makeEntry({ kind: "settlement", amount: 500, category_id: null, month: "2026-07" }),
+      makeEntry({ kind: "request", amount: 500, category_id: null, month: "2026-07" }),
+    ];
+    const result = calcByPeriod(entries, catsById, (e) => e.month);
+    expect(result["2026-07"]).toBeUndefined();
+  });
+
+  it("treats a missing/uncategorized entry as 'other'", () => {
+    const entries = [makeEntry({ amount: 25, category_id: null, month: "2026-07" })];
+    const result = calcByPeriod(entries, catsById, (e) => e.month);
+    expect(result["2026-07"]).toEqual({ total: 25, housing: 0, other: 25 });
   });
 });

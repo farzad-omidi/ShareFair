@@ -376,6 +376,13 @@ button {
   background: var(--paper);
   border: 1px solid var(--line);
 }
+.segment.segment-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+.segment.segment-4 button {
+  padding: 9px 4px;
+  font-size: 12.5px;
+}
 .segment button {
   padding: 9px 8px;
   border-radius: 999px;
@@ -1224,13 +1231,30 @@ button {
   white-space: nowrap;
 }
 
+.chart-wrap {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+}
+.chart-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px 0 26px;
+  font-size: 10px;
+  color: var(--muted);
+  text-align: right;
+  white-space: nowrap;
+  flex: none;
+}
 .chart-bars {
   display: flex;
   align-items: flex-end;
   gap: 8px;
   height: 150px;
   padding: 8px 2px 0;
-  background-image: repeating-linear-gradient(to top, var(--line) 0, var(--line) 1px, transparent 1px, transparent 28px);
+  flex: 1;
+  min-width: 0;
 }
 .chart-col {
   flex: 1;
@@ -1257,24 +1281,35 @@ button {
   display: flex;
   flex-direction: column-reverse;
 }
-.chart-col.current .bar {
-  background: var(--accent);
-}
-/* stacked category-color segments inside the current month's bar */
+/* two-tone stack: "other" spending as the base, housing on top -- shown on
+   every bar, not just the current one, so the split is visible at a glance */
 .bar-segment {
   width: 100%;
   min-height: 2px;
+  background: var(--accent);
+}
+.bar-segment.housing {
+  background: var(--accent-dark);
 }
 .chart-col small {
   font-size: 10px;
   color: var(--muted);
   white-space: nowrap;
 }
+/* the current period's x-axis label becomes a filled pill instead of plain text */
+.chart-col.current small {
+  background: var(--surface);
+  color: var(--on-surface);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-weight: 800;
+}
 .chart-col .val {
   font-size: 10px;
   font-weight: 800;
   color: var(--ink);
   opacity: 0.75;
+  min-height: 13px;
 }
 .chart-col.current .val {
   background: var(--surface);
@@ -1282,6 +1317,41 @@ button {
   border-radius: 999px;
   padding: 2px 8px;
   opacity: 1;
+}
+
+.rhythm-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.rhythm-nav-btn {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  padding: 0;
+  border-radius: 999px;
+  flex: none;
+}
+.rhythm-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.rhythm-legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--accent);
+  flex: none;
+}
+.rhythm-legend-dot.housing {
+  background: var(--accent-dark);
 }
 
 .bottom-nav {

@@ -31,6 +31,29 @@ export function symbol(currency: string): string {
   return CURRENCIES.find((c) => c.code === currency)?.symbol || currency;
 }
 
+const compactFmtCache: Record<string, Intl.NumberFormat> = {};
+
+// A whole-number variant of money() for space-constrained labels (chart
+// callouts, axis ticks) where "$1,067.50" would overflow a ~30px column but
+// "$1,068" fits -- same narrowSymbol/locale formatting, just no cents.
+export function moneyCompact(v: number, currency = "EUR"): string {
+  const amount = Math.abs(v) < 0.5 ? 0 : v;
+  if (currency === "IRT") return money(v, currency);
+  if (!compactFmtCache[currency]) {
+    try {
+      compactFmtCache[currency] = new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency,
+        currencyDisplay: "narrowSymbol",
+        maximumFractionDigits: 0,
+      });
+    } catch {
+      compactFmtCache[currency] = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
+    }
+  }
+  return compactFmtCache[currency].format(amount);
+}
+
 // Parses a human-typed amount string into a number, tolerating both US-style
 // (1,234.56) and European-style (1.234,56) thousands/decimal separators.
 //
