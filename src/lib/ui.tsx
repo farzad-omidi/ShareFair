@@ -8,6 +8,7 @@ export type ModalState =
   | { type: "categoryManager" }
   | { type: "editMember"; memberId: string }
   | { type: "newSpace" }
+  | { type: "editSpace"; spaceId: string }
   | { type: "invite" }
   | { type: "joinSpace" }
   | { type: "editEntry"; entryId: string }

@@ -107,8 +107,15 @@ type SpaceContextValue = {
   updateMyMembership: (displayName: string, palette: number) => Promise<void>;
   updateMyProfile: (displayName: string, palette: number) => Promise<void>;
   setMyActiveSince: (date: string) => Promise<void>;
+  // Owner-only in practice (enforced by RLS, not just the UI gate that calls
+  // these): lets the space owner correct another member's name/color/join
+  // date, distinct from updateMyMembership/setMyActiveSince which always
+  // target the caller's own row.
+  updateMember: (memberId: string, displayName: string, palette: number) => Promise<void>;
+  setMemberActiveSince: (memberId: string, date: string) => Promise<void>;
   removeMember: (memberId: string) => Promise<void>;
   unlockAccount: () => Promise<void>;
+  updateSpace: (spaceId: string, patch: { name?: string; currency?: string }) => Promise<void>;
 
   signOut: () => Promise<void>;
 };
@@ -358,6 +365,19 @@ export function SpaceProvider({
       return data;
     },
     [supabase, loadSpaces, switchSpace, showToast, t]
+  );
+
+  const updateSpace = useCallback(
+    async (spaceId: string, patch: { name?: string; currency?: string }) => {
+      const { error } = await supabase.from("spaces").update(patch).eq("id", spaceId);
+      if (error) {
+        showToast(t("toast_update_space_error"));
+        return;
+      }
+      await loadSpaces();
+      showToast(t("toast_space_updated"));
+    },
+    [supabase, loadSpaces, showToast, t]
   );
 
   const joinSpaceByCode = useCallback(
@@ -812,6 +832,33 @@ export function SpaceProvider({
     [supabase, members, userId, activeSpaceId, loadSpaceData, showToast, t]
   );
 
+  const updateMember = useCallback(
+    async (memberId: string, displayName: string, palette: number) => {
+      const { error } = await supabase
+        .from("space_members")
+        .update({ display_name: displayName, palette })
+        .eq("id", memberId);
+      if (error) {
+        showToast(t("toast_update_membership_error"));
+        return;
+      }
+      if (activeSpaceId) loadSpaceData(activeSpaceId);
+    },
+    [supabase, activeSpaceId, loadSpaceData, showToast, t]
+  );
+
+  const setMemberActiveSince = useCallback(
+    async (memberId: string, date: string) => {
+      const { error } = await supabase.from("space_members").update({ active_since: date }).eq("id", memberId);
+      if (error) {
+        showToast(t("toast_set_active_since_error"));
+        return;
+      }
+      if (activeSpaceId) loadSpaceData(activeSpaceId);
+    },
+    [supabase, activeSpaceId, loadSpaceData, showToast, t]
+  );
+
   const updateMyProfile = useCallback(
     async (displayName: string, palette: number) => {
       const { error } = await supabase
@@ -912,8 +959,11 @@ export function SpaceProvider({
     updateMyMembership,
     updateMyProfile,
     setMyActiveSince,
+    updateMember,
+    setMemberActiveSince,
     removeMember,
     unlockAccount,
+    updateSpace,
     signOut,
   };
 

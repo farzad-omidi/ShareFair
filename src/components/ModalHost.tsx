@@ -27,6 +27,8 @@ export function ModalHost() {
       return <EditMemberModal memberId={modal.memberId} onClose={closeModal} />;
     case "newSpace":
       return <NewSpaceModal onClose={closeModal} />;
+    case "editSpace":
+      return <EditSpaceModal spaceId={modal.spaceId} onClose={closeModal} />;
     case "invite":
       return <InviteModal onClose={closeModal} />;
     case "joinSpace":
@@ -317,10 +319,16 @@ function CategoryManagerModal({ onClose }: { onClose: () => void }) {
 }
 
 function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () => void }) {
-  const { members, updateMyMembership, setMyActiveSince, profile } = useSpace();
+  const { members, updateMyMembership, setMyActiveSince, updateMember, setMemberActiveSince, profile } = useSpace();
   const { t } = useLanguage();
   const m = members.find((x) => x.id === memberId);
-  const canEdit = !!m && !!profile && m.user_id === profile.id;
+  const isSelf = !!m && !!profile && m.user_id === profile.id;
+  const myMember = members.find((x) => x.user_id === profile?.id);
+  const isOwner = myMember?.role === "owner";
+  // The owner can also edit someone else's name/color (enforced server-side by
+  // the space_members_update_owner RLS policy, not just this UI gate) --
+  // distinct from a non-owner viewing another member, which stays read-only.
+  const canEdit = isSelf || isOwner;
   const [name, setName] = useState(m?.display_name || "");
   const [palette, setPalette] = useState(m?.palette ?? 0);
   const [activeSince, setActiveSince] = useState(m?.active_since || today());
@@ -329,11 +337,13 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
 
   return (
     <ModalSheet onClose={onClose}>
-      <h3>{canEdit ? t("member_modal_your_profile") : m.display_name}</h3>
+      <h3>{isSelf ? t("member_modal_your_profile") : m.display_name}</h3>
       <p className="sub">
-        {canEdit
+        {isSelf
           ? t("member_modal_subtitle_self")
-          : t("member_modal_subtitle_other", { name: m.display_name })}
+          : isOwner
+            ? t("member_modal_subtitle_owner_editing", { name: m.display_name })
+            : t("member_modal_subtitle_other", { name: m.display_name })}
       </p>
       {canEdit ? (
         <>
@@ -377,8 +387,13 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
               onClick={async () => {
                 const trimmed = name.trim();
                 if (!trimmed) return;
-                await updateMyMembership(trimmed, palette);
-                if (activeSince !== m.active_since) await setMyActiveSince(activeSince);
+                if (isSelf) {
+                  await updateMyMembership(trimmed, palette);
+                  if (activeSince !== m.active_since) await setMyActiveSince(activeSince);
+                } else {
+                  await updateMember(m.id, trimmed, palette);
+                  if (activeSince !== m.active_since) await setMemberActiveSince(m.id, activeSince);
+                }
                 onClose();
               }}
             >
@@ -548,6 +563,55 @@ function NewSpaceModal({ onClose }: { onClose: () => void }) {
         </button>
         <button className="primary" disabled={busy || !name.trim()} onClick={handleCreate}>
           {busy ? t("newspace_creating_btn") : t("newspace_create_btn")}
+        </button>
+      </div>
+    </ModalSheet>
+  );
+}
+
+function EditSpaceModal({ spaceId, onClose }: { spaceId: string; onClose: () => void }) {
+  const { spaces, updateSpace } = useSpace();
+  const { t } = useLanguage();
+  const sp = spaces.find((s) => s.id === spaceId);
+  const [name, setName] = useState(sp?.name || "");
+  const [currency, setCurrency] = useState(sp?.currency || "EUR");
+  const [busy, setBusy] = useState(false);
+
+  if (!sp) return null;
+
+  async function handleSave() {
+    const trimmed = name.trim();
+    if (!trimmed || busy) return;
+    setBusy(true);
+    await updateSpace(spaceId, { name: trimmed, currency });
+    setBusy(false);
+    onClose();
+  }
+
+  return (
+    <ModalSheet onClose={onClose}>
+      <h3>{t("editspace_title")}</h3>
+      <p className="sub">{t("editspace_subtitle")}</p>
+      <div className="field">
+        <label>{t("field_name")}</label>
+        <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
+      </div>
+      <div className="field">
+        <label>{t("field_currency")}</label>
+        <select className="select" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+          {CURRENCIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.symbol} {c.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="modal-actions">
+        <button className="ghost" disabled={busy} onClick={onClose}>
+          {t("action_cancel")}
+        </button>
+        <button className="primary" disabled={busy || !name.trim()} onClick={handleSave}>
+          {t("action_save")}
         </button>
       </div>
     </ModalSheet>
