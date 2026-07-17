@@ -151,9 +151,9 @@ export function InsightsView() {
   const [granularity, setGranularity] = useState<Granularity>("month");
   const [anchor, setAnchor] = useState(today());
   // Which stacked-bar segments are toggled off -- clicking a legend chip
-  // dims that category out of every bar instead of hiding it entirely, so the
-  // bar's total height still reads as the period's real total spend rather
-  // than silently rescaling to just the remaining segment.
+  // excludes that category from every bar (the total, the bar height, and
+  // the y-axis scale all recompute around what's left), the same "exclude
+  // housing" idea Month view's own filter already applies to its total.
   const [hiddenSegments, setHiddenSegments] = useState<Set<ChartSegment>>(new Set());
   const toggleSegment = (seg: ChartSegment) =>
     setHiddenSegments((prev) => {
@@ -195,7 +195,17 @@ export function InsightsView() {
   const plan = useMemo(() => buildPeriodPlan(granularity, anchor, entries), [granularity, anchor, entries]);
   const byPeriod = useMemo(() => calcByPeriod(entries, catsById, plan.periodOf), [entries, catsById, plan]);
   const hasAnyData = plan.keys.some((k) => byPeriod[k] && Math.abs(byPeriod[k].total) > 0.005);
-  const maxTotal = Math.max(1, ...plan.keys.map((k) => Math.abs(byPeriod[k]?.total || 0)));
+  // A hidden segment doesn't just dim -- it's subtracted out of the total,
+  // the bar height, and (via maxTotal below) the y-axis scale, so toggling
+  // "Rent" off actually shows what's left, not a visually-faded version of
+  // the same unchanged number.
+  const visibleTotal = (k: string): number => {
+    const d = byPeriod[k] || { total: 0, housing: 0, other: 0 };
+    const housing = hiddenSegments.has("housing") ? 0 : d.housing;
+    const other = hiddenSegments.has("other") ? 0 : d.other;
+    return round(housing + other);
+  };
+  const maxTotal = Math.max(1, ...plan.keys.map((k) => Math.abs(visibleTotal(k))));
   const ticks = niceTicks(maxTotal);
   const maxTick = ticks[ticks.length - 1] || 1;
 
@@ -264,20 +274,21 @@ export function InsightsView() {
             >
               {plan.keys.map((k) => {
                 const d: PeriodTotal = byPeriod[k] || { total: 0, housing: 0, other: 0 };
+                const housingVal = hiddenSegments.has("housing") ? 0 : d.housing;
+                const otherVal = hiddenSegments.has("other") ? 0 : d.other;
+                const periodTotal = round(housingVal + otherVal);
                 const isCurrent = plan.isCurrent(k);
                 return (
                   <div className={`chart-col${isCurrent ? " current" : ""}`} key={k}>
-                    <span className="val">{isCurrent ? moneyCompact(d.total, activeSpace?.currency) : " "}</span>
+                    <span className="val">{isCurrent ? moneyCompact(periodTotal, activeSpace?.currency) : " "}</span>
                     <div className="chart-track">
-                      <div className="bar" style={{ height: `${Math.max(3, (Math.abs(d.total) / maxTick) * 100)}%` }}>
-                        <div
-                          className="bar-segment"
-                          style={{ flexGrow: Math.abs(d.other), opacity: hiddenSegments.has("other") ? 0.15 : 1 }}
-                        />
-                        <div
-                          className="bar-segment housing"
-                          style={{ flexGrow: Math.abs(d.housing), opacity: hiddenSegments.has("housing") ? 0.15 : 1 }}
-                        />
+                      <div className="bar" style={{ height: `${Math.max(3, (Math.abs(periodTotal) / maxTick) * 100)}%` }}>
+                        {!hiddenSegments.has("other") && (
+                          <div className="bar-segment" style={{ flexGrow: Math.abs(otherVal) }} />
+                        )}
+                        {!hiddenSegments.has("housing") && (
+                          <div className="bar-segment housing" style={{ flexGrow: Math.abs(housingVal) }} />
+                        )}
                       </div>
                     </div>
                     <small>{plan.label(k)}</small>

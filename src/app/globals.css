@@ -1327,7 +1327,6 @@ button {
   width: 100%;
   min-height: 2px;
   background: var(--accent);
-  transition: opacity 0.25s ease;
 }
 .bar-segment.housing {
   background: var(--accent-dark);
