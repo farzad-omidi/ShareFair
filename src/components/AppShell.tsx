@@ -13,6 +13,7 @@ import { Confetti } from "@/components/Confetti";
 import { BottomNav } from "@/components/BottomNav";
 import { Toast } from "@/components/Toast";
 import { ModalHost } from "@/components/ModalHost";
+import { NotificationBanner } from "@/components/NotificationBanner";
 import { AddView } from "@/components/views/AddView";
 import { MonthView } from "@/components/views/MonthView";
 import { SettleView } from "@/components/views/SettleView";
@@ -109,6 +110,7 @@ function AppShellInner() {
       <BottomNav />
       <Toast />
       <ModalHost />
+      <NotificationBanner />
     </div>
   );
 }

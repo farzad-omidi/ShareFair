@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useUI } from "@/lib/ui";
 import { useSpace } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n/context";
+import { isAwaitingMe } from "@/lib/domain";
 import type { TranslationKey } from "@/lib/i18n/translations";
 import type { UiView } from "@/lib/types";
 import { IconPlus, IconGrid, IconSwap, IconPulse, IconDots } from "@/components/icons";
@@ -25,16 +26,7 @@ export function BottomNav() {
   const { t } = useLanguage();
   const lastTap = useRef<{ view: UiView; time: number } | null>(null);
 
-  const awaitingMe = profile
-    ? entries.filter(
-        (e) =>
-          (e.kind === "settlement" &&
-            e.status === "pending" &&
-            e.created_by !== profile.id &&
-            (e.from_id === profile.id || e.to_id === profile.id)) ||
-          (e.kind === "request" && e.from_id === profile.id)
-      ).length
-    : 0;
+  const awaitingMe = profile ? entries.filter((e) => isAwaitingMe(e, profile.id)).length : 0;
 
   return (
     <nav className="bottom-nav">
