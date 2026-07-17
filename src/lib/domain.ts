@@ -38,6 +38,18 @@ export function isHousing(e: EntryRow, categoriesById: Map<string, Category>): b
   return c?.grp === "housing";
 }
 
+/** An entry that's waiting on `myId` to do something about it: a settlement
+ * someone else marked pending that still needs their confirm/decline, or a
+ * payment someone else is requesting from them. Shared by the bottom-nav
+ * badge count and the notification banner's new-item detection, so both
+ * agree on exactly what counts as "awaiting me". */
+export function isAwaitingMe(e: EntryRow, myId: string): boolean {
+  return (
+    (e.kind === "settlement" && e.status === "pending" && e.created_by !== myId && (e.from_id === myId || e.to_id === myId)) ||
+    (e.kind === "request" && e.from_id === myId)
+  );
+}
+
 // ---- Date-range helpers for the Rhythm chart's period navigation ----
 
 function toDateStr(d: Date): string {

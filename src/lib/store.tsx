@@ -11,10 +11,19 @@ import {
   type ReactNode,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { currentMonth, today, monthKey, calcThrough } from "@/lib/domain";
+import { currentMonth, today, monthKey, calcThrough, isAwaitingMe } from "@/lib/domain";
 import { useLanguage } from "@/lib/i18n/context";
 import { makeConfettiPieces, type ConfettiPiece } from "@/components/Confetti";
-import type { Category, EntryRow, MyInvitation, Profile, Space, SpaceMember, SplitType } from "@/lib/types";
+import type {
+  AppNotification,
+  Category,
+  EntryRow,
+  MyInvitation,
+  Profile,
+  Space,
+  SpaceMember,
+  SplitType,
+} from "@/lib/types";
 import type { TablesInsert, TablesUpdate } from "@/lib/database.types";
 
 // A sentinel month far beyond any real entry, used with calcThrough to get a
@@ -79,6 +88,10 @@ type SpaceContextValue = {
   sendSpaceInvitation: (spaceId: string, invitedUserId: string) => Promise<void>;
   myInvitations: MyInvitation[];
   respondToInvitation: (invitationId: string, accept: boolean) => Promise<void>;
+  // Gentle in-app banners for things another member just did that are now
+  // waiting on the current user -- see AppNotification's own comment.
+  notifications: AppNotification[];
+  dismissNotification: (id: string) => void;
 
   addEntry: (input: NewEntryInput) => Promise<void>;
   updateEntry: (
@@ -162,6 +175,18 @@ export function SpaceProvider({
   // most recent one requested, so a slow, stale fetch (e.g. from a space the user has
   // already switched away from) can never clobber newer state with older data.
   const spaceDataRequestRef = useRef(0);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  // null means "haven't established a baseline for the current space yet" --
+  // distinct from an empty Set, which means "baseline is: nothing awaiting
+  // me". Only a transition from a real baseline is a genuinely new event;
+  // without this distinction, the very first load (or the first load after
+  // switching spaces) would fire a banner for every already-pending item.
+  const seenAwaitingIdsRef = useRef<Set<string> | null>(null);
+  const seenInvitationIdsRef = useRef<Set<string> | null>(null);
+
+  const dismissNotification = useCallback((id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }, []);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -279,6 +304,10 @@ export function SpaceProvider({
       setActiveSpaceId(id);
       setSelectedMonth(currentMonth());
       setRealtimeStatus("connecting");
+      // Re-baseline instead of diffing against the space just left -- whatever's
+      // already pending in the space being switched to is old news, not a fresh
+      // notification-worthy event.
+      seenAwaitingIdsRef.current = null;
       if (typeof window !== "undefined") localStorage.setItem(ACTIVE_SPACE_STORAGE_KEY, id);
       loadSpaceData(id);
     },
@@ -344,6 +373,90 @@ export function SpaceProvider({
       supabase.removeChannel(channel);
     };
   }, [activeSpaceId, supabase, loadSpaceData]);
+
+  // Turns the realtime-driven `entries` refresh above into gentle banners:
+  // whenever a new entry shows up that's awaiting me (see isAwaitingMe) that
+  // wasn't there a moment ago, it's either someone requesting a payment from
+  // me or someone else marking a settlement pending -- either way, worth a
+  // nudge, not just a quieter badge on the Settle tab. Also drops any queued
+  // banner whose entry stopped being awaiting-me (confirmed/declined/settled
+  // from elsewhere) so a stale ask never lingers.
+  useEffect(() => {
+    if (!profile) return;
+    const currentIds = new Set(entries.filter((e) => isAwaitingMe(e, profile.id)).map((e) => e.id));
+    const seen = seenAwaitingIdsRef.current;
+    seenAwaitingIdsRef.current = currentIds;
+    if (seen === null) return;
+
+    const newIds = [...currentIds].filter((id) => !seen.has(id));
+    const membersById = new Map(members.map((m) => [m.user_id, m]));
+    const currency = spaces.find((s) => s.id === activeSpaceId)?.currency ?? "USD";
+    const added: AppNotification[] = [];
+    for (const id of newIds) {
+      const e = entries.find((x) => x.id === id);
+      if (!e) continue;
+      if (e.kind === "request") {
+        const requester = e.to_id ? membersById.get(e.to_id) : undefined;
+        added.push({
+          id: `req-${e.id}`,
+          type: "payment_request",
+          entryId: e.id,
+          requesterName: requester?.display_name ?? t("fallback_someone"),
+          requesterPalette: requester?.palette ?? 0,
+          amount: e.amount,
+          currency,
+        });
+      } else if (e.kind === "settlement") {
+        const creator = membersById.get(e.created_by);
+        added.push({
+          id: `settle-${e.id}`,
+          type: "settlement_pending",
+          entryId: e.id,
+          creatorName: creator?.display_name ?? t("fallback_someone"),
+          creatorPalette: creator?.palette ?? 0,
+          amount: e.amount,
+          currency,
+        });
+      }
+    }
+
+    setNotifications((prev) => {
+      const stillRelevant = prev.filter((n) =>
+        n.type === "payment_request" || n.type === "settlement_pending" ? currentIds.has(n.entryId) : true
+      );
+      return added.length ? [...stillRelevant, ...added] : stillRelevant;
+    });
+  }, [entries, profile, members, spaces, activeSpaceId, t]);
+
+  // Same idea for space invitations -- these arrive via the userId-scoped
+  // realtime channel above (not the space-scoped one), so they're diffed
+  // separately and never need the space-switch baseline reset below.
+  useEffect(() => {
+    const currentIds = new Set(myInvitations.filter((i) => i.status === "pending").map((i) => i.id));
+    const seen = seenInvitationIdsRef.current;
+    seenInvitationIdsRef.current = currentIds;
+    if (seen === null) return;
+
+    const newIds = [...currentIds].filter((id) => !seen.has(id));
+    const added: AppNotification[] = newIds.flatMap((id) => {
+      const inv = myInvitations.find((i) => i.id === id);
+      if (!inv) return [];
+      return [
+        {
+          id: `invite-${inv.id}`,
+          type: "invitation",
+          invitationId: inv.id,
+          inviterName: inv.invited_by_name,
+          spaceName: inv.space_name,
+        } satisfies AppNotification,
+      ];
+    });
+
+    setNotifications((prev) => {
+      const stillRelevant = prev.filter((n) => (n.type === "invitation" ? currentIds.has(n.invitationId) : true));
+      return added.length ? [...stillRelevant, ...added] : stillRelevant;
+    });
+  }, [myInvitations]);
 
   const createSpace = useCallback(
     async (name: string, currency: string) => {
@@ -944,6 +1057,8 @@ export function SpaceProvider({
     sendSpaceInvitation,
     myInvitations,
     respondToInvitation,
+    notifications,
+    dismissNotification,
     addEntry,
     updateEntry,
     deleteEntry,
