@@ -1407,8 +1407,12 @@ button {
   padding: 7px;
   border-radius: 999px;
   background: var(--nav-bg);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  backdrop-filter: blur(20px) saturate(1.4);
+  /* heavier blur than the rest of the app's glass surfaces -- at 25% tint
+     opacity there's more raw page showing through, so it needs more blur to
+     still read as frosted glass instead of a see-through smear */
+  -webkit-backdrop-filter: blur(32px) saturate(1.6);
+  backdrop-filter: blur(32px) saturate(1.6);
+  border: 1px solid var(--nav-border, transparent);
   z-index: 20;
   box-shadow: var(--shadow);
 }

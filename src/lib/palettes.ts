@@ -137,6 +137,48 @@ function mixHex(hexA: string, hexB: string, t: number): string {
   );
 }
 
+function hexToHsl(hex: string): [number, number, number] {
+  const [r, g, b] = hexToRgb(hex).map((c) => c / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  if (d === 0) return [0, 0, l];
+  const s = d / (1 - Math.abs(2 * l - 1));
+  let h: number;
+  if (max === r) h = ((g - b) / d) % 6;
+  else if (max === g) h = (b - r) / d + 2;
+  else h = (r - g) / d + 4;
+  h *= 60;
+  if (h < 0) h += 360;
+  return [h, s, l];
+}
+
+function hslToHex(h: number, s: number, l: number): string {
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+  let [r, g, b] = [0, 0, 0];
+  if (h < 60) [r, g, b] = [c, x, 0];
+  else if (h < 120) [r, g, b] = [x, c, 0];
+  else if (h < 180) [r, g, b] = [0, c, x];
+  else if (h < 240) [r, g, b] = [0, x, c];
+  else if (h < 300) [r, g, b] = [x, 0, c];
+  else [r, g, b] = [c, 0, x];
+  const toHex = (v: number) => Math.round((v + m) * 255).toString(16).padStart(2, "0");
+  return "#" + toHex(r) + toHex(g) + toHex(b);
+}
+
+// The nav bar's previous same-hue tint blended into the page instead of
+// standing apart from it -- its opposite hue (same saturation/lightness, so
+// it stays as muted as the rest of the 8 palettes) reads as a deliberate
+// contrast pairing instead, while still being derived from the user's own
+// color rather than a fixed neutral.
+function complementary(hex: string): string {
+  const [h, s, l] = hexToHsl(hex);
+  return hslToHex((h + 180) % 360, s, l);
+}
+
 // Overrides the app-wide brand accent with whichever palette color the
 // current user picked as their own member color, so every accent-tied
 // button/link/highlight throughout the app matches their identity color --
@@ -152,11 +194,13 @@ export function personalAccentVars(paletteIndex: number | null | undefined, isDa
   // primary CTA) -- independent of color-scheme, since --surface/--on-surface
   // are themselves already dark/light in both modes (see .primary).
   const fillFg = contrastRatio(base, DARK_TEXT) >= contrastRatio(base, LIGHT_TEXT) ? "var(--surface)" : "var(--on-surface)";
-  // the bottom nav's glass background is the personal accent at 50% opacity,
-  // not a solid fill, so pick its text color against what that tint actually
-  // looks like once blended with the page canvas behind it, rather than
-  // reusing fillFg (which assumes a fully opaque accent surface).
-  const navBlend = mixHex(base, isDark ? PAGE_BG_DARK : PAGE_BG_LIGHT, 0.5);
+  // the bottom nav's glass tint is the accent's complementary color (see
+  // complementary() above), not the accent itself -- a same-hue wash read as
+  // flat/muddy against the page, while the opposite hue stands apart from it
+  // and still visually pairs with the solid --accent used on the active tab.
+  const navTint = complementary(base);
+  const navAlpha = 0.25;
+  const navBlend = mixHex(navTint, isDark ? PAGE_BG_DARK : PAGE_BG_LIGHT, 1 - navAlpha);
   const navFg = contrastRatio(navBlend, DARK_TEXT) >= contrastRatio(navBlend, LIGHT_TEXT) ? DARK_TEXT : LIGHT_TEXT;
   return {
     ["--accent" as string]: base,
@@ -166,11 +210,15 @@ export function personalAccentVars(paletteIndex: number | null | undefined, isDa
     ["--accent-text" as string]: accentText,
     ["--primary-bg" as string]: base,
     ["--primary-fg" as string]: fillFg,
-    // the nav bar's own identity: a blurred 50%-opacity wash of the user's
-    // color, distinct from --accent-soft (a much lighter tint meant for
-    // subtle highlights, not a whole floating bar)
-    ["--nav-bg" as string]: toRgba(base, 0.5),
+    // the nav bar's own identity: a heavily-blurred, 25%-opacity wash of the
+    // accent's complementary color, distinct from --accent-soft (a much
+    // lighter same-hue tint meant for subtle highlights, not a whole bar)
+    ["--nav-bg" as string]: toRgba(navTint, navAlpha),
     ["--nav-fg" as string]: navFg,
     ["--nav-fg-muted" as string]: toRgba(navFg, 0.6),
+    // a faint rim in the same light/dark direction as the text -- glass reads
+    // as an object with an edge more than a flat, opacity-only tint does,
+    // which matters more now that the fill itself is fainter (25%, was 50%)
+    ["--nav-border" as string]: toRgba(navFg, 0.16),
   };
 }
