@@ -161,19 +161,6 @@ export function AddView() {
           ))}
         </div>
 
-        {payer && (
-          <div className="payer-now" style={memberVars(payerPalette, isDark)}>
-            <div>
-              <strong>{t("payer_now_heading", { name: payer.display_name })}</strong>
-              <small>{t("payer_now_subtext", { name: payer.display_name })}</small>
-            </div>
-            <span className="payer-badge">
-              <MemberAvatar member={payer} size={18} maxLetters={1} />
-              {paletteFor(payerPalette).name}
-            </span>
-          </div>
-        )}
-
         <div className="segment section-gap">
           <button className={kind === "expense" ? "active" : ""} onClick={() => setKind("expense")}>
             {t("segment_expense")}
