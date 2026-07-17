@@ -336,29 +336,33 @@ export function AddView() {
             </p>
           </>
         ) : (
-          <div className="hero">
-            <div className="hero-label">{t("balance_settle_label")}</div>
-            <div className="flow">
-              <MemberAvatar member={members.find((m) => m.user_id === debts[0].fromId)} size={22} maxLetters={1} />
-              <span>{members.find((m) => m.user_id === debts[0].fromId)?.display_name}</span>
-              <span className="arrow">→</span>
-              <MemberAvatar member={members.find((m) => m.user_id === debts[0].toId)} size={22} maxLetters={1} />
-              <span>{members.find((m) => m.user_id === debts[0].toId)?.display_name}</span>
+          <>
+            <div className={`balance-card ${profile?.id === debts[0].fromId ? "negative" : "positive"}`}>
+              <div className="balance-chip" />
+              <div className="balance-glow" />
+              <div className="balance-content">
+                <div className="hero-label">{t("balance_settle_label")}</div>
+                <div className="flow" style={{ justifyContent: "center" }}>
+                  <MemberAvatar member={members.find((m) => m.user_id === debts[0].fromId)} size={22} maxLetters={1} />
+                  <span>{members.find((m) => m.user_id === debts[0].fromId)?.display_name}</span>
+                  <span className="arrow">→</span>
+                  <MemberAvatar member={members.find((m) => m.user_id === debts[0].toId)} size={22} maxLetters={1} />
+                  <span>{members.find((m) => m.user_id === debts[0].toId)?.display_name}</span>
+                </div>
+                <div className="big-money">
+                  <AnimatedMoney value={debts[0].amount} currency={activeSpace?.currency} />
+                </div>
+                {(profile?.id === debts[0].toId || profile?.id === debts[0].fromId) && (
+                  <div className={`balance-status ${profile.id === debts[0].fromId ? "negative" : "positive"}`}>
+                    {profile.id === debts[0].fromId ? t("balance_status_negative") : t("balance_status_positive")}
+                  </div>
+                )}
+              </div>
             </div>
-            <div
-              className="big-money"
-              style={
-                profile?.id === debts[0].toId
-                  ? { color: "var(--green)" }
-                  : profile?.id === debts[0].fromId
-                    ? { color: "var(--red)" }
-                    : undefined
-              }
-            >
-              <AnimatedMoney value={debts[0].amount} currency={activeSpace?.currency} />
-            </div>
-            <div className="hero-text">{t("balance_open_text")}</div>
-          </div>
+            <p className="hero-text" style={{ textAlign: "center", marginTop: 4 }}>
+              {t("balance_open_text")}
+            </p>
+          </>
         )}
       </div>
     </>

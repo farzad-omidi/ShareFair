@@ -807,30 +807,6 @@ button {
   color: var(--muted);
 }
 
-.hero {
-  position: relative;
-  padding: 17px;
-  border-radius: var(--r-lg);
-  background: var(--module);
-  color: var(--ink);
-  box-shadow: var(--module-shadow);
-  overflow: hidden;
-}
-.hero:after {
-  content: "";
-  position: absolute;
-  inset-inline-end: -60px;
-  bottom: -90px;
-  width: 210px;
-  height: 210px;
-  border-radius: 50%;
-  background: var(--wet-accent);
-  opacity: 0.22;
-}
-.hero.balanced:after {
-  background: var(--wet-green);
-  opacity: 0.2;
-}
 .hero-label {
   font-size: 12px;
   text-transform: uppercase;
@@ -959,6 +935,13 @@ button {
   opacity: 0.8;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+/* the from -> to row (AddView's open-debt card) needs the same light/dark
+   text as the rest of the card -- .flow's own text and .arrow's own color
+   are both tuned for a neutral white/dark surface, not this gradient face */
+.balance-content .flow,
+.balance-content .flow .arrow {
+  color: var(--primary-fg);
 }
 /* the sign now lives on a pale pill instead of the headline number itself --
    legible green/red text on a near-white chip reads clearly no matter which
@@ -1857,6 +1840,15 @@ button {
 }
 .switch-line:last-child {
   border-bottom: 0;
+}
+/* strong/small are inline by default -- without this the label and hint run
+   together on one line instead of stacking (label, then a muted caption) */
+.switch-line strong {
+  display: block;
+}
+.switch-line small {
+  display: block;
+  margin-top: 2px;
 }
 .switch {
   position: relative;
