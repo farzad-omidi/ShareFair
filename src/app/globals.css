@@ -869,24 +869,63 @@ button {
   margin-bottom: 14px;
 }
 
-/* a single headline balance, breathing softly against a tinted glow -- the
-   "hero number" moment for a settled/personal balance, distinct from the flat
-   .hero card used for a specific two-party flow. One shape (the card itself),
-   not a shadowed circle nested inside another shadowed shape -- the glow does
-   the framing on its own. */
+/* the "hero number" moment for a settled/personal balance, styled after a
+   physical bank/membership card -- a solid gradient face in the user's own
+   color (not a neutral card with a colored glow on top), a breathing pair of
+   corner circles the way card brands print an emblem into one corner, and a
+   small chip glyph, rather than the flat white card + centered halo this
+   used to be. Layering is deliberate and explicit: the gradient face paints
+   first (an element's own background always sits behind its own positioned
+   children, so it's "all the way in the back" by construction), the corner
+   circles sit just above it, and the content sits above both. */
 .balance-card {
   position: relative;
   overflow: hidden;
   text-align: center;
-  padding: 26px 20px 20px;
+  padding: 28px 22px 22px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 18px 34px -14px var(--accent-ring, var(--accent-soft)),
+    var(--shadow2);
+  color: var(--primary-fg);
 }
+/* a small chip glyph, top corner -- purely decorative, evokes a physical
+   card without pretending to show real card details */
+.balance-chip {
+  position: absolute;
+  z-index: 1;
+  top: 20px;
+  inset-inline-start: 22px;
+  width: 32px;
+  height: 23px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.15));
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+/* two overlapping circles breathing softly in the top corner -- above the
+   gradient face, below the text content */
 .balance-glow {
   position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: radial-gradient(circle at 50% 38%, var(--balance-glow, var(--accent-soft)) 0%, transparent 68%);
+  z-index: 1;
+  top: -70px;
+  inset-inline-end: -56px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0) 70%);
   animation: balance-breathe 4.5s ease-in-out infinite;
   pointer-events: none;
+}
+.balance-glow::after {
+  content: "";
+  position: absolute;
+  top: 64px;
+  inset-inline-end: 46px;
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
 }
 @keyframes balance-breathe {
   0%,
@@ -899,32 +938,42 @@ button {
     opacity: 1;
   }
 }
-/* green when money is owed to you (including exactly settled -- zero is good
-   news, not neutral), terracotta when you owe -- the same direction-coded
-   convention used everywhere else in the app (see SettleView's balanceColor) */
-.balance-card.positive {
-  --balance-glow: var(--green-bg);
-}
-.balance-card.negative {
-  --balance-glow: var(--red-bg);
-}
 .balance-content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 .balance-content .hero-label {
+  color: var(--primary-fg);
+  opacity: 0.75;
   margin-bottom: 6px;
 }
-.balance-content .big-money {
+.balance-content .big-money,
+.balance-content .big-money.zero {
+  color: var(--primary-fg);
   margin: 2px 0 6px;
   font-size: clamp(28px, 8.5vw, 38px);
 }
+.balance-content .link {
+  color: var(--primary-fg);
+  opacity: 0.8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+/* the sign now lives on a pale pill instead of the headline number itself --
+   legible green/red text on a near-white chip reads clearly no matter which
+   of the 8 accent colors the card face happens to be, which recoloring the
+   number directly couldn't guarantee */
 .balance-status {
-  font-size: 12.5px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.02em;
+  padding: 5px 13px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
   color: var(--muted);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .balance-status.positive {
   color: var(--green);
