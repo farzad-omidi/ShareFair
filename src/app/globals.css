@@ -31,12 +31,8 @@
   --nav-fg: #1c1f1a;
   --nav-fg-muted: rgba(28, 31, 26, 0.52);
 
-  /* flat "module" surface — the large content cards (entries, hero, stats,
-     debts). A plain white panel + soft drop shadow, not a neumorphic dent. */
   --module: #ffffff;
   --module2: #e8ebdf;
-  --module-shadow: 0 10px 24px rgba(20, 24, 18, 0.1);
-  --module-shadow-inset: none;
   --placeholder-tint: rgba(28, 31, 26, 0.28);
   --module-ghost-bg: rgba(28, 31, 26, 0.05);
   --module-ghost-border: rgba(28, 31, 26, 0.12);
@@ -124,8 +120,6 @@
 
     --module: #17201a;
     --module2: #1e281f;
-    --module-shadow: 0 12px 26px rgba(0, 0, 0, 0.45);
-    --module-shadow-inset: none;
     --placeholder-tint: rgba(239, 243, 236, 0.24);
     --module-ghost-bg: rgba(239, 243, 236, 0.08);
     --module-ghost-border: rgba(239, 243, 236, 0.16);
@@ -456,7 +450,6 @@ button {
      soaking into wet paper, fading into the neutral module surface */
   background: radial-gradient(ellipse 140% 110% at 10% 0%, var(--member-bg, transparent) 0%, var(--module) 62%);
   color: var(--ink);
-  box-shadow: var(--module-shadow);
   transform: scale(1.015);
 }
 .member-card.active small {
@@ -499,47 +492,6 @@ button {
   color: var(--muted);
   margin-top: 3px;
   font-size: 12px;
-}
-
-.payer-now {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 10px;
-  padding: 12px 14px;
-  border-radius: var(--r-sm);
-  background: var(--paper);
-  border: 1.5px solid var(--line);
-}
-.payer-now strong {
-  display: block;
-  font-size: 14px;
-  font-weight: 750;
-}
-.payer-now small {
-  display: block;
-  color: var(--muted);
-  font-size: 12px;
-  margin-top: 2px;
-  line-height: 1.4;
-}
-.payer-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 11px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 32% 28%, var(--member-accent, var(--accent)) 0%, var(--member-dark, var(--accent-dark)) 100%);
-  color: var(--on-accent);
-  font-size: 11px;
-  font-weight: 800;
-  white-space: nowrap;
-  flex: none;
-}
-.payer-badge .initial-circle {
-  background: rgba(255, 248, 242, 0.22);
-  color: var(--on-accent);
 }
 
 .chips {
@@ -1082,9 +1034,9 @@ button {
 }
 .metric {
   border-radius: var(--r-md);
-  background: var(--module);
+  background: var(--paper);
   color: var(--ink);
-  box-shadow: var(--module-shadow);
+  border: 1.5px solid var(--line);
   padding: 12px;
   min-height: 80px;
 }
@@ -1123,10 +1075,9 @@ button {
   align-items: center;
   padding: 11px 12px;
   border-radius: var(--r-md);
-  background: var(--module);
+  background: var(--paper);
   color: var(--ink);
-  box-shadow: var(--module-shadow);
-  border: 0;
+  border: 1.5px solid var(--line);
   width: 100%;
   text-align: start;
   transition: transform 0.15s;
@@ -1225,9 +1176,9 @@ button {
   display: grid;
   gap: 10px;
   padding: 13px;
-  background: var(--module);
+  background: var(--paper);
   color: var(--ink);
-  box-shadow: var(--module-shadow);
+  border: 1.5px solid var(--line);
   border-radius: var(--r-md);
   margin: 8px 0;
 }
@@ -1277,9 +1228,9 @@ button {
 .smallbox {
   padding: 9px;
   border-radius: var(--r-sm);
-  background: var(--module);
+  background: var(--paper);
   color: var(--ink);
-  box-shadow: var(--module-shadow);
+  border: 1.5px solid var(--line);
   overflow: hidden;
 }
 .smallbox span {
