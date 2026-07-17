@@ -7,6 +7,7 @@ import { useLanguage } from "@/lib/i18n/context";
 import { today, calcThrough, simplify, monthName } from "@/lib/domain";
 import { money, symbol, parseAmount } from "@/lib/format";
 import { memberVars, paletteFor } from "@/lib/palettes";
+import { usePrefersDark } from "@/lib/theme";
 import { MemberAvatar } from "@/components/Avatar";
 import { AnimatedMoney } from "@/components/AnimatedMoney";
 import { IconCheck } from "@/components/icons";
@@ -28,6 +29,7 @@ export function AddView() {
   } = useSpace();
   const { openModal } = useUI();
   const { t } = useLanguage();
+  const isDark = usePrefersDark();
 
   const myMember = members.find((m) => m.user_id === profile?.id) ?? members[0];
 
@@ -147,7 +149,7 @@ export function AddView() {
             <button
               key={m.id}
               className={`member-card${payerId === m.user_id ? " active" : ""}`}
-              style={memberVars(m.palette)}
+              style={memberVars(m.palette, isDark)}
               onClick={() => setPayerIdOverride(m.user_id)}
             >
               <div className="member-card-row">
@@ -160,7 +162,7 @@ export function AddView() {
         </div>
 
         {payer && (
-          <div className="payer-now" style={memberVars(payerPalette)}>
+          <div className="payer-now" style={memberVars(payerPalette, isDark)}>
             <div>
               <strong>{t("payer_now_heading", { name: payer.display_name })}</strong>
               <small>{t("payer_now_subtext", { name: payer.display_name })}</small>
@@ -205,7 +207,7 @@ export function AddView() {
           </button>
         </div>
 
-        <div className="amount-box payer-tinted" style={memberVars(payerPalette)}>
+        <div className="amount-box payer-tinted" style={memberVars(payerPalette, isDark)}>
           <span className="currency">{symbol(activeSpace?.currency || "EUR")}</span>
           <input
             className={`amount${kind === "credit" ? " credit" : ""}`}
@@ -246,7 +248,7 @@ export function AddView() {
                 <button
                   key={m.id}
                   className={`chip person-chip${participantIds.has(m.user_id) ? " active" : ""}`}
-                  style={memberVars(m.palette)}
+                  style={memberVars(m.palette, isDark)}
                   onClick={() => toggleParticipant(m.user_id)}
                 >
                   <MemberAvatar member={m} size={16} maxLetters={1} />

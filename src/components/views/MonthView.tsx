@@ -7,6 +7,7 @@ import { useLanguage } from "@/lib/i18n/context";
 import { calcMonth, monthName } from "@/lib/domain";
 import { money } from "@/lib/format";
 import { memberVars } from "@/lib/palettes";
+import { usePrefersDark } from "@/lib/theme";
 import { MemberAvatar } from "@/components/Avatar";
 import { AnimatedMoney } from "@/components/AnimatedMoney";
 import type { EntryRow } from "@/lib/types";
@@ -16,6 +17,7 @@ export function MonthView() {
   const { entries, members, categories, selectedMonth, activeSpace, clearMonth } = useSpace();
   const { openModal } = useUI();
   const { t } = useLanguage();
+  const isDark = usePrefersDark();
   const [filterHousing, setFilterHousing] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -83,7 +85,7 @@ export function MonthView() {
             <small>{filterHousing ? t("metric_total_note_excl") : t("metric_total_note_all")}</small>
           </div>
           {members.map((m) => (
-            <div className="metric member-metric" style={memberVars(m.palette)} key={m.id}>
+            <div className="metric member-metric" style={memberVars(m.palette, isDark)} key={m.id}>
               <span>{t("metric_paid_by", { name: m.display_name })}</span>
               <strong>
                 <AnimatedMoney value={summary.paid[m.user_id] || 0} currency={activeSpace?.currency} />
@@ -139,6 +141,7 @@ export function MonthView() {
 function EntryItem({ entry: e, onClick }: { entry: EntryRow; onClick: () => void }) {
   const { members, categories, activeSpace } = useSpace();
   const { t } = useLanguage();
+  const isDark = usePrefersDark();
 
   if (e.kind === "settlement") {
     const from = members.find((m) => m.user_id === e.from_id);
@@ -170,7 +173,7 @@ function EntryItem({ entry: e, onClick }: { entry: EntryRow; onClick: () => void
 
   return (
     <button className="entry" onClick={onClick}>
-      <span className="entry-ico member" style={memberVars(payer?.palette)}>
+      <span className="entry-ico member" style={memberVars(payer?.palette, isDark)}>
         {e.kind === "credit" ? <IconUndo width={16} height={16} /> : <IconReceipt width={16} height={16} />}
       </span>
       <span>
