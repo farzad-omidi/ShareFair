@@ -5,8 +5,6 @@ import { SpaceProvider, useSpace } from "@/lib/store";
 import { UIProvider, useUI } from "@/lib/ui";
 import { useLanguage } from "@/lib/i18n/context";
 import { monthName } from "@/lib/domain";
-import { personalAccentVars } from "@/lib/palettes";
-import { usePrefersDark } from "@/lib/theme";
 import { Onboarding } from "@/components/Onboarding";
 import { Splash } from "@/components/Splash";
 import { Confetti } from "@/components/Confetti";
@@ -34,12 +32,6 @@ function AppShellInner() {
   const { loading, activeSpace, spaces, members, selectedMonth, realtimeStatus, profile, celebration } = useSpace();
   const { view, openModal } = useUI();
   const { t } = useLanguage();
-  const isDark = usePrefersDark();
-  const myMember = members.find((m) => m.user_id === profile?.id);
-  // Undefined only very briefly (before the member list loads) or if the
-  // caller somehow isn't a member yet -- falls through to the app-wide
-  // default accent from globals.css in that case, not a broken/empty style.
-  const accentVars = myMember ? personalAccentVars(myMember.palette, isDark) : undefined;
 
   // Ask a brand-new member since when they've actually been involved, once per
   // session -- existing members were backfilled at migration time, so a null
@@ -63,7 +55,7 @@ function AppShellInner() {
   }
 
   return (
-    <div style={accentVars}>
+    <div>
       <div className="glow" />
       <main className="app-shell">
         {celebration.length > 0 && <Confetti pieces={celebration} />}

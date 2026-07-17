@@ -1,6 +1,8 @@
 // Drawn from the app's own palette instead of generic rainbow confetti, so a
-// celebratory moment still looks like it belongs to ShareFair.
-const COLORS = ["#74af8f", "#4c7560", "#527e68", "#e0a23b", "#6f95b8", "#67a9a4", "#b03024"];
+// celebratory moment still looks like it belongs to ShareFair -- the brand
+// green plus its teal family, with a sprinkle of MongoDB's category-tag
+// colors for variety a one-off burst can afford that persistent UI can't.
+const COLORS = ["#00ed64", "#00a35c", "#00684a", "#003d4f", "#7b3ff2", "#fa6e39", "#f06bb8"];
 
 export type ConfettiPiece = {
   id: number;
