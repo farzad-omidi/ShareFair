@@ -52,11 +52,23 @@ export function categoryPaletteFor(name: string): Palette {
   return PALETTES[hashIndex(name, PALETTES.length)];
 }
 
-export function memberVars(paletteIndex: number | null | undefined): CSSProperties {
+// `isDark` makes the flat-text token (--member-text) mode-aware, unlike
+// --member-accent/--member-dark (fills: avatar gradients, borders, the color
+// picker's own swatches) which stay the same regardless of theme since a
+// fill doesn't need to satisfy text contrast in the first place.
+export function memberVars(paletteIndex: number | null | undefined, isDark: boolean): CSSProperties {
   const p = paletteFor(paletteIndex);
+  // Derived straight from the vibrant accent, not chained through the
+  // already-darkened --member-dark -- nudging the *original* color in
+  // whichever direction the current mode needs gives a punchier, more
+  // saturated result (e.g. Saffron/Menthe often clear 4.5:1 on a dark card
+  // completely unchanged, since bright colors already read fine on dark
+  // backgrounds) than restarting from a value already darkened for light mode.
+  const memberText = adjustForContrast(p.accent, isDark ? CARD_BG_DARK : CARD_BG_LIGHT, 4.5, isDark ? "lighten" : "darken");
   return {
     ["--member-accent" as string]: p.accent,
     ["--member-dark" as string]: p.dark,
+    ["--member-text" as string]: memberText,
     ["--member-bg" as string]: p.bg,
     ["--member-bg2" as string]: p.bg2,
     ["--member-line" as string]: p.line,

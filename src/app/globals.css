@@ -648,8 +648,8 @@ button {
 .currency {
   font-size: 24px;
   font-weight: 800;
-  /* flat text, not a fill -- member-dark, not member-accent (see palettes.ts) */
-  color: var(--member-dark, var(--accent-text));
+  /* flat text, not a fill -- member-text, not member-accent (see palettes.ts) */
+  color: var(--member-text, var(--accent-text));
 }
 .amount {
   width: 100%;
@@ -849,7 +849,7 @@ button {
   flex-wrap: wrap;
 }
 .flow .arrow {
-  color: var(--member-dark, var(--accent-text));
+  color: var(--member-text, var(--accent-text));
 }
 .big-money {
   font-family: var(--sans);
@@ -857,7 +857,7 @@ button {
   font-weight: 800;
   letter-spacing: -0.03em;
   margin: 8px 0 4px;
-  color: var(--member-dark, var(--accent-text));
+  color: var(--member-text, var(--accent-text));
   font-variant-numeric: tabular-nums;
 }
 .big-money.zero {
@@ -1119,7 +1119,7 @@ button {
   font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--member-dark, var(--ink));
+  color: var(--member-text, var(--ink));
   font-variant-numeric: tabular-nums;
 }
 .metric small {
@@ -1316,7 +1316,7 @@ button {
   display: block;
   font-size: 13px;
   font-weight: 800;
-  color: var(--member-dark, var(--ink));
+  color: var(--member-text, var(--ink));
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }

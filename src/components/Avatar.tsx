@@ -1,4 +1,7 @@
+"use client";
+
 import { memberVars } from "@/lib/palettes";
+import { usePrefersDark } from "@/lib/theme";
 import { initials } from "@/lib/format";
 
 type AvatarMember = { display_name: string; palette: number } | null | undefined;
@@ -12,11 +15,12 @@ export function MemberAvatar({
   size?: number;
   maxLetters?: number;
 }) {
+  const isDark = usePrefersDark();
   return (
     <span
       className="initial-circle"
       style={{
-        ...memberVars(member?.palette),
+        ...memberVars(member?.palette, isDark),
         width: size,
         height: size,
         fontSize: Math.max(9, Math.round(size * 0.4)),

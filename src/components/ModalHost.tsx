@@ -8,6 +8,7 @@ import { currentMonth, today } from "@/lib/domain";
 import { money, symbol } from "@/lib/format";
 import { ModalSheet } from "@/components/ModalSheet";
 import { PALETTES, memberVars } from "@/lib/palettes";
+import { usePrefersDark } from "@/lib/theme";
 import { CURRENCIES } from "@/lib/currencies";
 import { MemberAvatar } from "@/components/Avatar";
 import { IconCheck, IconHeart } from "@/components/icons";
@@ -321,6 +322,7 @@ function CategoryManagerModal({ onClose }: { onClose: () => void }) {
 function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () => void }) {
   const { members, updateMyMembership, setMyActiveSince, updateMember, setMemberActiveSince, profile } = useSpace();
   const { t } = useLanguage();
+  const isDark = usePrefersDark();
   const m = members.find((x) => x.id === memberId);
   const isSelf = !!m && !!profile && m.user_id === profile.id;
   const myMember = members.find((x) => x.user_id === profile?.id);
@@ -359,7 +361,7 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
                   type="button"
                   key={p.name}
                   className={`color-choice${i === palette ? " active" : ""}`}
-                  style={memberVars(i)}
+                  style={memberVars(i, isDark)}
                   onClick={() => setPalette(i)}
                 >
                   <span></span>
@@ -416,6 +418,7 @@ function NewSpaceModal({ onClose }: { onClose: () => void }) {
   const { createSpace, getPastCollaborators, sendSpaceInvitation, spaces, profile } = useSpace();
   const { openModal } = useUI();
   const { t } = useLanguage();
+  const isDark = usePrefersDark();
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("EUR");
   const [busy, setBusy] = useState(false);
@@ -510,7 +513,7 @@ function NewSpaceModal({ onClose }: { onClose: () => void }) {
                   <button
                     key={p.user_id}
                     className={`chip person-chip${invited ? " active" : ""}`}
-                    style={memberVars(p.palette)}
+                    style={memberVars(p.palette, isDark)}
                     disabled={invited || sendingIds.has(p.user_id)}
                     onClick={() => inviteChip(p)}
                   >
@@ -621,6 +624,7 @@ function EditSpaceModal({ spaceId, onClose }: { spaceId: string; onClose: () => 
 function InviteModal({ onClose }: { onClose: () => void }) {
   const { createInvite, activeSpace, getPastCollaborators, sendSpaceInvitation, showToast } = useSpace();
   const { t } = useLanguage();
+  const isDark = usePrefersDark();
   const [code, setCode] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
@@ -735,7 +739,7 @@ function InviteModal({ onClose }: { onClose: () => void }) {
                     <button
                       key={p.user_id}
                       className={`chip person-chip${invited ? " active" : ""}`}
-                      style={memberVars(p.palette)}
+                      style={memberVars(p.palette, isDark)}
                       disabled={sendingIds.has(p.user_id)}
                       onClick={() => inviteCollaborator(p)}
                     >
@@ -832,6 +836,7 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
   const { entries, members, profile, updateEntry, deleteEntry, confirmSettlement, declineSettlement, activeSpace } =
     useSpace();
   const { t } = useLanguage();
+  const isDark = usePrefersDark();
   const e = entries.find((x) => x.id === entryId);
   const [amount, setAmount] = useState(e ? String(e.amount) : "");
   const [note, setNote] = useState(e?.note || "");
@@ -1015,7 +1020,7 @@ function EditEntryModal({ entryId, onClose }: { entryId: string; onClose: () => 
             <button
               key={m.id}
               className={`chip person-chip${participantIds.has(m.user_id) ? " active" : ""}`}
-              style={memberVars(m.palette)}
+              style={memberVars(m.palette, isDark)}
               disabled={!canDelete}
               onClick={() => toggleParticipant(m.user_id)}
             >

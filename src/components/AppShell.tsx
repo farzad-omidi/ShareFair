@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef } from "react";
 import { SpaceProvider, useSpace } from "@/lib/store";
 import { UIProvider, useUI } from "@/lib/ui";
 import { useLanguage } from "@/lib/i18n/context";
 import { monthName } from "@/lib/domain";
 import { personalAccentVars } from "@/lib/palettes";
+import { usePrefersDark } from "@/lib/theme";
 import { Onboarding } from "@/components/Onboarding";
 import { Splash } from "@/components/Splash";
 import { Confetti } from "@/components/Confetti";
@@ -17,26 +18,6 @@ import { MonthView } from "@/components/views/MonthView";
 import { SettleView } from "@/components/views/SettleView";
 import { InsightsView } from "@/components/views/InsightsView";
 import { MoreView } from "@/components/views/MoreView";
-
-// Tracks the OS/browser color-scheme preference reactively, so the
-// personalized accent's WCAG-safe text variant can be recomputed against the
-// right card background the moment the user (or their system) toggles theme,
-// not just on first paint.
-function subscribeToColorScheme(callback: () => void) {
-  const mq = window.matchMedia("(prefers-color-scheme: dark)");
-  mq.addEventListener("change", callback);
-  return () => mq.removeEventListener("change", callback);
-}
-function getPrefersDarkSnapshot() {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-// Matches globals.css's light-mode :root as the default before hydration.
-function getPrefersDarkServerSnapshot() {
-  return false;
-}
-function usePrefersDark(): boolean {
-  return useSyncExternalStore(subscribeToColorScheme, getPrefersDarkSnapshot, getPrefersDarkServerSnapshot);
-}
 
 export function AppShell({ userId, userEmail }: { userId: string; userEmail: string }) {
   return (
