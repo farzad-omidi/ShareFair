@@ -115,13 +115,11 @@ export function SettleView() {
     <>
       {profile && (
         <div className={`card balance-card ${balanceSign}`}>
+          <div className="balance-chip" />
           <div className="balance-glow" />
           <div className="balance-content">
             <div className="hero-label">{t("balance_card_title")}</div>
-            <div
-              className={`big-money${balanceIsZero ? " zero" : ""}`}
-              style={balanceColor(myBalance) ? { color: balanceColor(myBalance) } : undefined}
-            >
+            <div className={`big-money${balanceIsZero ? " zero" : ""}`}>
               {hideBalance ? "••••" : <AnimatedMoney value={myBalance} currency={activeSpace?.currency} />}
             </div>
             <div className={`balance-status ${balanceSign}`}>

@@ -321,6 +321,7 @@ export function AddView() {
         {debts.length === 0 ? (
           <>
             <div className="balance-card positive">
+              <div className="balance-chip" />
               <div className="balance-glow" />
               <div className="balance-content">
                 <div className="hero-label">{t("balance_settle_label")}</div>
