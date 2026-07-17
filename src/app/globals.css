@@ -869,33 +869,73 @@ button {
   margin-bottom: 14px;
 }
 
-/* a single headline balance inside a soft glowing halo -- the "hero number"
-   moment for a settled/personal balance, distinct from the flat .hero card
-   used for a specific two-party flow */
-.balance-halo {
-  display: flex;
-  justify-content: center;
-  padding: 10px 0 4px;
-  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
-}
-.balance-circle {
-  width: 172px;
-  height: 172px;
-  border-radius: 999px;
-  background: var(--solid);
-  box-shadow: var(--module-shadow);
-  display: grid;
-  place-items: center;
-  justify-items: center;
+/* a single headline balance, breathing softly against a tinted glow -- the
+   "hero number" moment for a settled/personal balance, distinct from the flat
+   .hero card used for a specific two-party flow. One shape (the card itself),
+   not a shadowed circle nested inside another shadowed shape -- the glow does
+   the framing on its own. */
+.balance-card {
+  position: relative;
+  overflow: hidden;
   text-align: center;
-  padding: 14px;
+  padding: 26px 20px 20px;
 }
-.balance-circle .hero-label {
+.balance-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(circle at 50% 38%, var(--balance-glow, var(--accent-soft)) 0%, transparent 68%);
+  animation: balance-breathe 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes balance-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+/* green when money is owed to you (including exactly settled -- zero is good
+   news, not neutral), terracotta when you owe -- the same direction-coded
+   convention used everywhere else in the app (see SettleView's balanceColor) */
+.balance-card.positive {
+  --balance-glow: var(--green-bg);
+}
+.balance-card.negative {
+  --balance-glow: var(--red-bg);
+}
+.balance-content {
+  position: relative;
+  z-index: 1;
+}
+.balance-content .hero-label {
   margin-bottom: 6px;
 }
-.balance-circle .big-money {
-  margin: 2px 0;
-  font-size: clamp(24px, 7.5vw, 32px);
+.balance-content .big-money {
+  margin: 2px 0 6px;
+  font-size: clamp(28px, 8.5vw, 38px);
+}
+.balance-status {
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.balance-status.positive {
+  color: var(--green);
+}
+.balance-status.negative {
+  color: var(--red);
+}
+@media (prefers-reduced-motion: reduce) {
+  .balance-glow {
+    animation: none;
+  }
 }
 
 .unlock-benefits {

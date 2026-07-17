@@ -365,6 +365,8 @@ const en = {
   rhythm_tab_year: "Year",
   rhythm_nav_prev: "Previous period",
   rhythm_nav_next: "Next period",
+  balance_status_positive: "Owed to you",
+  balance_status_negative: "You owe",
 };
 
 const es: Partial<Record<TranslationKey, string>> = {
@@ -696,6 +698,8 @@ const es: Partial<Record<TranslationKey, string>> = {
   rhythm_tab_year: "Año",
   rhythm_nav_prev: "Período anterior",
   rhythm_nav_next: "Período siguiente",
+  balance_status_positive: "Te deben",
+  balance_status_negative: "Debes",
 };
 
 const fr: Partial<Record<TranslationKey, string>> = {
@@ -1027,6 +1031,8 @@ const fr: Partial<Record<TranslationKey, string>> = {
   rhythm_tab_year: "Année",
   rhythm_nav_prev: "Période précédente",
   rhythm_nav_next: "Période suivante",
+  balance_status_positive: "On te doit",
+  balance_status_negative: "Tu dois",
 };
 
 const de: Partial<Record<TranslationKey, string>> = {
@@ -1358,6 +1364,8 @@ const de: Partial<Record<TranslationKey, string>> = {
   rhythm_tab_year: "Jahr",
   rhythm_nav_prev: "Vorheriger Zeitraum",
   rhythm_nav_next: "Nächster Zeitraum",
+  balance_status_positive: "Man schuldet dir",
+  balance_status_negative: "Du schuldest",
 };
 
 const pt: Partial<Record<TranslationKey, string>> = {
@@ -1689,6 +1697,8 @@ const pt: Partial<Record<TranslationKey, string>> = {
   rhythm_tab_year: "Ano",
   rhythm_nav_prev: "Período anterior",
   rhythm_nav_next: "Próximo período",
+  balance_status_positive: "Devem a você",
+  balance_status_negative: "Você deve",
 };
 
 const ru: Partial<Record<TranslationKey, string>> = {
@@ -2020,6 +2030,8 @@ const ru: Partial<Record<TranslationKey, string>> = {
   rhythm_tab_year: "Год",
   rhythm_nav_prev: "Предыдущий период",
   rhythm_nav_next: "Следующий период",
+  balance_status_positive: "Вам должны",
+  balance_status_negative: "Вы должны",
 };
 
 const zh: Partial<Record<TranslationKey, string>> = {
@@ -2351,6 +2363,8 @@ const zh: Partial<Record<TranslationKey, string>> = {
   rhythm_tab_year: "年",
   rhythm_nav_prev: "上一个时段",
   rhythm_nav_next: "下一个时段",
+  balance_status_positive: "别人欠你",
+  balance_status_negative: "你欠别人",
 };
 
 const hi: Partial<Record<TranslationKey, string>> = {
@@ -2682,6 +2696,8 @@ const hi: Partial<Record<TranslationKey, string>> = {
   rhythm_tab_year: "साल",
   rhythm_nav_prev: "पिछली अवधि",
   rhythm_nav_next: "अगली अवधि",
+  balance_status_positive: "आपको मिलना है",
+  balance_status_negative: "आप पर बकाया है",
 };
 
 const ar: Partial<Record<TranslationKey, string>> = {
@@ -3013,6 +3029,8 @@ const ar: Partial<Record<TranslationKey, string>> = {
   rhythm_tab_year: "سنة",
   rhythm_nav_prev: "الفترة السابقة",
   rhythm_nav_next: "الفترة التالية",
+  balance_status_positive: "مستحق لك",
+  balance_status_negative: "أنت مدين",
 };
 
 const fa: Partial<Record<TranslationKey, string>> = {
@@ -3344,6 +3362,8 @@ const fa: Partial<Record<TranslationKey, string>> = {
   rhythm_tab_year: "سال",
   rhythm_nav_prev: "بازه قبلی",
   rhythm_nav_next: "بازه بعدی",
+  balance_status_positive: "به تو بدهکارند",
+  balance_status_negative: "تو بدهکاری",
 };
 
 export const TRANSLATIONS: Record<LanguageCode, Partial<Record<TranslationKey, string>>> = {

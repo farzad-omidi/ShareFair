@@ -320,14 +320,13 @@ export function AddView() {
         </div>
         {debts.length === 0 ? (
           <>
-            <div className="balance-halo">
-              <div className="balance-circle">
+            <div className="balance-card positive">
+              <div className="balance-glow" />
+              <div className="balance-content">
                 <div className="hero-label">{t("balance_settle_label")}</div>
                 <div className="big-money zero">{money(0, activeSpace?.currency)}</div>
+                <div className="balance-status positive">{t("balance_all_square")}</div>
               </div>
-            </div>
-            <div className="flow" style={{ justifyContent: "center", marginTop: 10 }}>
-              {t("balance_all_square")}
             </div>
             <p className="hero-text" style={{ textAlign: "center", marginTop: 4 }}>
               {t("balance_settled_text", { month: monthName(selectedMonth) })}
