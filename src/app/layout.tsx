@@ -1,7 +1,16 @@
 import type { Metadata, Viewport } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { RegisterServiceWorker } from "@/components/RegisterServiceWorker";
 import { LanguageProvider } from "@/lib/i18n/context";
+
+// Stands in for MongoDB's licensed Euclid Circular A -- same confident,
+// geometric character, freely usable. Variable weight, so every font-weight
+// used across the app (400-800) renders from the one loaded file.
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-plus-jakarta-sans",
+});
 
 export const metadata: Metadata = {
   title: "ShareFair — Fair shared expenses",
@@ -28,8 +37,8 @@ export const viewport: Viewport = {
   maximumScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#bfcaa8" },
-    { media: "(prefers-color-scheme: dark)", color: "#0d120e" },
+    { media: "(prefers-color-scheme: light)", color: "#f9fbfa" },
+    { media: "(prefers-color-scheme: dark)", color: "#001e2b" },
   ],
 };
 
@@ -39,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={plusJakartaSans.variable}>
       <body>
         <LanguageProvider>
           {children}

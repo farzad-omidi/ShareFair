@@ -5,7 +5,6 @@ import { useSpace, type ImportRow } from "@/lib/store";
 import { useUI } from "@/lib/ui";
 import { useLanguage } from "@/lib/i18n/context";
 import { LANGUAGES } from "@/lib/i18n/languages";
-import { paletteFor } from "@/lib/palettes";
 import { MemberAvatar } from "@/components/Avatar";
 import { toCsvRow, parseCsv } from "@/lib/csv";
 import type { SplitType } from "@/lib/types";
@@ -251,17 +250,18 @@ export function MoreView() {
             <button className="link" style={{ marginBottom: 12 }} onClick={() => openModal({ type: "invite" })}>
               {t("members_invite_btn")}
             </button>
-            {members.map((m) => (
+            {members.map((m) => {
+              const tags = [
+                m.user_id === profile?.id ? t("more_you_suffix") : null,
+                m.role === "owner" ? t("more_owner_suffix") : null,
+              ].filter(Boolean);
+              return (
               <div className="row" key={m.id}>
                 <div className="member-name-line" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <MemberAvatar member={m} size={26} />
                   <div>
                     <strong>{m.display_name}</strong>
-                    <small>
-                      {t("more_palette_suffix", { palette: paletteFor(m.palette).name })}
-                      {m.user_id === profile?.id ? t("more_you_suffix") : ""}
-                      {m.role === "owner" ? t("more_owner_suffix") : ""}
-                    </small>
+                    {tags.length > 0 && <small>{tags.join(" · ")}</small>}
                   </div>
                 </div>
                 {m.user_id === profile?.id ? (
@@ -286,7 +286,8 @@ export function MoreView() {
                   )
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
