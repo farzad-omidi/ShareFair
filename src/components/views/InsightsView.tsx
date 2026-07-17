@@ -143,11 +143,25 @@ function buildPeriodPlan(granularity: Granularity, anchor: string, entries: Entr
   };
 }
 
+type ChartSegment = "housing" | "other";
+
 export function InsightsView() {
   const { entries, members, categories, activeSpace } = useSpace();
   const { t } = useLanguage();
   const [granularity, setGranularity] = useState<Granularity>("month");
   const [anchor, setAnchor] = useState(today());
+  // Which stacked-bar segments are toggled off -- clicking a legend chip
+  // dims that category out of every bar instead of hiding it entirely, so the
+  // bar's total height still reads as the period's real total spend rather
+  // than silently rescaling to just the remaining segment.
+  const [hiddenSegments, setHiddenSegments] = useState<Set<ChartSegment>>(new Set());
+  const toggleSegment = (seg: ChartSegment) =>
+    setHiddenSegments((prev) => {
+      const next = new Set(prev);
+      if (next.has(seg)) next.delete(seg);
+      else next.add(seg);
+      return next;
+    });
 
   const catsById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
   const memberIds = useMemo(() => members.map((m) => m.user_id), [members]);
@@ -256,8 +270,14 @@ export function InsightsView() {
                     <span className="val">{isCurrent ? moneyCompact(d.total, activeSpace?.currency) : " "}</span>
                     <div className="chart-track">
                       <div className="bar" style={{ height: `${Math.max(3, (Math.abs(d.total) / maxTick) * 100)}%` }}>
-                        <div className="bar-segment" style={{ flexGrow: Math.abs(d.other) }} />
-                        <div className="bar-segment housing" style={{ flexGrow: Math.abs(d.housing) }} />
+                        <div
+                          className="bar-segment"
+                          style={{ flexGrow: Math.abs(d.other), opacity: hiddenSegments.has("other") ? 0.15 : 1 }}
+                        />
+                        <div
+                          className="bar-segment housing"
+                          style={{ flexGrow: Math.abs(d.housing), opacity: hiddenSegments.has("housing") ? 0.15 : 1 }}
+                        />
                       </div>
                     </div>
                     <small>{plan.label(k)}</small>
@@ -269,12 +289,22 @@ export function InsightsView() {
         )}
 
         <div className="chips" style={{ marginTop: 12 }}>
-          <span className="chip rhythm-legend">
+          <button
+            type="button"
+            className={`chip rhythm-legend${hiddenSegments.has("other") ? "" : " active"}`}
+            aria-pressed={!hiddenSegments.has("other")}
+            onClick={() => toggleSegment("other")}
+          >
             <span className="rhythm-legend-dot" /> {t("fallback_other")}
-          </span>
-          <span className="chip rhythm-legend">
+          </button>
+          <button
+            type="button"
+            className={`chip rhythm-legend${hiddenSegments.has("housing") ? "" : " active"}`}
+            aria-pressed={!hiddenSegments.has("housing")}
+            onClick={() => toggleSegment("housing")}
+          >
             <span className="rhythm-legend-dot housing" /> {t("category_group_housing")}
-          </span>
+          </button>
         </div>
       </div>
 
