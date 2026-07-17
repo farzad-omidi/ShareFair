@@ -1,4 +1,4 @@
-export type LanguageCode = "en" | "es" | "fr" | "de" | "pt" | "ru" | "zh" | "hi" | "ar" | "fa";
+export type LanguageCode = "en" | "es" | "fr" | "de" | "pt" | "ru" | "zh" | "hi" | "ar" | "fa" | "nl";
 
 export type LanguageOption = {
   code: LanguageCode;
@@ -17,6 +17,7 @@ export const LANGUAGES: LanguageOption[] = [
   { code: "hi", label: "हिन्दी" },
   { code: "ar", label: "العربية", rtl: true },
   { code: "fa", label: "فارسی", rtl: true },
+  { code: "nl", label: "Nederlands" },
 ];
 
 export const DEFAULT_LANGUAGE: LanguageCode = "en";

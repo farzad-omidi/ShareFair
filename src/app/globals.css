@@ -213,16 +213,16 @@ button {
   content: "";
   position: absolute;
   top: -150px;
-  left: -110px;
-  right: auto;
+  /* logical, not left/right -- follows reading direction on its own, so it
+     glides to the header's leading edge in RTL without a manual override */
+  inset-inline-start: -110px;
   width: 320px;
   height: 320px;
   border-radius: 50%;
   background: var(--wet-accent);
   animation: breathe 9s ease-in-out infinite;
   transform-origin: center;
-  /* lets the RTL left->right repositioning below glide instead of snap */
-  transition: left 0.8s ease, right 0.8s ease;
+  transition: inset-inline-start 0.8s ease;
 }
 @keyframes breathe {
   0%,
@@ -331,7 +331,7 @@ button {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  text-align: left;
+  text-align: start;
   margin-bottom: 0;
 }
 .accordion-chevron {
@@ -438,7 +438,7 @@ button {
   overflow: hidden;
   padding: 10px 11px;
   border-radius: var(--r-md);
-  text-align: left;
+  text-align: start;
   background: var(--paper);
   border: 1.5px solid var(--line);
   transition:
@@ -587,7 +587,7 @@ button {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-left: 5px;
+  margin-inline-start: 5px;
   opacity: 0.65;
 }
 .chip.active .initial-circle {
@@ -818,7 +818,7 @@ button {
 .hero:after {
   content: "";
   position: absolute;
-  right: -60px;
+  inset-inline-end: -60px;
   bottom: -90px;
   width: 210px;
   height: 210px;
@@ -1095,7 +1095,7 @@ button {
   box-shadow: var(--module-shadow);
   border: 0;
   width: 100%;
-  text-align: left;
+  text-align: start;
   transition: transform 0.15s;
 }
 .entry:active {
@@ -1327,6 +1327,7 @@ button {
   width: 100%;
   min-height: 2px;
   background: var(--accent);
+  transition: opacity 0.25s ease;
 }
 .bar-segment.housing {
   background: var(--accent-dark);
@@ -1438,9 +1439,10 @@ button {
 }
 .bottom-nav button.active {
   background: var(--accent);
-  /* dark text since --accent is a light mint fill, not the near-black chrome
-     .on-accent is normally paired with */
-  color: var(--surface);
+  /* the fill is a personalized accent, not always the light mint default, so
+     the text needs the same computed-per-user contrast pairing as any other
+     solid --accent surface (see personalAccentVars' fillFg) */
+  color: var(--primary-fg);
   transform: scale(1.06);
 }
 /* A subtle bounce on the icon itself when its tab becomes active, distinct
@@ -1467,7 +1469,7 @@ button {
 .nav-badge {
   position: absolute;
   top: -2px;
-  right: -4px;
+  inset-inline-end: -4px;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -1825,7 +1827,7 @@ button {
   width: 21px;
   height: 21px;
   top: 3px;
-  left: 3px;
+  inset-inline-start: 3px;
   border-radius: 999px;
   background: #fff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
@@ -1859,25 +1861,21 @@ button {
   }
 }
 
-/* RTL (Persian, Arabic): most of the flexbox layout already mirrors correctly
-   from the dir="rtl" attribute alone, since flex-start/flex-end are logical
-   (relative to text direction), not physical, in the flexbox spec. This covers
-   what doesn't -- explicit physical text-align, and a literal directional
-   arrow glyph that otherwise keeps pointing the LTR way. Baseline support, not
-   an exhaustive mirror of every decorative element. */
-[dir="rtl"] .member-card,
-[dir="rtl"] .entry {
-  text-align: right;
-}
+/* RTL (Persian, Arabic): almost all of the layout mirrors correctly from the
+   dir="rtl" attribute alone -- flexbox's flex-start/flex-end, grid auto-flow,
+   and the inset-inline, margin-inline, and text-align: start logical
+   properties used throughout this file are all relative to reading direction,
+   not physical left/right, per spec. What's left here is what logical
+   properties genuinely can't express: a literal directional arrow glyph that
+   otherwise keeps pointing the LTR way, and a checked-toggle transform that's
+   a physical translateX, not an offset. (The Rhythm chart and its year/period
+   nav stay force-LTR via an explicit dir="ltr" on those containers -- numeric
+   time series read the same left-to-right direction everywhere, the same
+   convention real-world RTL finance apps use.) */
 [dir="rtl"] .arrow {
   display: inline-block;
   transform: scaleX(-1);
 }
-/* the decorative breathing blob reads as pinned to the header's leading edge,
-   so it should follow reading direction rather than stay physically left --
-   glides to the top-right when Persian/Arabic flips dir to rtl (see the
-   transition on .glow::before above) instead of jumping there instantly */
-[dir="rtl"] .glow::before {
-  left: auto;
-  right: -110px;
+[dir="rtl"] .switch input:checked + .track:after {
+  transform: translateX(-19px);
 }

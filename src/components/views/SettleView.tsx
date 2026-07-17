@@ -158,7 +158,7 @@ export function SettleView() {
                   <div>
                     <strong style={{ display: "inline-flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                       <MemberAvatar member={memberFor(d.fromId)} size={20} maxLetters={1} />
-                      {nameFor(d.fromId)} →{" "}
+                      {nameFor(d.fromId)} <span className="arrow">→</span>{" "}
                       <MemberAvatar member={memberFor(d.toId)} size={20} maxLetters={1} />
                       {nameFor(d.toId)}
                     </strong>

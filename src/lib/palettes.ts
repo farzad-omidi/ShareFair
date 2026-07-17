@@ -118,6 +118,25 @@ const CARD_BG_DARK = "#1b241d";
 const DARK_TEXT = "#131612";
 const LIGHT_TEXT = "#f3f5ef";
 
+// Approximate light/dark-mode --bg (page canvas) values from globals.css --
+// the bottom nav floats over this, not a card, and it's now a translucent
+// tint rather than an opaque fill, so its text needs contrast against
+// whatever the tint looks like once blended with the page behind it.
+const PAGE_BG_LIGHT = "#bfcaa8";
+const PAGE_BG_DARK = "#0d120e";
+
+function mixHex(hexA: string, hexB: string, t: number): string {
+  const a = hexToRgb(hexA);
+  const b = hexToRgb(hexB);
+  const clamp = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
+  return (
+    "#" +
+    a
+      .map((c, i) => clamp(c * (1 - t) + b[i] * t).toString(16).padStart(2, "0"))
+      .join("")
+  );
+}
+
 // Overrides the app-wide brand accent with whichever palette color the
 // current user picked as their own member color, so every accent-tied
 // button/link/highlight throughout the app matches their identity color --
@@ -133,6 +152,12 @@ export function personalAccentVars(paletteIndex: number | null | undefined, isDa
   // primary CTA) -- independent of color-scheme, since --surface/--on-surface
   // are themselves already dark/light in both modes (see .primary).
   const fillFg = contrastRatio(base, DARK_TEXT) >= contrastRatio(base, LIGHT_TEXT) ? "var(--surface)" : "var(--on-surface)";
+  // the bottom nav's glass background is the personal accent at 50% opacity,
+  // not a solid fill, so pick its text color against what that tint actually
+  // looks like once blended with the page canvas behind it, rather than
+  // reusing fillFg (which assumes a fully opaque accent surface).
+  const navBlend = mixHex(base, isDark ? PAGE_BG_DARK : PAGE_BG_LIGHT, 0.5);
+  const navFg = contrastRatio(navBlend, DARK_TEXT) >= contrastRatio(navBlend, LIGHT_TEXT) ? DARK_TEXT : LIGHT_TEXT;
   return {
     ["--accent" as string]: base,
     ["--accent-dark" as string]: accentText,
@@ -141,5 +166,11 @@ export function personalAccentVars(paletteIndex: number | null | undefined, isDa
     ["--accent-text" as string]: accentText,
     ["--primary-bg" as string]: base,
     ["--primary-fg" as string]: fillFg,
+    // the nav bar's own identity: a blurred 50%-opacity wash of the user's
+    // color, distinct from --accent-soft (a much lighter tint meant for
+    // subtle highlights, not a whole floating bar)
+    ["--nav-bg" as string]: toRgba(base, 0.5),
+    ["--nav-fg" as string]: navFg,
+    ["--nav-fg-muted" as string]: toRgba(navFg, 0.6),
   };
 }
