@@ -175,10 +175,10 @@ function adjustForContrast(hex: string, against: string, minRatio: number, direc
 // needs to clear contrast against the actual card surface it sits on, and
 // this runs outside CSS so it can't read the custom property directly. Keep
 // in sync by hand if globals.css's --solid ever changes.
-const CARD_BG_LIGHT = "#ffffff";
-const CARD_BG_DARK = "#001e2b";
+const CARD_BG_LIGHT = "#fffdf8";
+const CARD_BG_DARK = "#241b12";
 
 // Matches globals.css's --on-primary / --on-dark -- the two text colors a
 // personal accent fill has to pick between (see personalAccentVars' fillFg).
-const ON_PRIMARY = "#001e2b";
-const ON_DARK = "#ffffff";
+const ON_PRIMARY = "#201a13";
+const ON_DARK = "#fdf6ec";
