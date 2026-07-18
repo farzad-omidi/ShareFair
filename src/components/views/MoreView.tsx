@@ -5,6 +5,7 @@ import { useSpace, type ImportRow } from "@/lib/store";
 import { useUI } from "@/lib/ui";
 import { useLanguage } from "@/lib/i18n/context";
 import { LANGUAGES } from "@/lib/i18n/languages";
+import { paletteFor } from "@/lib/palettes";
 import { MemberAvatar } from "@/components/Avatar";
 import { toCsvRow, parseCsv } from "@/lib/csv";
 import type { SplitType } from "@/lib/types";
@@ -252,6 +253,7 @@ export function MoreView() {
             </button>
             {members.map((m) => {
               const tags = [
+                t("more_palette_suffix", { palette: paletteFor(m.palette).name }),
                 m.user_id === profile?.id ? t("more_you_suffix") : null,
                 m.role === "owner" ? t("more_owner_suffix") : null,
               ].filter(Boolean);

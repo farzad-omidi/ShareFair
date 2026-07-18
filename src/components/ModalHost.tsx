@@ -7,7 +7,7 @@ import { useLanguage } from "@/lib/i18n/context";
 import { currentMonth, today } from "@/lib/domain";
 import { money, symbol } from "@/lib/format";
 import { ModalSheet } from "@/components/ModalSheet";
-import { memberVars } from "@/lib/palettes";
+import { PALETTES, memberVars } from "@/lib/palettes";
 import { usePrefersDark } from "@/lib/theme";
 import { CURRENCIES } from "@/lib/currencies";
 import { MemberAvatar } from "@/components/Avatar";
@@ -322,6 +322,7 @@ function CategoryManagerModal({ onClose }: { onClose: () => void }) {
 function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () => void }) {
   const { members, updateMyMembership, setMyActiveSince, updateMember, setMemberActiveSince, profile } = useSpace();
   const { t } = useLanguage();
+  const isDark = usePrefersDark();
   const m = members.find((x) => x.id === memberId);
   const isSelf = !!m && !!profile && m.user_id === profile.id;
   const myMember = members.find((x) => x.user_id === profile?.id);
@@ -331,10 +332,7 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
   // distinct from a non-owner viewing another member, which stays read-only.
   const canEdit = isSelf || isOwner;
   const [name, setName] = useState(m?.display_name || "");
-  // No longer user-editable (every member shares the one brand color now),
-  // but still passed through to the update calls below since the column and
-  // their signatures are unchanged.
-  const palette = m?.palette ?? 0;
+  const [palette, setPalette] = useState(m?.palette ?? 0);
   const [activeSince, setActiveSince] = useState(m?.active_since || today());
 
   if (!m) return null;
@@ -354,6 +352,23 @@ function EditMemberModal({ memberId, onClose }: { memberId: string; onClose: () 
           <div className="field">
             <label>{t("field_name")}</label>
             <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="field">
+            <label>{t("field_color_palette")}</label>
+            <div className="color-grid">
+              {PALETTES.map((p, i) => (
+                <button
+                  type="button"
+                  key={p.name}
+                  className={`color-choice${i === palette ? " active" : ""}`}
+                  style={memberVars(i, isDark)}
+                  onClick={() => setPalette(i)}
+                >
+                  <span></span>
+                  {p.name}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="field">
             <label>{t("field_involved_since")}</label>
