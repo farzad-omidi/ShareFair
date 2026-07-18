@@ -1,44 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  /* MongoDB-derived brand system: one bright green ({colors.brand-green}) as
-     the only CTA/action color, a flat white canvas + hairline borders instead
-     of the old colored page chrome, and deep teal reserved for the hero
-     balance card. See DESIGN_monodb.md for the source tokens these map from. */
-  --bg: #f9fbfa;
-  --bg2: #eceff1;
-  --ink: #001e2b;
-  --muted: #5c6c7a;
-  --line: #e1e5e8;
+  /* A warmer, quieter chrome layered under the MongoDB-derived brand system:
+     cool navy/steel neutrals swapped for unbleached-paper and embered-wood
+     tones -- natural materials and calm negative space over clinical SaaS
+     gray, with the hero balance card re-cast as glowing coals rather than
+     cool teal, so it reads as the screen's one small, deliberate flame. The
+     brand green and the 8 member colors (palettes.ts) are untouched -- this
+     pass is about the quiet surfaces around them, not the signal colors
+     themselves. */
+  --bg: #faf7f1;
+  --bg2: #f1ece1;
+  --ink: #201a13;
+  --muted: #6b5f4f;
+  --line: #e6ddc9;
 
-  --paper: #f4f7f6;
-  --solid: #ffffff;
+  --paper: #f2ece0;
+  --solid: #fffdf8;
 
-  /* the dark "ink" fill for selected chip/segment pills and the toast --
-     distinct from --primary-bg (brand green), matching MongoDB's own
-     pill-tab-active (ink fill) vs. button-primary (green fill) distinction */
-  --surface: #001e2b;
-  --surface2: #003d4f;
-  --on-surface: #ffffff;
-  --on-surface-muted: rgba(255, 255, 255, 0.62);
-  --on-accent: #001e2b;
+  /* the dark "ember" fill for selected chip/segment pills, the toast, and the
+     balance card's own hero gradient -- distinct from --primary-bg (brand
+     green), matching MongoDB's own pill-tab-active (dark fill) vs.
+     button-primary (green fill) distinction, just warmed from ink-navy to
+     charred wood */
+  --surface: #241a10;
+  --surface2: #4a2f16;
+  --on-surface: #fffaf2;
+  --on-surface-muted: rgba(255, 250, 242, 0.62);
+  --on-accent: #201a13;
 
   /* a lighter dark-selection tone, distinct from --surface so a small pill
-     doesn't read as jarring near-black against a white card */
-  --surface-soft: #1c2d38;
+     doesn't read as jarring near-black against a paper-white card */
+  --surface-soft: #33251a;
 
-  /* translucent + blurred bottom nav -- a white glass pill in light mode, a
-     dark-teal glass pill in dark mode, fixed regardless of member (color no
-     longer personalizes per-user, see palettes.ts) */
-  --nav-bg: rgba(255, 255, 255, 0.86);
-  --nav-fg: #001e2b;
-  --nav-fg-muted: rgba(0, 30, 43, 0.52);
+  /* translucent + blurred bottom nav -- a warm paper glass pill in light
+     mode, an ember glass pill in dark mode, fixed regardless of member
+     (color no longer personalizes per-user, see palettes.ts) */
+  --nav-bg: rgba(255, 253, 248, 0.86);
+  --nav-fg: #201a13;
+  --nav-fg-muted: rgba(32, 26, 19, 0.52);
 
-  --module: #ffffff;
-  --module2: #f4f7f6;
-  --placeholder-tint: rgba(0, 30, 43, 0.28);
-  --module-ghost-bg: rgba(0, 30, 43, 0.05);
-  --module-ghost-border: rgba(0, 30, 43, 0.12);
+  --module: #fffdf8;
+  --module2: #f2ece0;
+  --placeholder-tint: rgba(32, 26, 19, 0.28);
+  --module-ghost-bg: rgba(32, 26, 19, 0.05);
+  --module-ghost-border: rgba(32, 26, 19, 0.12);
 
   /* the brand's one signal color -- every user/action shares it now, no more
      per-member personalization */
@@ -69,24 +75,26 @@
   --amber-bg: #fff8e0;
 
   /* soft glows on decorative surfaces only (never on money text, which stays
-     flat and legible) -- both green/teal, not the category-tag purple, so the
+     flat and legible) -- both green/ember, not the category-tag purple, so the
      header's large decorative blob doesn't compete with the brand green as a
      second "big" accent color */
   --wet-accent: radial-gradient(circle at 32% 28%, var(--accent) 0%, var(--surface2) 100%);
   --wet-green: radial-gradient(circle at 32% 28%, var(--accent) 0%, var(--green) 100%);
 
-  /* the signature MongoDB pill CTA -- bright green fill, dark navy text, the
+  /* the signature MongoDB pill CTA -- bright green fill, warm dark text, the
      same in both light and dark mode (the brand green itself never adapts) */
   --primary-bg: #00ed64;
-  --primary-fg: #001e2b;
+  --primary-fg: #201a13;
 
-  /* MongoDB's elevation scale: level 0 (flat, hairline border) is the default
-     for cards; --shadow2 is level 2 (card), --shadow is level 4 (modal) */
-  --shadow: 0 16px 48px -8px rgba(0, 30, 43, 0.16);
-  --shadow2: 0 4px 12px rgba(0, 30, 43, 0.08);
-  --r-lg: 12px;
-  --r-md: 8px;
-  --r-sm: 6px;
+  /* MongoDB's elevation scale, softened and warmed: level 0 (flat, hairline
+     border) is the default for cards; --shadow2 is level 2 (card), --shadow
+     is level 4 (modal) -- a quieter, more diffuse depth than the original
+     spec's, in keeping with a calmer overall feel */
+  --shadow: 0 16px 48px -8px rgba(32, 26, 19, 0.14);
+  --shadow2: 0 4px 12px rgba(32, 26, 19, 0.07);
+  --r-lg: 14px;
+  --r-md: 9px;
+  --r-sm: 7px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-top: env(safe-area-inset-top, 0px);
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
@@ -101,29 +109,29 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #00141c;
-    --bg2: #0a1e27;
-    --ink: #ffffff;
-    --muted: #a8b3bc;
-    --line: #1c2d38;
+    --bg: #16100a;
+    --bg2: #201811;
+    --ink: #f7f0e6;
+    --muted: #b3a48e;
+    --line: #3d3123;
 
-    --paper: #0a1e27;
-    --solid: #001e2b;
+    --paper: #201811;
+    --solid: #241b12;
 
-    --surface: #003d4f;
-    --surface2: #00546b;
-    --on-surface: #ffffff;
-    --on-surface-muted: rgba(255, 255, 255, 0.6);
-    --surface-soft: #0a2e3c;
-    --nav-bg: rgba(0, 20, 28, 0.82);
-    --nav-fg: #ffffff;
-    --nav-fg-muted: rgba(255, 255, 255, 0.55);
+    --surface: #4a2f16;
+    --surface2: #6b4420;
+    --on-surface: #fdf6ec;
+    --on-surface-muted: rgba(253, 246, 236, 0.6);
+    --surface-soft: #2e2013;
+    --nav-bg: rgba(22, 16, 10, 0.82);
+    --nav-fg: #f7f0e6;
+    --nav-fg-muted: rgba(247, 240, 230, 0.55);
 
-    --module: #001e2b;
-    --module2: #0a1e27;
-    --placeholder-tint: rgba(255, 255, 255, 0.24);
-    --module-ghost-bg: rgba(255, 255, 255, 0.08);
-    --module-ghost-border: rgba(255, 255, 255, 0.16);
+    --module: #241b12;
+    --module2: #201811;
+    --placeholder-tint: rgba(247, 240, 230, 0.24);
+    --module-ghost-bg: rgba(247, 240, 230, 0.08);
+    --module-ghost-border: rgba(247, 240, 230, 0.16);
 
     --accent-soft: rgba(0, 237, 100, 0.18);
     --accent-ring: rgba(0, 237, 100, 0.32);
@@ -131,23 +139,23 @@
     --accent2: #9c6ff5;
     --accent2-dark: #b794f6;
     --accent2-soft: rgba(156, 111, 245, 0.18);
-    --on-accent2: #001e2b;
+    --on-accent2: #201a13;
 
-    /* the brand green itself reads great as flat text on a dark navy card
-       (see badge-popular in DESIGN_monodb.md: teal-deep bg + green text), so
-       dark mode's "positive" text switches to it instead of the light mode's
-       darkened variant */
+    /* the brand green itself reads great as flat text on a dark ember card
+       (see badge-popular in DESIGN_monodb.md: teal-deep bg + green text, here
+       warmed to embers + green), so dark mode's "positive" text switches to
+       it instead of the light mode's darkened variant */
     --green: #00ed64;
     --green-dark: #00a35c;
     --green-bg: rgba(0, 237, 100, 0.16);
-    --green-fg: var(--on-primary, #001e2b);
+    --green-fg: var(--on-primary, #201a13);
     --red: #ff6f61;
     --red-bg: rgba(255, 111, 97, 0.18);
     --amber: #e0c07a;
     --amber-bg: rgba(148, 111, 63, 0.18);
     --accent-text: var(--accent);
-    --shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.55);
-    --shadow2: 0 4px 12px rgba(0, 0, 0, 0.35);
+    --shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.5);
+    --shadow2: 0 4px 12px rgba(0, 0, 0, 0.32);
   }
 }
 
@@ -186,7 +194,7 @@ button {
 .app-shell {
   width: min(100%, 500px);
   margin: 0 auto;
-  padding: calc(16px + var(--safe-top)) 12px calc(100px + var(--safe-bottom));
+  padding: calc(18px + var(--safe-top)) 14px calc(100px + var(--safe-bottom));
   position: relative;
 }
 
@@ -210,7 +218,7 @@ button {
   height: 320px;
   border-radius: 50%;
   background: var(--wet-accent);
-  animation: breathe 9s ease-in-out infinite;
+  animation: breathe 13s ease-in-out infinite;
   transform-origin: center;
   transition: inset-inline-start 0.8s ease;
 }
@@ -278,8 +286,8 @@ button {
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow2);
-  padding: 15px;
-  margin: 11px 0;
+  padding: 17px;
+  margin: 13px 0;
   overflow: hidden;
   position: relative;
   z-index: 1;
@@ -294,7 +302,7 @@ button {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 11px;
+  margin-bottom: 13px;
 }
 .card-title h2 {
   margin: 0;
@@ -382,7 +390,7 @@ button {
   transition:
     background-color 0.15s,
     color 0.15s,
-    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .segment button:active {
   transform: scale(0.94);
@@ -435,7 +443,7 @@ button {
     background-color 0.15s,
     border-color 0.15s,
     box-shadow 0.15s,
-    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .member-card:active {
   transform: scale(0.97);
@@ -512,7 +520,7 @@ button {
     background-color 0.15s,
     color 0.15s,
     border-color 0.15s,
-    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -803,18 +811,17 @@ button {
    first (an element's own background always sits behind its own positioned
    children, so it's "all the way in the back" by construction), the corner
    circles sit just above it, and the content sits above both. */
-/* MongoDB never fills a large surface with the bright brand green (it's a
-   CTA-only color) -- the hero balance moment instead uses their deep-teal
-   hero-band treatment, with the money figure itself picked out in brand
-   green against it (the same teal-bg/green-text pairing as their own
-   badge-popular component). */
+/* Never fill a large surface with the bright brand green (it's a CTA-only
+   color) -- the hero balance moment instead glows like coals in darkness,
+   with the money figure itself picked out in brand green against it, the
+   screen's one small deliberate flame rather than a wash of color. */
 .balance-card {
   position: relative;
   overflow: hidden;
   text-align: center;
   padding: 28px 22px 22px;
   background: linear-gradient(135deg, var(--surface2) 0%, var(--surface) 100%);
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 250, 240, 0.12);
   box-shadow: var(--shadow);
   color: var(--on-surface);
 }
@@ -828,11 +835,11 @@ button {
   width: 32px;
   height: 23px;
   border-radius: 6px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.15));
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: linear-gradient(135deg, rgba(255, 245, 225, 0.55), rgba(255, 245, 225, 0.15));
+  border: 1px solid rgba(255, 245, 225, 0.35);
 }
-/* two overlapping circles breathing softly in the top corner -- above the
-   gradient face, below the text content */
+/* two overlapping circles breathing softly in the top corner, like light
+   catching smoke above embers -- above the gradient face, below the content */
 .balance-glow {
   position: absolute;
   z-index: 1;
@@ -841,8 +848,8 @@ button {
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0) 70%);
-  animation: balance-breathe 4.5s ease-in-out infinite;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 225, 170, 0.34) 0%, rgba(255, 225, 170, 0) 70%);
+  animation: balance-breathe 6.5s ease-in-out infinite;
   pointer-events: none;
 }
 .balance-glow::after {
@@ -853,7 +860,7 @@ button {
   width: 128px;
   height: 128px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  background: radial-gradient(circle at 35% 35%, rgba(255, 225, 170, 0.22) 0%, rgba(255, 225, 170, 0) 70%);
 }
 @keyframes balance-breathe {
   0%,
@@ -908,7 +915,7 @@ button {
   letter-spacing: 0.02em;
   padding: 5px 13px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 250, 240, 0.92);
   color: var(--muted);
   margin-bottom: 12px;
 }
@@ -1415,7 +1422,7 @@ button {
   transition:
     background-color 0.15s,
     color 0.15s,
-    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .bottom-nav button svg {
   width: 19px;
@@ -1439,14 +1446,14 @@ button {
 /* A subtle bounce on the icon itself when its tab becomes active, distinct
    from (and layered on top of) the button's own scale/color transition. */
 .bottom-nav button.active svg {
-  animation: nav-icon-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: nav-icon-pop 0.42s cubic-bezier(0.22, 1, 0.36, 1);
 }
 @keyframes nav-icon-pop {
   0% {
     transform: scale(1) translateY(0);
   }
   45% {
-    transform: scale(1.22) translateY(-3px);
+    transform: scale(1.1) translateY(-2px);
   }
   100% {
     transform: scale(1) translateY(0);
@@ -1471,7 +1478,7 @@ button {
 .modal-bg {
   position: fixed;
   inset: 0;
-  background: rgba(6, 15, 12, 0.45);
+  background: rgba(20, 14, 8, 0.45);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -1847,7 +1854,7 @@ button {
   font-size: 13px;
   font-weight: 700;
   color: var(--muted);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .color-choice:active {
   transform: scale(0.94);
