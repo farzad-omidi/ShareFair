@@ -11,22 +11,23 @@ export type Palette = {
   shadow: string;
 };
 
-// One brand-green identity, shared by every member -- the MongoDB-derived
-// redesign moved off per-member personalization (see AGENTS request), so
-// there's no longer a choice of swatch here, just the single brand color in
-// both its fill form (`accent`) and a darkened, contrast-safe flat-text form
-// (`dark`), matching {colors.brand-green} / {colors.brand-green-dark}.
+// Eight member colors, each in the same style as the brand green everything
+// else uses: a bright, flat, saturated fill (`accent`) plus a darkened
+// variant (`dark`) for gradient/avatar shading -- the actual on-white flat
+// text color is still derived live in memberVars below, not read from `dark`
+// directly, so these don't need to be hand-verified for AA contrast. `bg`/
+// `line`/`ring`/`shadow` are the accent at fixed alphas; `bg2` is a barely-
+// tinted near-white wash of the same hue, matching how the brand green's own
+// tokens were built.
 export const PALETTES: Palette[] = [
-  {
-    name: "Brand Green",
-    accent: "#00ed64",
-    dark: "#00684a",
-    bg: "rgba(0,237,100,.13)",
-    bg2: "rgba(240,253,246,.90)",
-    line: "rgba(0,237,100,.32)",
-    ring: "rgba(0,237,100,.17)",
-    shadow: "rgba(0,237,100,.19)",
-  },
+  { name: "Green", accent: "#00ed64", dark: "#00684a", bg: "rgba(0,237,100,.13)", bg2: "rgba(240,253,246,.90)", line: "rgba(0,237,100,.32)", ring: "rgba(0,237,100,.17)", shadow: "rgba(0,237,100,.19)" },
+  { name: "Blue", accent: "#2f7dfa", dark: "#12409e", bg: "rgba(47,125,250,.13)", bg2: "rgba(243,247,255,.90)", line: "rgba(47,125,250,.32)", ring: "rgba(47,125,250,.17)", shadow: "rgba(47,125,250,.19)" },
+  { name: "Purple", accent: "#7b3ff2", dark: "#4a1fb8", bg: "rgba(123,63,242,.13)", bg2: "rgba(247,244,254,.90)", line: "rgba(123,63,242,.32)", ring: "rgba(123,63,242,.17)", shadow: "rgba(123,63,242,.19)" },
+  { name: "Orange", accent: "#fa6e39", dark: "#b8431a", bg: "rgba(250,110,57,.13)", bg2: "rgba(255,246,243,.90)", line: "rgba(250,110,57,.32)", ring: "rgba(250,110,57,.17)", shadow: "rgba(250,110,57,.19)" },
+  { name: "Pink", accent: "#f06bb8", dark: "#b8347e", bg: "rgba(240,107,184,.13)", bg2: "rgba(254,246,251,.90)", line: "rgba(240,107,184,.32)", ring: "rgba(240,107,184,.17)", shadow: "rgba(240,107,184,.19)" },
+  { name: "Teal", accent: "#00c2d1", dark: "#00707a", bg: "rgba(0,194,209,.13)", bg2: "rgba(240,251,252,.90)", line: "rgba(0,194,209,.32)", ring: "rgba(0,194,209,.17)", shadow: "rgba(0,194,209,.19)" },
+  { name: "Rose", accent: "#ef4467", dark: "#9e1f43", bg: "rgba(239,68,103,.13)", bg2: "rgba(254,244,246,.90)", line: "rgba(239,68,103,.32)", ring: "rgba(239,68,103,.17)", shadow: "rgba(239,68,103,.19)" },
+  { name: "Gold", accent: "#f5b400", dark: "#8a6200", bg: "rgba(245,180,0,.13)", bg2: "rgba(254,251,240,.90)", line: "rgba(245,180,0,.32)", ring: "rgba(245,180,0,.17)", shadow: "rgba(245,180,0,.19)" },
 ];
 
 export function paletteFor(index: number | null | undefined): Palette {
