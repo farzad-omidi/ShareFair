@@ -85,6 +85,43 @@ export function memberVars(paletteIndex: number | null | undefined, isDark: bool
   };
 }
 
+// Overrides the app-wide brand accent with whichever of the 8 palettes the
+// current user picked as their own color, so the nav bar's active tab, every
+// primary CTA pill, links/soft-fills, and the header's decorative glow all
+// switch to match -- not just their own avatar. `--green`/`--red` (the
+// confirm/positive vs. owe/negative semantic) are deliberately left alone:
+// that pairing is meaningful regardless of which color someone picked for
+// themselves.
+export function personalAccentVars(paletteIndex: number | null | undefined, isDark: boolean): CSSProperties {
+  const p = paletteFor(paletteIndex);
+  const base = p.accent;
+  const cardBg = isDark ? CARD_BG_DARK : CARD_BG_LIGHT;
+  const accentText = adjustForContrast(p.dark, cardBg, 4.5, isDark ? "lighten" : "darken");
+  // whichever of dark-navy / white text reads better painted directly on the
+  // raw accent fill (the primary CTA pill) -- independent of color-scheme,
+  // since the brand green's own on-primary/on-dark pairing already varies by
+  // fill brightness, not by light/dark mode.
+  const fillFg = contrastRatio(base, ON_PRIMARY) >= contrastRatio(base, ON_DARK) ? ON_PRIMARY : ON_DARK;
+  return {
+    ["--accent" as string]: base,
+    ["--accent-dark" as string]: accentText,
+    ["--accent-soft" as string]: toRgba(base, isDark ? 0.18 : 0.14),
+    ["--accent-ring" as string]: toRgba(base, isDark ? 0.32 : 0.3),
+    ["--accent-text" as string]: accentText,
+    ["--primary-bg" as string]: base,
+    ["--primary-fg" as string]: fillFg,
+    // the header's decorative glow -- same accent/dark pairing as the avatar
+    // gradient, not the contrast-adjusted accentText, since this is a fill
+    // (not flat text) and wants the punchier raw color
+    ["--wet-accent" as string]: `radial-gradient(circle at 32% 28%, ${base} 0%, ${p.dark} 100%)`,
+  };
+}
+
+function toRgba(hex: string, alpha: number): string {
+  const [r, g, b] = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 // ---- WCAG contrast helpers, used to keep member-tinted flat text (the
 // balance/entry amounts) legible against the card surface it sits on ----
 
@@ -140,3 +177,8 @@ function adjustForContrast(hex: string, against: string, minRatio: number, direc
 // in sync by hand if globals.css's --solid ever changes.
 const CARD_BG_LIGHT = "#ffffff";
 const CARD_BG_DARK = "#001e2b";
+
+// Matches globals.css's --on-primary / --on-dark -- the two text colors a
+// personal accent fill has to pick between (see personalAccentVars' fillFg).
+const ON_PRIMARY = "#001e2b";
+const ON_DARK = "#ffffff";
